@@ -1,0 +1,11 @@
+[
+    {
+        "server_tag": "16c64m0g",
+        "suite_params": [
+            {
+                "suite": "080_insert_performance.yaml",
+                "image_type": "cpu"
+            }
+        ]
+    }
+]
