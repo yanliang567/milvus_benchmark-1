@@ -3,11 +3,11 @@ search_performance:
     -
       server:
         db_config.primary_path: /test/milvus/db_data_8/sift_10m_1024_128_l2_sq8
-        cache_config.cpu_cache_capacity: 12GB
+        cache_config.cpu_cache_capacity: 10GB
         engine_config.use_blas_threshold: 0
         engine_config.gpu_search_threshold: 100
         gpu_resource_config.enable: true
-        gpu_resource_config.cache_capacity: 6GB
+        gpu_resource_config.cache_capacity: 4GB
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -16,7 +16,7 @@ search_performance:
           - gpu1
         wal_enable: true
       collection_name: sift_10m_1024_128_l2
-      run_count: 2
+      run_count: 10 
       top_ks: [1, 10, 100, 1000]
       nqs: [1, 10, 100, 1000, 1200]
       search_params:
