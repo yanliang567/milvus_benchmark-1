@@ -2,7 +2,7 @@ ann_accuracy:
   collections:
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 4GB
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
@@ -15,7 +15,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
-      index_file_sizes: [50]
+      index_file_sizes: [50, 1024]
       index_types: ['annoy']
       index_params:
         n_trees: [8, 32]
