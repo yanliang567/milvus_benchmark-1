@@ -249,7 +249,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, server_config):
                 "cpu": str(int(cpus))+".0"
             },
             "requests": {
-                "cpu": str(int(cpus)-1)+".0"
+                "cpu": str(int(cpus) // 2)+".0"
             }
         }
 
