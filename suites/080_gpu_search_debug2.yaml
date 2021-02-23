@@ -2,7 +2,7 @@ search_performance:
   collections:
     -
       server:
-        db_config.primary_path: /test/milvus/db_data_8/sift_10m_1024_128_l2_sq8h
+        db_config.primary_path: /test/milvus/db_data_8/sift_10m_1024_128_l2_sq8
         cache_config.cpu_cache_capacity: 12GB
         engine_config.use_blas_threshold: 0
         engine_config.gpu_search_threshold: 100
