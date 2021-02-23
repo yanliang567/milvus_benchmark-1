@@ -5,7 +5,7 @@ search_performance:
         db_config.primary_path: /test/milvus/db_data_8/sift_10m_1024_128_l2_sq8
         cache_config.cpu_cache_capacity: 10GB
         engine_config.use_blas_threshold: 0
-        engine_config.gpu_search_threshold: 100
+        engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: true
         gpu_resource_config.cache_capacity: 4GB
         gpu_resource_config.search_resources:
