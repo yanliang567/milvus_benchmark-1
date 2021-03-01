@@ -15,6 +15,7 @@ try {
         } else {
             sh "python3 main.py --image-version=${params.IMAGE_VERSION} --schedule-conf=scheduler/${params.CONFIG_FILE} --deploy-mode=${params.DEPLOY_MODE}"
         }
+    }
 } catch (exc) {
     echo 'Deploy Test Failed !'
     throw exc
