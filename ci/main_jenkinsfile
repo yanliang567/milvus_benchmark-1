@@ -8,6 +8,7 @@ pipeline {
     parameters{
         string defaultValue: '1.x', description: 'server image version', name: 'IMAGE_VERSION', trim: true
         choice choices: ['single', 'shards'], description: 'server deploy mode', name: 'DEPLOY_MODE'
+        choice choices: ['kubernetes', 'idc-kubernetes'], description: 'cluster name', name: 'CLUSTER_NAME'
         string defaultValue: '010_data.json', description: 'test suite config yaml', name: 'CONFIG_FILE', trim: true
         string defaultValue: 'shards.json', description: 'shards test suite config yaml', name: 'SHARDS_CONFIG_FILE', trim: true
         string defaultValue: 'd0928627-efb6-4cfd-8030-9bf635988d85', description: 'git credentials', name: 'GIT_USER', trim: true
@@ -26,7 +27,7 @@ pipeline {
         stage("Setup env") {
             agent {
                 kubernetes {
-                    cloud 'idc-kubernetes'
+                    cloud "${params.CLUSTER_NAME}"
                     label "test-benchmark-${env.JOB_NAME}-${env.BUILD_NUMBER}"
                     defaultContainer 'jnlp'
                     yaml """
@@ -97,7 +98,10 @@ pipeline {
                                 print "In Deploy Test Stage"
                                 // use the idc context
                                 // sh 'kubectl config use-context idc001'
-                                sh 'export KUBECONFIG=/root/kube/.kube/config'
+                                if ("${params.CLUSTER_NAME}" == "idc-kubernetes") {
+                                    print "Use cluster name idc001"
+                                    sh 'export KUBECONFIG=/root/kube/.kube/config'
+                                }
                                 if ("${params.DEPLOY_MODE}" == "single") {
                                     load "${env.WORKSPACE}/ci/jenkinsfile/deploy_test.groovy"
                                 } else {
