@@ -17,7 +17,7 @@ pipeline {
         HELM_URL = "https://github.com/milvus-io/milvus-helm.git"
         HELM_BRANCH = "0.10.6"
         TEST_URL = "https://github.com/zilliztech/milvus_benchmark.git"
-        TEST_BRANCH = "master"
+        TEST_BRANCH = "1.0"
         HELM_RELEASE_NAME = "milvus-benchmark-test-${env.BUILD_NUMBER}"
         HELM_SHARDS_RELEASE_NAME = "milvus-shards-benchmark-test-${env.BUILD_NUMBER}"
     }
