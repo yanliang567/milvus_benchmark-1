@@ -256,7 +256,7 @@ class MilvusClient(object):
         logger.info("Drop index: %s" % self._collection_name)
         return self._milvus.drop_index(self._collection_name)
 
-    @time_wrapper
+    # @time_wrapper
     def query(self, X, top_k, search_param=None, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
