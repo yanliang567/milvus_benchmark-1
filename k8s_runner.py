@@ -780,7 +780,7 @@ class QueryTask(User):
                 for k, v in search_params.items():
                     search_param[k] = random.randint(int(v.split("-")[0]), int(v.split("-")[1]))
                 query_vectors = [[random.random() for _ in range(dimension)] for _ in range(nq)]
-                logger.debug("Query nq: %d, top-k: %d, param: %s" % (nq, top_k, json.dumps(search_param)))
+                # logger.debug("Query nq: %d, top-k: %d, param: %s" % (nq, top_k, json.dumps(search_param)))
                 result = milvus_instance.query(query_vectors, top_k, search_param=search_param)
             end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info, {})
