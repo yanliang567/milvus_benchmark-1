@@ -54,6 +54,13 @@ pipeline {
                             - name: db-data-path
                               mountPath: /test
                               readOnly: false
+                          nodeSelector:
+                            kubernetes.io/hostname: idc-sh002
+                          tolerations:
+                          - key: worker
+                            operator: Equal
+                            value: performance
+                            effect: NoSchedule
                           volumes:
                           - name: kubeconf
                             secret:
