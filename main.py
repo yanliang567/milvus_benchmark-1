@@ -131,8 +131,10 @@ def main():
         with open(args.schedule_conf) as f:
             schedule_config = full_load(f)
             f.close()
+        server_names = []
         for item in schedule_config:
             server_host = item["server"] if "server" in item else ""
+            server_names.append(server_host)
             suite_params = item["suite_params"]
             for suite_param in suite_params:
                 suite = "suites/"+suite_param["suite"]
@@ -160,6 +162,8 @@ def main():
                     }
                     job = queue.enqueue(job_runner, **job_run_kwargs)
 
+        thread_num = len(server_names)
+        processes = []
         with Connection():
             for i in range(thread_num):
                 x = Process(target=queue_worker, args=(queue, ))
