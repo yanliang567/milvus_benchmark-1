@@ -12,16 +12,30 @@ from yaml import full_load, dump
 from local_runner import LocalRunner
 from docker_runner import DockerRunner
 from k8s_runner import K8sRunner
+from queue import queue
+from rq import Connection, Worker
 import parser
 
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
 LOG_FOLDER = "logs"
 NAMESPACE = "milvus"
+BRANCH_NAME = "1.x"
+LOG_PATH = "/test/milvus/benchmark/logs/"+BRANCH_NAME+"/"
 
-logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S',
-    level=logging.DEBUG)
-logger = logging.getLogger("milvus_benchmark")
+logger = logging.getLogger('milvus_benchmark')
+logger.setLevel(logging.INFO)
+# create file handler which logs even debug messages
+fh = logging.FileHandler(LOG_PATH+'benchmark-{}-{:%Y-%m-%d}.log'.format(BRANCH_NAME, datetime.now()))
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(fh)
 
 
 def positive_int(s):
@@ -41,42 +55,26 @@ def get_image_tag(image_version, image_type):
     # return "%s-%s-centos7-release" % ("PR-2780", image_type)
 
 
-def queue_worker(queue):
-    while not queue.empty():
-        q = queue.get()
-        suite = q["suite"]
-        server_host = q["server_host"]
-        server_tag = q["server_tag"]
-        deploy_mode = q["deploy_mode"]
-        image_type = q["image_type"]
-        image_tag = q["image_tag"]
-
-        with open(suite) as f:
-            suite_dict = full_load(f)
-            f.close()
-        logger.debug(suite_dict)
-
-        run_type, run_params = parser.operations_parser(suite_dict)
-        collections = run_params["collections"]
-        for collection in collections:
-            # run tests
-            server_config = collection["server"] if "server" in collection else None
-            logger.debug(server_config)
-            runner = K8sRunner()
-            if runner.init_env(server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
-                logger.debug("Start run tests")
-                try:
-                    runner.run(run_type, collection)
-                except Exception as e:
-                    logger.error(str(e))
-                    logger.error(traceback.format_exc())
-                finally:
-                    time.sleep(10)
-                    runner.clean_up()
-            else:
-                logger.error("Runner init failed")
-    if server_host:
-        logger.debug("All task finished in queue: %s" % server_host)
+def job_run(runner, **run_kwargs):
+    server_config = run_kwargs["server_config"]
+    server_host = run_kwargs["server_host"]
+    deploy_mode = run_kwargs["deploy_mode"]
+    image_type = run_kwargs["image_type"]
+    image_tag = run_kwargs["image_tag"]
+    run_type = run_kwargs["run_type"]
+    collection = run_kwargs["collection"]
+    if runner.init_env(server_config, server_host, deploy_mode, image_type, image_tag):
+        logger.debug("Start run tests")
+        try:
+            runner.run(run_type, collection)
+        except Exception as e:
+            logger.error(str(e))
+            logger.error(traceback.format_exc())
+        finally:
+            time.sleep(10)
+            runner.clean_up()
+    else:
+        logger.error("Runner init failed")
 
 
 def main():
@@ -128,39 +126,37 @@ def main():
         with open(args.schedule_conf) as f:
             schedule_config = full_load(f)
             f.close()
-        queues = []
-        # server_names = set()
-        server_names = []
         for item in schedule_config:
             server_host = item["server"] if "server" in item else ""
-            server_tag = item["server_tag"] if "server_tag" in item else ""
             suite_params = item["suite_params"]
-            server_names.append(server_host)
-            q = Queue()
             for suite_param in suite_params:
                 suite = "suites/"+suite_param["suite"]
                 image_type = suite_param["image_type"]
-                image_tag = get_image_tag(image_version, image_type)    
-                q.put({
-                    "suite": suite,
-                    "server_host": server_host,
-                    "server_tag": server_tag,
-                    "deploy_mode": deploy_mode,
-                    "image_tag": image_tag,
-                    "image_type": image_type
-                })
-            queues.append(q)
-        logging.error(queues)
-        thread_num = len(server_names)
-        processes = []
+                image_tag = get_image_tag(image_version, image_type)
+                with open(suite) as f:
+                    suite_dict = full_load(f)
+                    f.close()
+                logger.debug(suite_dict)
+                run_type, run_params = parser.operations_parser(suite_dict)
+                collections = run_params["collections"]
+                for collection in collections:
+                    # run tests
+                    server_config = collection["server"] if "server" in collection else None
+                    logger.debug(server_config)
+                    job_runner = K8sRunner()
+                    job_run_kwargs = {
+                        "server_config": server_config,
+                        "server_host": server_host,
+                        "deploy_mode": deploy_mode,
+                        "image_type": image_type,
+                        "image_tag": image_tag,
+                        "run_type": run_type,
+                        "collection": collection
+                    }
+                    job = queue.enqueue(job_runner, **job_run_kwargs)
 
-        for i in range(thread_num):
-            x = Process(target=queue_worker, args=(queues[i], ))
-            processes.append(x)
-            x.start()
-            time.sleep(10)
-        for x in processes:
-            x.join()
+        with Connection():
+            Worker(queue).work()
 
     elif args.local:
         # for local mode
