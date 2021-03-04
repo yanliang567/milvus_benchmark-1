@@ -12,3 +12,4 @@ kubernetes==10.0.1
 rq==1.7.0
 locust==1.0.2
 pymongo==3.10.0
+redis==3.5.3
