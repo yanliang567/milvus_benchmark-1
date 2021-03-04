@@ -55,6 +55,11 @@ def get_image_tag(image_version, image_type):
     # return "%s-%s-centos7-release" % ("PR-2780", image_type)
 
 
+def queue_worker(q):
+    logger.debug("Start work")
+    Worker(q).work()
+
+
 def job_run(runner, **run_kwargs):
     server_config = run_kwargs["server_config"]
     server_host = run_kwargs["server_host"]
@@ -156,7 +161,13 @@ def main():
                     job = queue.enqueue(job_runner, **job_run_kwargs)
 
         with Connection():
-            Worker(queue).work()
+            for i in range(thread_num):
+                x = Process(target=queue_worker, args=(queue, ))
+                processes.append(x)
+                x.start()
+                time.sleep(10)
+            for x processes:
+                x.join()
 
     elif args.local:
         # for local mode
