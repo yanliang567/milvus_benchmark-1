@@ -170,7 +170,7 @@ def main():
                 processes.append(x)
                 x.start()
                 time.sleep(10)
-            for x processes:
+            for x in processes:
                 x.join()
 
     elif args.local:
