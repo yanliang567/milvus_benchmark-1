@@ -2,6 +2,7 @@ locust_search_performance:
   collections:
     - 
       server:
+        db_config.primary_path: /test/milvus/db_data_010/test_locust
         cache_config.cpu_cache_capacity: 8GB
         cache_config.insert_buffer_size: 2GB
         engine_config.use_blas_threshold: 1100
