@@ -232,7 +232,6 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set image.tag=%s \
                 --set image.pullPolicy=Always \
                 --set service.type=ClusterIP \
-                -f ci/filebeat/values.yaml \
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     elif deploy_mode == "cluster":
@@ -245,7 +244,6 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set image.tag=%s \
                 --set image.pullPolicy=Always \
                 --set service.type=ClusterIP \
-                -f ci/filebeat/values.yaml \
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     logger.debug(install_cmd)
