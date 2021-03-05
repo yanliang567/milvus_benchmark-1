@@ -150,7 +150,7 @@ def main():
                     # run tests
                     server_config = collection["server"] if "server" in collection else None
                     logger.debug(server_config)
-                    job_runner = K8sRunner()
+                    runner = K8sRunner()
                     job_run_kwargs = {
                         "server_config": server_config,
                         "server_host": server_host,
@@ -160,7 +160,7 @@ def main():
                         "run_type": run_type,
                         "collection": collection
                     }
-                    job = task_queue.enqueue(job_runner, **job_run_kwargs)
+                    job = task_queue.enqueue(job_run, runner, **job_run_kwargs)
 
         thread_num = len(server_names)
         processes = []
