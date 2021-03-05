@@ -10,6 +10,7 @@ from multiprocessing import Process
 from queue import Queue
 from logging import handlers
 from yaml import full_load, dump
+from k8s_runner import K8sRunner
 from local_runner import LocalRunner
 from docker_runner import DockerRunner
 import parser
