@@ -1,8 +1,8 @@
-from milvus_metrics.models.env import Env
-from milvus_metrics.models.hardware import Hardware
-from milvus_metrics.models.metric import Metric
-from milvus_metrics.models.server import Server
-from milvus_metrics.config import MONGO_SERVER, DB, UNIQUE_ID_COLLECTION, DOC_COLLECTION
+from metrics.models.env import Env
+from metrics.models.hardware import Hardware
+from metrics.models.metric import Metric
+from metrics.models.server import Server
+from metrics.config import MONGO_SERVER, DB, UNIQUE_ID_COLLECTION, DOC_COLLECTION
 from pymongo import MongoClient
 import logging
 
