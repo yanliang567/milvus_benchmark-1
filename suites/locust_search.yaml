@@ -25,14 +25,13 @@ locust_search_performance:
         connection_num: 2
         clients_num: 100
         hatch_rate: 2
-        during_time: 5m
+        during_time: 2m
         params:
           top_k: 10
           nq: 1
           search_param:
             nprobe: 16
-    -
-      server:
+    - server:
         cache_config.cpu_cache_capacity: 8GB
         cache_config.insert_buffer_size: 2GB
         engine_config.use_blas_threshold: 1100
@@ -47,7 +46,7 @@ locust_search_performance:
       collection_name: sift_1m_1024_128_l2
       collection_num: 10
       ni_per: 50000
-      build_index: true
+      build_index: false
       index_type: ivf_sq8
       index_param:
         nlist: 16384
@@ -56,7 +55,7 @@ locust_search_performance:
         connection_num: 2
         clients_num: 100
         hatch_rate: 2
-        during_time: 5m
+        during_time: 2m
         params:
           top_k: 10
           nq: 1

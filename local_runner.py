@@ -153,7 +153,7 @@ class LocalRunner(Runner):
             # #####
             ni_per = collection["ni_per"]
             build_index = collection["build_index"]
-            # TODO: debug
+            TODO: debug
             for c_name in collection_names:
                 milvus_instance = MilvusClient(collection_name=c_name, host=self.host, port=self.port)
                 if milvus_instance.exists_collection(collection_name=c_name):

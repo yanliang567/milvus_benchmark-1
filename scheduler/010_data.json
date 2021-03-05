@@ -1,6 +1,6 @@
 [
     {
-        "server": "idc-sh002",
+        "server": "athena",
         "suite_params": [
             {
                 "suite": "080_gpu_accuracy.yaml",
@@ -17,7 +17,7 @@
         ]
     },
     {
-        "server": "idc-sh003",
+        "server": "poseidon",
         "suite_params": [
             {
                 "suite": "080_gpu_search.yaml",
@@ -42,7 +42,7 @@
         ]
     },
     {
-        "server": "idc-sh004",
+        "server": "apollo",
         "suite_params": [
             {
                 "suite": "cpu_accuracy_ann.yaml",

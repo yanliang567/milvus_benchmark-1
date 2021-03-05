@@ -147,7 +147,7 @@ def update_server_config(file_path, server_config):
 
 
 # update values.yaml
-def update_values(file_path, deploy_mode, hostname, server_tag, server_config):
+def update_values(file_path, deploy_mode, hostname, server_config):
     from kubernetes import client, config
     client.rest.logger.setLevel(logging.WARNING)
 
@@ -234,25 +234,6 @@ def update_values(file_path, deploy_mode, hostname, server_tag, server_config):
             "value": "performance",
             "effect": "NoSchedule"
         }]
-    if server_tag:
-        config.load_kube_config()
-        v1 = client.CoreV1Api()
-        values_dict['nodeSelector'] = {'instance-type': server_tag}
-        # node = v1.read_node(hostname)
-        cpus = None
-        if server_tag.find("c") != -1:
-            cpus = int(server_tag.split("c")[0])
-
-        # set limit/request cpus in resources
-        values_dict["image"]['resources'] = {
-            "limits": {
-                "cpu": str(int(cpus))+".0"
-            },
-            "requests": {
-                "cpu": str(int(cpus)-1)+".0"
-            }
-        }
-
     # add extra volumes
     values_dict['extraVolumes'] = [{
         'name': 'test',
@@ -263,7 +244,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, server_config):
                 'name': "cifs-test-secret"
             },
             'options': {
-                'networkPath': "//172.16.70.249/test",
+                'networkPath': "//192.168.1.126/test",
                 'mountOptions': "vers=1.0"
             }
         }
@@ -315,7 +296,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     from kubernetes import client, config
     client.rest.logger.setLevel(logging.WARNING)
 
-    timeout = 600
+    timeout = 300
     logger.debug("Server deploy mode: %s" % deploy_mode)
     host = "%s.%s.svc.cluster.local" % (name, namespace)
     if deploy_mode == "single":

@@ -3,8 +3,8 @@
         "server": "apollo",
         "suite_params": [
             {
-                "suite": "080_gpu_build.yaml",
-                "image_type": "gpu"
+                "suite": "080_get_id.yaml",
+                "image_type": "cpu"
             }
         ]
     }

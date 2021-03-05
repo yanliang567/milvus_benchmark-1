@@ -2,8 +2,7 @@ insert_performance:
   collections:
     - 
       server:
-        db_config.primary_path: /test/milvus/db_data_8/sift_10m_1024_128_l2_insert
-        cache_config.cpu_cache_capacity: 4GB
+        db_config.primary_path: /test/milvus/db_data_8/sift_1m_128_128_l2_insert
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: true
@@ -15,9 +14,8 @@ insert_performance:
           - gpu0
           - gpu1
         wal_enable: true
-      collection_name: sift_10m_1024_128_l2
-      ni_per: 50000
-      build_index: false 
-      index_type: ivf_flat
-      index_param:
-        nlist: 1024
+      collection_name: sift_1m_128_128_l2
+      ni_per: 10000
+      flush: no
+      build_index: false
+      index_type: flat 

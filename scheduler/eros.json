@@ -3,15 +3,7 @@
         "server": "eros",
         "suite_params": [
             {
-                "suite": "080_gpu_accuracy.yaml",
-                "image_type": "gpu"
-            },
-            {
-                "suite": "080_search_stability.yaml",
-                "image_type": "gpu"
-            },
-            {
-                "suite": "gpu_accuracy_ann.yaml",
+                "suite": "gpu_accuracy_ann_pq.yaml",
                 "image_type": "gpu"
             }
         ]

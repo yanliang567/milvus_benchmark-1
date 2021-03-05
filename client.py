@@ -49,7 +49,7 @@ def time_wrapper(func):
 
 
 class MilvusClient(object):
-    def __init__(self, collection_name=None, host=None, port=None, timeout=60):
+    def __init__(self, collection_name=None, host=None, port=None, timeout=300):
         self._collection_name = collection_name
         try:
             start_time = time.time()
@@ -99,7 +99,6 @@ class MilvusClient(object):
 
     def check_status(self, status):
         if not status.OK():
-            logger.error(self._collection_name)
             logger.error(status.message)
             logger.error(self._milvus.server_status())
             logger.error(self.count())
@@ -124,18 +123,6 @@ class MilvusClient(object):
                  "metric_type": metric_type}
         status = self._milvus.create_collection(create_param)
         self.check_status(status)
-
-    def create_partition(self, tag_name):
-        status = self._milvus.create_partition(self._collection_name, tag_name)
-        self.check_status(status)
-
-    def drop_partition(self, tag_name):
-        status = self._milvus.drop_partition(self._collection_name, tag_name)
-        self.check_status(status)
-
-    def list_partitions(self):
-        status, tags = self._milvus.list_partitions(self._collection_name)
-        return tags
 
     @time_wrapper
     def insert(self, X, ids=None, collection_name=None):
@@ -256,7 +243,6 @@ class MilvusClient(object):
         logger.info("Drop index: %s" % self._collection_name)
         return self._milvus.drop_index(self._collection_name)
 
-    # @time_wrapper
     def query(self, X, top_k, search_param=None, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
@@ -313,7 +299,6 @@ class MilvusClient(object):
             logger.error("Delete collection timeout")
 
     def describe(self):
-        # logger.info(self._milvus.get_collection_info(self._collection_name))
         return self._milvus.get_collection_info(self._collection_name)
 
     def show_collections(self):

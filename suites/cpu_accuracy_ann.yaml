@@ -2,11 +2,11 @@ ann_accuracy:
   collections:
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -15,7 +15,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
-      index_file_sizes: [50, 1024]
+      index_file_sizes: [1024]
       index_types: ['flat']
       index_params:
         nlist: [16384]
@@ -26,11 +26,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -39,7 +39,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
-      index_file_sizes: [50, 1024]
+      index_file_sizes: [1024]
       index_types: ['ivf_flat', 'ivf_sq8']
       index_params:
         nlist: [16384]
@@ -50,11 +50,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -63,7 +63,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
-      index_file_sizes: [50, 1024]
+      index_file_sizes: [1024]
       index_types: ['ivf_pq']
       index_params:
         nlist: [16384]
@@ -75,11 +75,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -88,7 +88,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
-      index_file_sizes: [50, 1024]
+      index_file_sizes: [1024]
       index_types: ['annoy']
       index_params:
         n_trees: [8, 32]
@@ -99,11 +99,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: true
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -112,7 +112,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
-      index_file_sizes: [50, 256]
+      index_file_sizes: [256]
       index_types: ['hnsw']
       index_params:
         M: [16]
@@ -124,11 +124,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -137,7 +137,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/glove-200-angular.hdf5
       collection_name: glove_200_angular
-      index_file_sizes: [50, 1024]
+      index_file_sizes: [1024]
       index_types: ['flat']
       index_params:
         nlist: [16384]
@@ -148,11 +148,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -161,7 +161,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/glove-200-angular.hdf5
       collection_name: glove_200_angular
-      index_file_sizes: [50, 1024]
+      index_file_sizes: [1024]
       index_types: ['ivf_flat', 'ivf_sq8']
       index_params:
         nlist: [16384]
@@ -172,11 +172,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -185,7 +185,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/glove-200-angular.hdf5
       collection_name: glove_200_angular
-      index_file_sizes: [50, 1024]
+      index_file_sizes: [1024]
       index_types: ['ivf_pq']
       index_params:
         nlist: [16384]
@@ -197,11 +197,11 @@ ann_accuracy:
 
     -
       server:
-        cache_config.cpu_cache_capacity: 16GB
+        cache_config.cpu_cache_capacity: 16
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: false
-        gpu_resource_config.cache_capacity: 4GB
+        gpu_resource_config.cache_capacity: 4
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -210,7 +210,7 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/glove-200-angular.hdf5
       collection_name: glove_200_angular
-      index_file_sizes: [50, 256]
+      index_file_sizes: [256]
       index_types: ['hnsw']
       index_params:
         M: [36]

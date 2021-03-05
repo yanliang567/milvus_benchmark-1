@@ -19,9 +19,7 @@ def collection_parser(collection_name):
     data_type = tmp[0]
     collection_size_unit = tmp[1][-1]
     collection_size = tmp[1][0:-1]
-    if collection_size_unit == "w":
-        collection_size = int(collection_size) * 10000
-    elif collection_size_unit == "m":
+    if collection_size_unit == "m":
         collection_size = int(collection_size) * 1000000
     elif collection_size_unit == "b":
         collection_size = int(collection_size) * 1000000000
