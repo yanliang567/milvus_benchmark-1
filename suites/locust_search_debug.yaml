@@ -24,8 +24,8 @@ locust_search_performance:
         type: query
         connection_num: 2
         clients_num: 100
-        hatch_rate: 2
-        during_time: 5m
+        hatch_rate: 5
+        during_time: 3m
         params:
           top_k: 10
           nq: 1

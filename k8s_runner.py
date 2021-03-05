@@ -464,6 +464,7 @@ class K8sRunner(Runner):
                     logger.debug("Start build index for last file")
                     milvus_instance.create_index(index_type, index_param)
                     logger.debug(milvus_instance.describe_index())
+                milvus_instance.preload_collection()
             code_str = """
 import random
 import string

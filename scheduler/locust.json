@@ -1,9 +1,9 @@
 [
     {
-        "server": "poseidon",
+        "server": "idc-sh003",
         "suite_params": [
             {
-                "suite": "locust_search.yaml",
+                "suite": "locust_search_debug.yaml",
                 "image_type": "cpu"
             }
         ]
