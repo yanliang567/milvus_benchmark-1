@@ -12,7 +12,7 @@ from local_runner import LocalRunner
 from docker_runner import DockerRunner
 from k8s_runner import K8sRunner
 from rq import Connection, Worker
-from queue import queue
+from task_queue import task_queue
 import parser
 
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
@@ -159,13 +159,13 @@ def main():
                         "run_type": run_type,
                         "collection": collection
                     }
-                    job = queue.enqueue(job_runner, **job_run_kwargs)
+                    job = task_queue.enqueue(job_runner, **job_run_kwargs)
 
         thread_num = len(server_names)
         processes = []
         with Connection():
             for i in range(thread_num):
-                x = Process(target=queue_worker, args=(queue, ))
+                x = Process(target=queue_worker, args=(task_queue, ))
                 processes.append(x)
                 x.start()
                 time.sleep(10)

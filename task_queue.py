@@ -3,5 +3,5 @@ from rq import Queue
 import config
 
 
-queue = Queue(connection=Redis(config.REDIS_URI))
+task_queue = Queue(connection=Redis(config.REDIS_URI))
 
