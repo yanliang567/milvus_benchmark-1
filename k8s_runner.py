@@ -70,7 +70,7 @@ class K8sRunner(Runner):
                 server_config = {"cpus": cpus}
             self.hardware = Hardware(name=self.hostname, cpus=cpus)
         # update values
-        helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/charts/milvus-ha")
+        helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/helm/charts/milvus-ha")
         values_file_path = helm_path + "/values.yaml"
         if not os.path.exists(values_file_path):
             raise Exception("File %s not existed" % values_file_path)

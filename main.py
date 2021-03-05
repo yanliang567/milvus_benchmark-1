@@ -22,13 +22,13 @@ LOG_PATH = "/test/milvus/benchmark/logs/"
 BRANCH = "0331"
 
 logger = logging.getLogger('milvus_benchmark')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 # create file handler which logs even debug messages
 fh = logging.FileHandler(LOG_PATH+'benchmark-{}-{:%Y-%m-%d}.log'.format(BRANCH, datetime.now()))
 fh.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
+ch.setLevel(logging.DEBUG)
 # create formatter and add it to the handlers
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)
