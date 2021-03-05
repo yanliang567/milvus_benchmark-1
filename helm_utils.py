@@ -225,7 +225,7 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
 def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, namespace):
     timeout = 300
     logger.debug("Server deploy mode: %s" % deploy_mode)
-    host = "%s.%s.svc.cluster.local" % (name, namespace)
+    host = "%s.%s-milvus-ha.svc.cluster.local" % (name, namespace)
     if deploy_mode == "single":
         install_cmd = "helm install \
                 --set standalone.service.type=ClusterIP \
