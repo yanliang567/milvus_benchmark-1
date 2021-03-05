@@ -1,7 +1,7 @@
 search_performance:
   collections:
     -
-      server:
+      milvus:
         db_config.primary_path: /test/milvus/db_data_7/not_exist
         cache_config.cpu_cache_capacity: 64
         engine_config.use_blas_threshold: 0

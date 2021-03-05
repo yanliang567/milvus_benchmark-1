@@ -18,9 +18,9 @@ ann_accuracy:
       index_file_sizes: [1024]
       index_types: ['ivf_sq8']
       index_params:
-        nlist: [16384]
+        nlist: [1024]
       top_ks: [10]
       nqs: [10000]
       search_params:
-        nprobe: [1, 8, 1000, 2049]
+        nprobe: [1, 8]
 

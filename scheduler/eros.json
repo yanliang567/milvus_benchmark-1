@@ -1,18 +1,10 @@
 [
     {
-        "server": "eros",
+        "server": "idc-sh005",
         "suite_params": [
             {
-                "suite": "080_gpu_accuracy.yaml",
-                "image_type": "gpu"
-            },
-            {
-                "suite": "080_search_stability.yaml",
-                "image_type": "gpu"
-            },
-            {
-                "suite": "gpu_accuracy_ann.yaml",
-                "image_type": "gpu"
+                "suite": "011_insert_performance_debug.yaml",
+                "image_type": "cpu"
             }
         ]
     }

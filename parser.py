@@ -19,16 +19,13 @@ def collection_parser(collection_name):
     data_type = tmp[0]
     collection_size_unit = tmp[1][-1]
     collection_size = tmp[1][0:-1]
-    if collection_size_unit == "w":
-        collection_size = int(collection_size) * 10000
-    elif collection_size_unit == "m":
+    if collection_size_unit == "m":
         collection_size = int(collection_size) * 1000000
     elif collection_size_unit == "b":
         collection_size = int(collection_size) * 1000000000
-    index_file_size = int(tmp[2])
-    dimension = int(tmp[3])
-    metric_type = str(tmp[4])
-    return (data_type, collection_size, index_file_size, dimension, metric_type)
+    dimension = int(tmp[2])
+    metric_type = str(tmp[3])
+    return (data_type, collection_size, dimension, metric_type)
 
 
 def parse_ann_collection_name(collection_name):
@@ -45,7 +42,7 @@ def parse_ann_collection_name(collection_name):
         metric_type = "jaccard"
     elif metric == "hamming":
         metric_type = "hamming"
-    return ("ann_"+data_type, dimension, metric_type)
+    return (data_type, dimension, metric_type)
 
 
 def search_params_parser(param):

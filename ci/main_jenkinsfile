@@ -6,20 +6,20 @@ pipeline {
     }
 
     parameters{
-        string defaultValue: '1.x', description: 'server image version', name: 'IMAGE_VERSION', trim: true
+        string defaultValue: 'r0.3-test', description: 'server image version', name: 'IMAGE_VERSION', trim: true
         choice choices: ['single', 'shards'], description: 'server deploy mode', name: 'DEPLOY_MODE'
         choice choices: ['kubernetes', 'idc-kubernetes'], description: 'cluster name', name: 'CLUSTER_NAME'
-        string defaultValue: '010_data.json', description: 'test suite config yaml', name: 'CONFIG_FILE', trim: true
+        string defaultValue: '011_data.json', description: 'test suite config yaml', name: 'CONFIG_FILE', trim: true
         string defaultValue: 'shards.json', description: 'shards test suite config yaml', name: 'SHARDS_CONFIG_FILE', trim: true
         string defaultValue: 'd0928627-efb6-4cfd-8030-9bf635988d85', description: 'git credentials', name: 'GIT_USER', trim: true
     }
 
     environment {
-        HELM_URL = "https://github.com/milvus-io/milvus-helm.git"
-        HELM_BRANCH = "0.10.6"
+        HELM_URL = "https://github.com/zilliztech/milvus-helm-charts.git"
+        HELM_BRANCH = "main"
         TEST_URL = "https://github.com/zilliztech/milvus_benchmark.git"
-        TEST_BRANCH = "1.0"
-        HELM_RELEASE_NAME = "milvus-benchmark-test-${env.BUILD_NUMBER}"
+        TEST_BRANCH = "distributed"
+        HELM_RELEASE_NAME = "milvus-distributed-benchmark-test-${env.BUILD_NUMBER}"
         HELM_SHARDS_RELEASE_NAME = "milvus-shards-benchmark-test-${env.BUILD_NUMBER}"
     }
 

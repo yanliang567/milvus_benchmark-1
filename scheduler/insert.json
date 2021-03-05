@@ -1,9 +1,9 @@
 [
     {
-        "server_tag": "16c64m0g",
+        "server": "idc-sh002",
         "suite_params": [
             {
-                "suite": "080_insert_performance.yaml",
+                "suite": "011_insert_data.yaml",
                 "image_type": "cpu"
             }
         ]

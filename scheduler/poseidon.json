@@ -1,10 +1,10 @@
 [
     {
-        "server": "poseidon",
+        "server": "idc-sh004",
         "suite_params": [
             {
-                "suite": "080_gpu_build.yaml",
-                "image_type": "gpu"
+                "suite": "011_gpu_build.yaml",
+               "image_type": "gpu"
             }
         ]
     }

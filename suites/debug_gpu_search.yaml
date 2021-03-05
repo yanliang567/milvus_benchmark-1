@@ -1,13 +1,13 @@
 search_performance:
   collections:
     -
-      server:
-        db_config.primary_path: /test/milvus/db_data_7/sift_50m_2048_128_l2_ivf_wal
-        cache_config.cpu_cache_capacity: 64
+      milvus:
+        db_config.primary_path: /test/milvus/db_data_011/cluster/sift_50m_128_l2_sq8
+        cache_config.cpu_cache_capacity: 64GB
         engine_config.use_blas_threshold: 0
         engine_config.gpu_search_threshold: 200
         gpu_resource_config.enable: true
-        gpu_resource_config.cache_capacity: 6
+        gpu_resource_config.cache_capacity: 6GB
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -15,7 +15,11 @@ search_performance:
           - gpu0
           - gpu1
         wal_enable: true
-      collection_name: sift_50m_2048_128_l2
+        external_mysql: true
+        cluster: true
+        readonly:
+          replicas: 3
+      collection_name: sift_50m_128_l2_sq8_011
       run_count: 2
       top_ks: [1, 10, 100, 1000]
       nqs: [1, 10, 100, 200, 500, 1000]

@@ -1,10 +1,10 @@
 [
     {
-        "server": "poseidon",
+        "server": "athena",
         "suite_params": [
             {
-                "suite": "debug.yaml",
-                "image_type": "gpu"
+                "suite": "011_cpu_search_sift1b.yaml",
+                "image_type": "cpu"
             }
         ]
     }

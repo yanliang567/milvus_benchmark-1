@@ -17,7 +17,7 @@ locust_insert_performance:
         wal_enable: true
       task: 
         type: insert
-        connection_num: 20 
+        connection_num: 1
         clients_num: 10
         hatch_rate: 5
         during_time: 2m

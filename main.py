@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from datetime import datetime
 import pdb
 import argparse
 import logging
@@ -11,18 +12,29 @@ from logging import handlers
 from yaml import full_load, dump
 from local_runner import LocalRunner
 from docker_runner import DockerRunner
-from k8s_runner import K8sRunner
 import parser
 
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
 LOG_FOLDER = "logs"
 NAMESPACE = "milvus"
+LOG_PATH = "/test/milvus/benchmark/logs/"
+BRANCH = "0331"
 
-logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S',
-    level=logging.DEBUG)
-logger = logging.getLogger("milvus_benchmark")
-
+logger = logging.getLogger('milvus_benchmark')
+logger.setLevel(logging.INFO)
+# create file handler which logs even debug messages
+fh = logging.FileHandler(LOG_PATH+'benchmark-{}-{:%Y-%m-%d}.log'.format(BRANCH, datetime.now()))
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
 
 def positive_int(s):
     i = None
@@ -36,7 +48,7 @@ def positive_int(s):
 
 
 def get_image_tag(image_version, image_type):
-    return "%s-%s-centos7-release" % (image_version, image_type)
+    return "%s-release" % (image_version)
     # return "%s-%s-centos7-release" % ("0.7.1", image_type)
     # return "%s-%s-centos7-release" % ("PR-2780", image_type)
 

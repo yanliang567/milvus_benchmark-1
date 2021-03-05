@@ -1,36 +1,9 @@
 [
     {
-        "server_tag": "4c8m0g",
+        "server": "idc-sh002",
         "suite_params": [
             {
-                "suite": "080_insert_performance.yaml",
-                "image_type": "cpu"
-            }
-        ]
-    },
-    {
-        "server_tag": "8c16m1g",
-        "suite_params": [
-            {
-                "suite": "080_gpu_search_debug.yaml",
-                "image_type": "gpu"
-            }
-        ]
-    },
-    {
-        "server_tag": "16c32m1g",
-        "suite_params": [
-            {
-                "suite": "080_gpu_search_debug.yaml",
-                "image_type": "gpu"
-            }
-        ]
-    },
-    {
-        "server_tag": "16c64m0g",
-        "suite_params": [
-            {
-                "suite": "080_cpu_search_debug.yaml",
+                "suite": "011_cpu_search_sift10m.yaml",
                 "image_type": "cpu"
             }
         ]
