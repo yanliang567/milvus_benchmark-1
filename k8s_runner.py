@@ -342,7 +342,7 @@ class K8sRunner(Runner):
             collection_info = {
                 "dimension": dimension,
                 "metric_type": metric_type,
-                "dataset_name": collection_name
+                "dataset_name": collection_name,
                 "fields": fields
             }
             if not milvus_instance.exists_collection():
