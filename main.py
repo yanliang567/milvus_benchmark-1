@@ -6,14 +6,13 @@ import argparse
 import logging
 import traceback
 from multiprocessing import Process
-from queue import Queue
 from logging import handlers
 from yaml import full_load, dump
 from local_runner import LocalRunner
 from docker_runner import DockerRunner
 from k8s_runner import K8sRunner
-from queue import queue
 from rq import Connection, Worker
+from queue import queue
 import parser
 
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
