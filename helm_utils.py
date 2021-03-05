@@ -235,6 +235,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     elif deploy_mode == "cluster":
+        host = "%s.%s-milvus-ha-proxynode.svc.cluster.local" % (name, namespace)
         install_cmd = "helm install \
                 --set cluster.enabled=true \
                 --set persistence.enabled=true \
