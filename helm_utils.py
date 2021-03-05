@@ -228,10 +228,10 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     host = "%s.%s.svc.cluster.local" % (name, namespace)
     if deploy_mode == "single":
         install_cmd = "helm install \
-                --set image.repository=%s \
-                --set image.tag=%s \
-                --set image.pullPolicy=Always \
-                --set service.type=ClusterIP \
+                --set standalone.service.type=ClusterIP \
+                --set image.all.repository=%s \
+                --set image.all.tag=%s \
+                --set image.all.pullPolicy=Always \
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     elif deploy_mode == "cluster":
