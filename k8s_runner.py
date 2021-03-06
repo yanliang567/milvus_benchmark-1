@@ -45,7 +45,7 @@ class K8sRunner(Runner):
         self.port = default_port
         self.hostname = None
         self.env_value = None
-        self.hardware = None
+        self.hardware = Hardware()
         self.deploy_mode = None 
 
     def init_env(self, milvus_config, server_config, server_host, deploy_mode, image_type, image_tag):
@@ -194,6 +194,7 @@ class K8sRunner(Runner):
                     "build_time": build_time
                 }
             }
+            logger.debug(metric.metrics)
             report(metric)
 
         elif run_type == "build_performance":

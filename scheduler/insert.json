@@ -1,6 +1,5 @@
 [
     {
-        "server": "idc-sh002",
         "suite_params": [
             {
                 "suite": "011_insert_data.yaml",
