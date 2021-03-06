@@ -151,6 +151,8 @@ class MilvusClient(object):
     def insert(self, entities, ids=None, collection_name=None):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         try:
+            logger.debug(len(ids))
+            logger.debug(entities)
             insert_ids = self._milvus.insert(tmp_collection_name, entities, ids=ids)
             return insert_ids
         except Exception as e:
