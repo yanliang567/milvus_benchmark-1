@@ -142,6 +142,8 @@ class MilvusClient(object):
             collection_name = self._collection_name
         info = self.get_info(collection_name)
         for field in info["fields"]:
+            if field["name"] == "_id":
+                continue
             field_type = field["type"]
             entities.append(
                 {"name": field["name"], "type": field_type, "values": self.generate_values(field_type, vectors, ids)})
@@ -153,7 +155,7 @@ class MilvusClient(object):
         try:
             logger.debug(len(ids))
             logger.debug(entities)
-            insert_ids = self._milvus.insert(tmp_collection_name, entities, ids=ids)
+            insert_ids = self._milvus.insert(tmp_collection_name, entities, ids)
             return insert_ids
         except Exception as e:
             logger.error(str(e))
