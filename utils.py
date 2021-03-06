@@ -173,7 +173,7 @@ def convert_nested(dct):
 
 def get_unique_name(prefix=None):
     if prefix is None:
-        prefix = "milvus-benchmark-test-"
+        prefix = "distributed-benchmark-test-"
     return prefix + "".join(random.choice(string.ascii_letters + string.digits) for _ in range(8)).lower()
 
 

@@ -51,7 +51,7 @@ def time_wrapper(func):
 
 
 class MilvusClient(object):
-    def __init__(self, collection_name=None, host=None, port=None, timeout=180):
+    def __init__(self, collection_name=None, host=None, port=None, timeout=300):
         self._collection_name = collection_name
         start_time = time.time()
         if not host:

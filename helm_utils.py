@@ -252,8 +252,8 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     if os.system("cd %s && %s" % (helm_path, install_cmd)):
         logger.error("Helm install failed: %s" % name)
         return None
-    logger.debug("Wait for 30s ..")
-    time.sleep(30)
+    logger.debug("Wait for 60s ..")
+    time.sleep(60)
     # config.load_kube_config()
     # v1 = client.CoreV1Api()
     # pod_name = None
