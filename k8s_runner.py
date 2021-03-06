@@ -140,6 +140,7 @@ class K8sRunner(Runner):
             ni_per = collection["ni_per"]
             build_index = collection["build_index"]
             if milvus_instance.exists_collection():
+                logger.debug("Start drop collection")
                 milvus_instance.drop()
                 time.sleep(10)
             index_info = {}
