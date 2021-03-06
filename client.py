@@ -386,7 +386,7 @@ class MilvusClient(object):
         # pdb.set_trace()
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.get_collection_info(collection_name)
+        return self._milvus.describe_collection(collection_name)
 
     def show_collections(self):
         return self._milvus.list_collections()
