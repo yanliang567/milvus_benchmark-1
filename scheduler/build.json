@@ -3,8 +3,8 @@
         "server": "idc-sh004",
         "suite_params": [
             {
-                "suite": "2_cpu_build",
-                "image_type": "gpu"
+                "suite": "2_cpu_build.yaml",
+                "image_type": "cpu"
             }
         ]
     }
