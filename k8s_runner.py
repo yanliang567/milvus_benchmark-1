@@ -222,6 +222,11 @@ class K8sRunner(Runner):
                 logger.debug("Start drop collection")
                 milvus_instance.drop()
                 time.sleep(10)
+
+            vector_type = self.get_vector_type(data_type)
+            other_fields = collection["other_fields"] if "other_fields" in collection else None
+            milvus_instance.create_collection(dimension, data_type=vector_type,
+                                              other_fields=other_fields)
             self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
             milvus_instance.flush()
 
