@@ -27,8 +27,8 @@ logger = logging.getLogger("milvus_benchmark.k8s_runner")
 namespace = "milvus"
 default_port = 19530
 DELETE_INTERVAL_TIME = 5
-# INSERT_INTERVAL = 100000
-INSERT_INTERVAL = 50000
+# TODO
+INSERT_INTERVAL = 2000
 BIG_FLUSH_INTERVAL = 3600
 DEFAULT_FLUSH_INTERVAL = 1
 timestamp = int(time.time())
@@ -357,6 +357,7 @@ class K8sRunner(Runner):
             filters = collection["filters"] if "filters" in collection else []
             filter_query = []
             search_params = collection["search_params"]
+            fields = self.get_fields(milvus_instance, collection_name)
             collection_info = {
                 "dimension": dimension,
                 "metric_type": metric_type,
@@ -397,7 +398,6 @@ class K8sRunner(Runner):
             res = self.do_query(milvus_instance, collection_name, vec_field_name, [1], [1], 2,
                                 search_param=search_params[0], filter_query=filter_query)
             logger.info("End warm up query")
-            fields = self.get_fields(milvus_instance, collection_name)
             for search_param in search_params:
                 logger.info("Search param: %s" % json.dumps(search_param))
                 if not filters:
@@ -650,11 +650,7 @@ class K8sRunner(Runner):
             vector_type = self.get_vector_type_from_metric(metric_type)
             vec_field_name = utils.get_default_field_name(vector_type)
             real_metric_type = utils.metric_type_trans(metric_type)
-
             # re-create collection
-            if milvus_instance.exists_collection(collection_name):
-                milvus_instance.drop()
-                time.sleep(DELETE_INTERVAL_TIME)
             milvus_instance.create_collection(dimension, data_type=vector_type)
             insert_vectors = self.normalize(metric_type, np.array(dataset["train"]))
             if len(insert_vectors) != dataset["train"].shape[0]:
@@ -682,15 +678,19 @@ class K8sRunner(Runner):
             logger.info("Table: %s, row count: %d" % (collection_name, res_count))
             if res_count != len(insert_vectors):
                 raise Exception("Table row count is not equal to insert vectors")
+
+            # TODO: not support switch index currently
             for index_type in index_types:
                 for index_param in index_params:
                     logger.debug("Building index with param: %s" % json.dumps(index_param))
-                    if milvus_instance.get_config("cluster.enable") == "true":
-                        milvus_instance.create_index(vec_field_name, index_type, metric_type, _async=True,
-                                                     index_param=index_param)
-                    else:
-                        milvus_instance.create_index(vec_field_name, index_type, metric_type,
-                                                     index_param=index_param)
+                    # if milvus_instance.get_config("cluster.enable") == "true":
+                    #     milvus_instance.create_index(vec_field_name, index_type, metric_type, _async=True,
+                    #                                  index_param=index_param)
+                    # else:
+                    #     milvus_instance.create_index(vec_field_name, index_type, metric_type,
+                    #                                  index_param=index_param)
+
+                    milvus_instance.create_index(vec_field_name, index_type, metric_type, index_param=index_param)
                     logger.info(milvus_instance.describe_index())
                     logger.info("Start load collection: %s" % collection_name)
                     milvus_instance.load_collection()
