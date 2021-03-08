@@ -261,17 +261,11 @@ class MilvusClient(object):
     def describe_index(self, field_name):
         # stats = self.get_stats()
         info = self._milvus.describe_index(self._collection_name, field_name)
-        index_info = {"index_type": "flat", "index_param": None}
-        for field in info["fields"]:
-            for index in field['indexes']:
-                if not index or "index_type" not in index:
-                    continue
-                else:
-                    for k, v in INDEX_MAP.items():
-                        if index['index_type'] == v:
-                            index_info['index_type'] = k
-                            index_info['index_param'] = index['params']
-                            return index_info
+        index_info = {"index_type": info["index_type"], "metric_type": info["metric_type"], "index_param": info["params"]}
+        # transfer index type name
+        for k, v in INDEX_MAP.items():
+            if index['index_type'] == v:
+                index_info['index_type'] = k
         return index_info
 
     def drop_index(self, field_name):
