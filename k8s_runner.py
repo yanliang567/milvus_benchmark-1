@@ -132,7 +132,8 @@ class K8sRunner(Runner):
         # self.env_value = utils.convert_nested(self.env_value)
         # self.env_value.pop("logs")
         # self.env_value.pop("network")
-        self.env_value = collection
+        # TODO:
+        self.env_value = None
 
         if run_type == "insert_performance":
             (data_type, collection_size, dimension, metric_type) = parser.collection_parser(
