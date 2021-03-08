@@ -194,8 +194,7 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
         'mountPath': '/test'
     }]
 
-    # logger.debug(values_dict)
-    #  print(dump(values_dict))
+    logger.debug(values_dict)
     with open(file_path, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
