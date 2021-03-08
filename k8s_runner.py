@@ -212,16 +212,28 @@ class K8sRunner(Runner):
                 "index_type": index_type,
                 "index_param": index_param
             }
-            if not milvus_instance.exists_collection():
-                logger.error("Table name: %s not existed" % collection_name)
-                return
+            # TODO: enable
+            # if not milvus_instance.exists_collection():
+            #     logger.error("Table name: %s not existed" % collection_name)
+            #     return
+
+            ni_per = collection["ni_per"]
+            if milvus_instance.exists_collection():
+                logger.debug("Start drop collection")
+                milvus_instance.drop()
+                time.sleep(10)
+            self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
+            milvus_instance.flush()
+
             search_params = {}
             vector_type = self.get_vector_type(data_type)
             index_field_name = utils.get_default_field_name(vector_type)
             start_time = time.time()
+            # enable
             # drop index
-            logger.debug("Drop index")
-            milvus_instance.drop_index(index_field_name)
+            # logger.debug("Drop index")
+            # milvus_instance.drop_index(index_field_name)
+
             # start_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             # TODO: need to check
             milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
