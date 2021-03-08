@@ -215,6 +215,8 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set image.all.repository=%s \
                 --set image.all.tag=%s \
                 --set image.all.pullPolicy=Always \
+                --set minio.persistence.enabled=false \
+                --set etcd.persistence.enabled=false \
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     elif deploy_mode == "cluster":
