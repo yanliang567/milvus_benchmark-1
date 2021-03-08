@@ -357,7 +357,6 @@ class K8sRunner(Runner):
             filters = collection["filters"] if "filters" in collection else []
             filter_query = []
             search_params = collection["search_params"]
-            fields = self.get_fields(milvus_instance, collection_name)
             collection_info = {
                 "dimension": dimension,
                 "metric_type": metric_type,
@@ -398,6 +397,7 @@ class K8sRunner(Runner):
             res = self.do_query(milvus_instance, collection_name, vec_field_name, [1], [1], 2,
                                 search_param=search_params[0], filter_query=filter_query)
             logger.info("End warm up query")
+            fields = self.get_fields(milvus_instance, collection_name)
             for search_param in search_params:
                 logger.info("Search param: %s" % json.dumps(search_param))
                 if not filters:
