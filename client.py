@@ -264,7 +264,7 @@ class MilvusClient(object):
         index_info = {"index_type": info["index_type"], "metric_type": info["metric_type"], "index_param": info["params"]}
         # transfer index type name
         for k, v in INDEX_MAP.items():
-            if index['index_type'] == v:
+            if index_info['index_type'] == v:
                 index_info['index_type'] = k
         return index_info
 
