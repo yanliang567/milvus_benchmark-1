@@ -1,8 +1,9 @@
 [
     {
+        "server": "idc-sh004",
         "suite_params": [
             {
-                "suite": "011_insert_data.yaml",
+                "suite": "2_insert_data.yaml",
                 "image_type": "cpu"
             }
         ]

@@ -75,9 +75,8 @@ class K8sRunner(Runner):
         if not os.path.exists(values_file_path):
             raise Exception("File %s not existed" % values_file_path)
         if milvus_config:
-            # disabled
-            # helm_utils.update_values(values_file_path, deploy_mode, server_host, milvus_config, server_config)
-            logger.debug("No config will be updated")
+            helm_utils.update_values(values_file_path, deploy_mode, server_host, milvus_config, server_config)
+            logger.debug("Config file has been updated")
         try:
             logger.debug("Start install server")
             self.host = helm_utils.helm_install_server(helm_path, deploy_mode, image_tag, image_type, self.service_name,

@@ -1,9 +1,9 @@
 [
     {
-        "server": "eros",
+        "server": "idc-sh004",
         "suite_params": [
             {
-                "suite": "011_gpu_build_sift1b.yaml",
+                "suite": "2_cpu_build",
                 "image_type": "gpu"
             }
         ]

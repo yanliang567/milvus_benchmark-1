@@ -9,7 +9,6 @@ import utils
 logger = logging.getLogger("milvus_benchmark.utils")
 REGISTRY_URL = "registry.zilliz.com/milvus-distributed/milvus-distributed"
 IDC_NAS_URL = "//172.16.70.249/test"
-NAS_URL = "//192.168.1.126/test"
 
 
 def get_host_cpus(hostname):
@@ -37,103 +36,104 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
     with open(file_path) as f:
         values_dict = full_load(f)
         f.close()
-    cluster = False
-    if "cluster" in milvus_config and milvus_config["cluster"]:
-        cluster = True
-    for k, v in milvus_config.items():
-        if k.find("primary_path") != -1:
-            suffix_path = milvus_config["suffix_path"] if "suffix_path" in milvus_config else None
-            path_value = v
-            if suffix_path:
-                path_value = v + "_" + str(int(time.time()))
-            values_dict["primaryPath"] = path_value
-            values_dict['wal']['path'] = path_value + "/wal"
-            values_dict['logs']['path'] = path_value + "/logs"
-        # elif k.find("use_blas_threshold") != -1:
-        #     values_dict['useBLASThreshold'] = int(v)
-        elif k.find("gpu_search_threshold") != -1:
-            values_dict['gpu']['gpuSearchThreshold'] = int(v)
-            if cluster:
-                values_dict['readonly']['gpu']['gpuSearchThreshold'] = int(v)
-        elif k.find("cpu_cache_capacity") != -1:
-            values_dict['cache']['cacheSize'] = v
-            if cluster:
-                values_dict['readonly']['cache']['cacheSize'] = v
-        # elif k.find("cache_insert_data") != -1:
-        #     values_dict['cache']['cacheInsertData'] = v
-        elif k.find("insert_buffer_size") != -1:
-            values_dict['cache']['insertBufferSize'] = v
-            if cluster:
-                values_dict['readonly']['cache']['insertBufferSize'] = v
-        elif k.find("gpu_resource_config.enable") != -1:
-            values_dict['gpu']['enabled'] = v
-            if cluster:
-                values_dict['readonly']['gpu']['enabled'] = v
-        elif k.find("gpu_resource_config.cache_capacity") != -1:
-            values_dict['gpu']['cacheSize'] = v
-            if cluster:
-                values_dict['readonly']['gpu']['cacheSize'] = v
-        elif k.find("build_index_resources") != -1:
-            values_dict['gpu']['buildIndexDevices'] = v
-            if cluster:
-                values_dict['readonly']['gpu']['buildIndexDevices'] = v
-        elif k.find("search_resources") != -1:
-            values_dict['gpu']['searchDevices'] = v
-            if cluster:
-                values_dict['readonly']['gpu']['searchDevices'] = v
-        # wal
-        elif k.find("auto_flush_interval") != -1:
-            values_dict['storage']['autoFlushInterval'] = v
-            if cluster:
-                values_dict['readonly']['storage']['autoFlushInterval'] = v
-        elif k.find("wal_enable") != -1:
-            values_dict['wal']['enabled'] = v
+    
+    # TODO: disable change config
+    # cluster = False
+    # if "cluster" in milvus_config and milvus_config["cluster"]:
+    #     cluster = True
+    # for k, v in milvus_config.items():
+    #     if k.find("primary_path") != -1:
+    #         suffix_path = milvus_config["suffix_path"] if "suffix_path" in milvus_config else None
+    #         path_value = v
+    #         if suffix_path:
+    #             path_value = v + "_" + str(int(time.time()))
+    #         values_dict["primaryPath"] = path_value
+    #         values_dict['wal']['path'] = path_value + "/wal"
+    #         values_dict['logs']['path'] = path_value + "/logs"
+    #     # elif k.find("use_blas_threshold") != -1:
+    #     #     values_dict['useBLASThreshold'] = int(v)
+    #     elif k.find("gpu_search_threshold") != -1:
+    #         values_dict['gpu']['gpuSearchThreshold'] = int(v)
+    #         if cluster:
+    #             values_dict['readonly']['gpu']['gpuSearchThreshold'] = int(v)
+    #     elif k.find("cpu_cache_capacity") != -1:
+    #         values_dict['cache']['cacheSize'] = v
+    #         if cluster:
+    #             values_dict['readonly']['cache']['cacheSize'] = v
+    #     # elif k.find("cache_insert_data") != -1:
+    #     #     values_dict['cache']['cacheInsertData'] = v
+    #     elif k.find("insert_buffer_size") != -1:
+    #         values_dict['cache']['insertBufferSize'] = v
+    #         if cluster:
+    #             values_dict['readonly']['cache']['insertBufferSize'] = v
+    #     elif k.find("gpu_resource_config.enable") != -1:
+    #         values_dict['gpu']['enabled'] = v
+    #         if cluster:
+    #             values_dict['readonly']['gpu']['enabled'] = v
+    #     elif k.find("gpu_resource_config.cache_capacity") != -1:
+    #         values_dict['gpu']['cacheSize'] = v
+    #         if cluster:
+    #             values_dict['readonly']['gpu']['cacheSize'] = v
+    #     elif k.find("build_index_resources") != -1:
+    #         values_dict['gpu']['buildIndexDevices'] = v
+    #         if cluster:
+    #             values_dict['readonly']['gpu']['buildIndexDevices'] = v
+    #     elif k.find("search_resources") != -1:
+    #         values_dict['gpu']['searchDevices'] = v
+    #         if cluster:
+    #             values_dict['readonly']['gpu']['searchDevices'] = v
+    #     # wal
+    #     elif k.find("auto_flush_interval") != -1:
+    #         values_dict['storage']['autoFlushInterval'] = v
+    #         if cluster:
+    #             values_dict['readonly']['storage']['autoFlushInterval'] = v
+    #     elif k.find("wal_enable") != -1:
+    #         values_dict['wal']['enabled'] = v
 
-    # if values_dict['nodeSelector']:
-    #     logger.warning("nodeSelector has been set: %s" % str(values_dict['engine']['nodeSelector']))
-    #     return
-    values_dict["wal"]["recoveryErrorIgnore"] = True
-    # enable monitor
-    values_dict["metrics"]["enabled"] = True
-    values_dict["metrics"]["address"] = "192.168.1.237"
-    values_dict["metrics"]["port"] = 9091
-    # only test avx2 
-    values_dict["extraConfiguration"].update({"engine": {"simd_type": "avx2"}})
-    # stat_optimizer_enable
-    values_dict["extraConfiguration"]["engine"].update({"stat_optimizer_enable": False})
+    # # if values_dict['nodeSelector']:
+    # #     logger.warning("nodeSelector has been set: %s" % str(values_dict['engine']['nodeSelector']))
+    # #     return
+    # values_dict["wal"]["recoveryErrorIgnore"] = True
+    # # enable monitor
+    # values_dict["metrics"]["enabled"] = True
+    # values_dict["metrics"]["address"] = "192.168.1.237"
+    # values_dict["metrics"]["port"] = 9091
+    # # only test avx2 
+    # values_dict["extraConfiguration"].update({"engine": {"simd_type": "avx2"}})
+    # # stat_optimizer_enable
+    # values_dict["extraConfiguration"]["engine"].update({"stat_optimizer_enable": False})
 
-    # enable read-write mode
-    if cluster:
-        values_dict["cluster"]["enabled"] = True
-        # update readonly log path
-        values_dict["readonly"]['logs']['path'] = values_dict['logs']['path'] + "/readonly"
-        if "readonly" in milvus_config:
-            if "replicas" in milvus_config["readonly"]:
-                values_dict["readonly"]["replicas"] = milvus_config["readonly"]["replicas"]
+    # # enable read-write mode
+    # if cluster:
+    #     values_dict["cluster"]["enabled"] = True
+    #     # update readonly log path
+    #     values_dict["readonly"]['logs']['path'] = values_dict['logs']['path'] + "/readonly"
+    #     if "readonly" in milvus_config:
+    #         if "replicas" in milvus_config["readonly"]:
+    #             values_dict["readonly"]["replicas"] = milvus_config["readonly"]["replicas"]
 
-    use_external_mysql = False
-    if "external_mysql" in milvus_config and milvus_config["external_mysql"]:
-        use_external_mysql = True
-    # meta mysql
-    if use_external_mysql:
-        values_dict["mysql"]["enabled"] = False
-        # values_dict["mysql"]["persistence"]["enabled"] = True
-        # values_dict["mysql"]["persistence"]["existingClaim"] = hashlib.md5(path_value.encode(encoding='UTF-8')).hexdigest()
-        values_dict['externalMysql']['enabled'] = True
-        if deploy_mode == "local":
-            values_dict['externalMysql']["ip"] = "192.168.1.238"
-        else:
-            values_dict['externalMysql']["ip"] = "milvus-mysql.test"
-        values_dict['externalMysql']["port"] = 3306
-        values_dict['externalMysql']["user"] = "root"
-        values_dict['externalMysql']["password"] = "milvus"
-        values_dict['externalMysql']["database"] = "db"
-    else:
-        values_dict["mysql"]["enabled"] = False
-    # update values.yaml with the given host
-    nas_url = NAS_URL
+    # use_external_mysql = False
+    # if "external_mysql" in milvus_config and milvus_config["external_mysql"]:
+    #     use_external_mysql = True
+    # # meta mysql
+    # if use_external_mysql:
+    #     values_dict["mysql"]["enabled"] = False
+    #     # values_dict["mysql"]["persistence"]["enabled"] = True
+    #     # values_dict["mysql"]["persistence"]["existingClaim"] = hashlib.md5(path_value.encode(encoding='UTF-8')).hexdigest()
+    #     values_dict['externalMysql']['enabled'] = True
+    #     if deploy_mode == "local":
+    #         values_dict['externalMysql']["ip"] = "192.168.1.238"
+    #     else:
+    #         values_dict['externalMysql']["ip"] = "milvus-mysql.test"
+    #     values_dict['externalMysql']["port"] = 3306
+    #     values_dict['externalMysql']["user"] = "root"
+    #     values_dict['externalMysql']["password"] = "milvus"
+    #     values_dict['externalMysql']["database"] = "db"
+    # else:
+    #     values_dict["mysql"]["enabled"] = False
+    # # update values.yaml with the given host
+    nas_url = IDC_NAS_URL
     if hostname:
-        nas_url = IDC_NAS_URL
         values_dict['nodeSelector'] = {'kubernetes.io/hostname': hostname}
         cpus = server_config["cpus"]
 
@@ -237,14 +237,10 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     elif deploy_mode == "cluster":
         host = "%s-milvus-ha-proxynode.%s.svc.cluster.local" % (name, namespace)
         install_cmd = "helm install \
-                --set cluster.enabled=true \
-                --set persistence.enabled=true \
-                --set mishards.image.tag=test \
-                --set mishards.image.pullPolicy=Always \
-                --set image.repository=%s \
-                --set image.tag=%s \
-                --set image.pullPolicy=Always \
-                --set service.type=ClusterIP \
+                --set standalone.enabled=false \
+                --set image.all.repository=%s \
+                --set image.all.tag=%s \
+                --set image.all.pullPolicy=Always \
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     logger.debug(install_cmd)
