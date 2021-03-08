@@ -206,8 +206,8 @@ class Runner(object):
                             raise e
                         assert ids == res_ids
                         # milvus.flush()
-                        logger.debug(milvus.count())
                         ni_end_time = time.time()
+                        logger.debug(milvus.count())
                         total_time = total_time + ni_end_time - ni_start_time
                 i += 1
             else:
