@@ -133,9 +133,9 @@ class LocalRunner(Runner):
                 logger.error("Table name: %s not existed" % collection_name)
                 return
             vector_type = self.get_vector_type(data_type)
-            vec_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = utils.get_default_field_name(vector_type)
             logger.info(milvus_instance.count())
-            result = milvus_instance.describe_index()
+            result = milvus_instance.describe_index(index_field_name)
             logger.info(result)
             milvus_instance.preload_collection()
             mem_usage = milvus_instance.get_mem_info()["memory_used"]
@@ -231,7 +231,9 @@ class LocalRunner(Runner):
             ids_length = collection["ids_length"]
             ids = collection["ids"]
             logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             g_top_k = int(collection["top_ks"].split("-")[1])
             l_top_k = int(collection["top_ks"].split("-")[0])
@@ -276,7 +278,9 @@ class LocalRunner(Runner):
                 logger.error("Table name: %s not existed" % collection_name)
                 return
             logger.info(milvus_instance.count())
-            result = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            result = milvus_instance.describe_index(index_field_name)
             logger.info(result)
             milvus_instance.preload_collection()
             dataset = utils.get_dataset(hdf5_source_file)
@@ -398,7 +402,9 @@ class LocalRunner(Runner):
                 logger.error("Table name: %s not existed" % collection_name)
                 return
             logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             milvus_instance.preload_collection()
             true_ids_all = self.get_groundtruth_ids(collection_size)
@@ -526,15 +532,15 @@ class LocalRunner(Runner):
                 milvus_instance = MilvusClient(collection_name=name, host=self.host)
                 milvus_instance.create_collection(dimension, other_fields=None)
                 index_type = random.choice(index_types)
-                field_name = utils.get_default_field_name()
-                milvus_instance.create_index(field_name, index_type, metric_type, index_param=index_param)
-                logger.info(milvus_instance.describe_index())
+                index_field_name = utils.get_default_field_name()
+                milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+                logger.info(milvus_instance.describe_index(index_field_name))
                 insert_vectors = utils.normalize(metric_type, insert_vectors)
                 entities = milvus_instance.generate_entities(insert_vectors, ids)
                 res_ids = milvus_instance.insert(entities, ids=ids)
                 milvus_instance.flush()
                 milvus_instances_map.update({name: milvus_instance})
-                logger.info(milvus_instance.describe_index())
+                logger.info(milvus_instance.describe_index(index_field_name))
 
             # loop time unit: min -> s
             pull_interval_seconds = pull_interval * 60
@@ -602,7 +608,7 @@ class LocalRunner(Runner):
                 index_param = collection["index_param"]
                 logger.debug("Start build index for last file")
                 milvus_instance.create_index(index_field_name, index_type, metric_type, index_param)
-                logger.debug(milvus_instance.describe_index())
+                logger.debug(milvus_instance.describe_index(index_field_name))
             # locust
             task = collection["tasks"]
             task_file = utils.get_unique_name()

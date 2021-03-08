@@ -158,7 +158,7 @@ class K8sRunner(Runner):
                 }
                 index_field_name = utils.get_default_field_name(vector_type)
                 milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
-                logger.debug(milvus_instance.describe_index())
+                logger.debug(milvus_instance.describe_index(index_field_name))
             res = self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
             flush_time = 0.0
             if "flush" in collection and collection["flush"] == "no":
@@ -242,7 +242,7 @@ class K8sRunner(Runner):
             # start_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             # TODO: need to check
             milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
-            logger.debug(milvus_instance.describe_index())
+            logger.debug(milvus_instance.describe_index(index_field_name))
             logger.debug(milvus_instance.count())
             end_time = time.time()
             # end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
@@ -273,7 +273,9 @@ class K8sRunner(Runner):
                 return
             length = milvus_instance.count()
             logger.info(length)
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             ids = [i for i in range(length)]
             loops = int(length / ni_per)
@@ -325,7 +327,9 @@ class K8sRunner(Runner):
             }
             search_params = {}
             logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             for ids_num in ids_length_per_segment:
                 segment_num, get_ids = milvus_instance.get_rand_ids_each_segment(ids_num)
@@ -357,13 +361,6 @@ class K8sRunner(Runner):
             filters = collection["filters"] if "filters" in collection else []
             filter_query = []
             search_params = collection["search_params"]
-            fields = self.get_fields(milvus_instance, collection_name)
-            collection_info = {
-                "dimension": dimension,
-                "metric_type": metric_type,
-                "dataset_name": collection_name,
-                "fields": fields
-            }
             # disable
             # if not milvus_instance.exists_collection():
             #     logger.error("Table name: %s not existed" % collection_name)
@@ -379,6 +376,13 @@ class K8sRunner(Runner):
             other_fields = collection["other_fields"] if "other_fields" in collection else None
             milvus_instance.create_collection(dimension, data_type=vector_type,
                                               other_fields=other_fields)
+            fields = self.get_fields(milvus_instance, collection_name)
+            collection_info = {
+                "dimension": dimension,
+                "metric_type": metric_type,
+                "dataset_name": collection_name,
+                "fields": fields
+            }
             index_type = collection["index_type"]
             index_param = collection["index_param"]
             self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
@@ -388,14 +392,13 @@ class K8sRunner(Runner):
             start_time = time.time()
             milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
 
-            vec_field_name = utils.get_default_field_name(vector_type)
-            logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
+            logger.info(milvus_instance.count())
             logger.info("Start load collection")
             milvus_instance.load_collection()
             logger.info("Start warm up query")
-            res = self.do_query(milvus_instance, collection_name, vec_field_name, [1], [1], 2,
+            res = self.do_query(milvus_instance, collection_name, index_field_name, [1], [1], 2,
                                 search_param=search_params[0], filter_query=filter_query)
             logger.info("End warm up query")
             for search_param in search_params:
@@ -411,7 +414,7 @@ class K8sRunner(Runner):
                         filter_query.append(eval(filter["term"]))
                         filter_param.append(filter["term"])
                     logger.info("filter param: %s" % json.dumps(filter_param))
-                    res = self.do_query(milvus_instance, collection_name, vec_field_name, top_ks, nqs, run_count,
+                    res = self.do_query(milvus_instance, collection_name, index_field_name, top_ks, nqs, run_count,
                                         search_param, filter_query=filter_query)
                     headers = ["Nq/Top-k"]
                     headers.extend([str(top_k) for top_k in top_ks])
@@ -453,7 +456,7 @@ class K8sRunner(Runner):
             index_field_name = utils.get_default_field_name(vector_type)
             milvus_instance.create_collection(dimension, data_type=vector_type, other_fields=None)
             vector_type = self.get_vector_type(data_type)
-            vec_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = utils.get_default_field_name(vector_type)
             if build_index is True:
                 index_type = collection["index_type"]
                 index_param = collection["index_param"]
@@ -462,7 +465,7 @@ class K8sRunner(Runner):
                     "index_param": index_param
                 }
                 milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
-                logger.debug(milvus_instance.describe_index())
+                logger.debug(milvus_instance.describe_index(index_field_name))
             if run_type in ["locust_search_performance", "locust_mix_performance"]:
                 res = self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
                 if "flush" in collection and collection["flush"] == "no":
@@ -473,12 +476,12 @@ class K8sRunner(Runner):
                     logger.debug("Start build index for last file")
                     milvus_instance.create_index(index_field_name, index_type, metric_type, _async=True,
                                                  index_param=index_param)
-                    logger.debug(milvus_instance.describe_index())
+                    logger.debug(milvus_instance.describe_index(index_field_name))
                 logger.debug("Table row counts: %d" % milvus_instance.count())
                 milvus_instance.load_collection()
                 logger.info("Start warm up query")
                 for i in range(2):
-                    res = self.do_query(milvus_instance, collection_name, vec_field_name, [1], [1], 2,
+                    res = self.do_query(milvus_instance, collection_name, index_field_name, [1], [1], 2,
                                         search_param={"nprobe": 16})
                 logger.info("End warm up query")
             real_metric_type = utils.metric_type_trans(metric_type)
@@ -528,7 +531,9 @@ class K8sRunner(Runner):
                 logger.error("Table name: %s not existed" % collection_name)
                 return
             logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             g_top_k = int(collection["top_ks"].split("-")[1])
             l_top_k = int(collection["top_ks"].split("-")[0])
@@ -581,12 +586,14 @@ class K8sRunner(Runner):
                 logger.error("Table name: %s not existed" % collection_name)
                 return
             logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             milvus_instance.load_collection()
             true_ids_all = self.get_groundtruth_ids(collection_size)
             vector_type = self.get_vector_type(data_type)
-            vec_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = utils.get_default_field_name(vector_type)
             for search_param in search_params:
                 headers = ["Nq/Top-k"]
                 res = []
@@ -600,7 +607,7 @@ class K8sRunner(Runner):
                             "metric_type": metric_type
                         }
                         logger.info("Query params: %s" % json.dumps(search_param_group))
-                        result_ids = self.do_query_ids(milvus_instance, collection_name, vec_field_name, top_k, nq,
+                        result_ids = self.do_query_ids(milvus_instance, collection_name, index_field_name, top_k, nq,
                                                        search_param=search_param)
                         # mem_used = milvus_instance.get_mem_info()["memory_used"]
                         acc_value = self.get_recall_value(true_ids_all[:nq, :top_k].tolist(), result_ids)
@@ -648,7 +655,7 @@ class K8sRunner(Runner):
                 time.sleep(DELETE_INTERVAL_TIME)
             true_ids = np.array(dataset["neighbors"])
             vector_type = self.get_vector_type_from_metric(metric_type)
-            vec_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = utils.get_default_field_name(vector_type)
             real_metric_type = utils.metric_type_trans(metric_type)
             # re-create collection
             milvus_instance.create_collection(dimension, data_type=vector_type)
@@ -678,20 +685,19 @@ class K8sRunner(Runner):
             logger.info("Table: %s, row count: %d" % (collection_name, res_count))
             if res_count != len(insert_vectors):
                 raise Exception("Table row count is not equal to insert vectors")
-
             # TODO: not support switch index currently
             for index_type in index_types:
                 for index_param in index_params:
                     logger.debug("Building index with param: %s" % json.dumps(index_param))
                     # if milvus_instance.get_config("cluster.enable") == "true":
-                    #     milvus_instance.create_index(vec_field_name, index_type, metric_type, _async=True,
+                    #     milvus_instance.create_index(index_field_name, index_type, metric_type, _async=True,
                     #                                  index_param=index_param)
                     # else:
-                    #     milvus_instance.create_index(vec_field_name, index_type, metric_type,
+                    #     milvus_instance.create_index(index_field_name, index_type, metric_type,
                     #                                  index_param=index_param)
 
-                    milvus_instance.create_index(vec_field_name, index_type, metric_type, index_param=index_param)
-                    logger.info(milvus_instance.describe_index())
+                    milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+                    logger.info(milvus_instance.describe_index(index_field_name))
                     logger.info("Start load collection: %s" % collection_name)
                     milvus_instance.load_collection()
                     logger.info("End load collection: %s" % collection_name)
@@ -714,7 +720,7 @@ class K8sRunner(Runner):
                                     "metric_type": metric_type
                                 }
                                 logger.debug(search_param_group)
-                                vector_query = {"vector": {vec_field_name: {
+                                vector_query = {"vector": {index_field_name: {
                                     "topk": top_k,
                                     "query": query_vectors,
                                     "metric_type": real_metric_type,
@@ -752,7 +758,9 @@ class K8sRunner(Runner):
                 logger.error("Table name: %s not existed" % collection_name)
                 return
             logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             g_top_k = int(collection["top_ks"].split("-")[1])
             g_nq = int(collection["nqs"].split("-")[1])
@@ -762,10 +770,9 @@ class K8sRunner(Runner):
             # start_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             # logger.debug(start_mem_usage)
             start_row_count = milvus_instance.count()
-            logger.debug(milvus_instance.describe_index())
             logger.info(start_row_count)
             vector_type = self.get_vector_type(data_type)
-            vec_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = utils.get_default_field_name(vector_type)
             real_metric_type = utils.metric_type_trans(metric_type)
             start_time = time.time()
             while time.time() < start_time + during_time * 60:
@@ -776,7 +783,7 @@ class K8sRunner(Runner):
                     search_param[k] = random.randint(int(v.split("-")[0]), int(v.split("-")[1]))
                 query_vectors = [[random.random() for _ in range(dimension)] for _ in range(nq)]
                 logger.debug("Query nq: %d, top-k: %d, param: %s" % (nq, top_k, json.dumps(search_param)))
-                vector_query = {"vector": {vec_field_name: {
+                vector_query = {"vector": {index_field_name: {
                     "topk": top_k,
                     "query": query_vectors[:nq],
                     "metric_type": real_metric_type,
@@ -820,13 +827,13 @@ class K8sRunner(Runner):
                 index_type = random.choice(index_types)
                 field_name = utils.get_default_field_name()
                 milvus_instance.create_index(field_name, index_type, metric_type, index_param=index_param)
-                logger.info(milvus_instance.describe_index())
+                logger.info(milvus_instance.describe_index(index_field_name))
                 insert_vectors = utils.normalize(metric_type, insert_vectors)
                 entities = milvus_instance.generate_entities(insert_vectors, ids)
                 res_ids = milvus_instance.insert(entities, ids=ids)
                 milvus_instance.flush()
                 milvus_instances_map.update({name: milvus_instance})
-                logger.info(milvus_instance.describe_index())
+                logger.info(milvus_instance.describe_index(index_field_name))
 
                 # loop time unit: min -> s
             pull_interval_seconds = pull_interval * 60
@@ -881,13 +888,14 @@ class K8sRunner(Runner):
                 logger.error(milvus_instance.show_collections())
                 raise Exception("Table name: %s not existed" % collection_name)
             logger.info(milvus_instance.count())
-            index_info = milvus_instance.describe_index()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            index_info = milvus_instance.describe_index(index_field_name)
             logger.info(index_info)
             # start_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             start_row_count = milvus_instance.count()
             logger.info(start_row_count)
             vector_type = self.get_vector_type(data_type)
-            vec_field_name = utils.get_default_field_name(vector_type)
             real_metric_type = utils.metric_type_trans(metric_type)
             query_vectors = [[random.random() for _ in range(dimension)] for _ in range(10000)]
             if "insert" in operations:
@@ -922,7 +930,7 @@ class K8sRunner(Runner):
                             for k, v in search_params.items():
                                 search_param[k] = random.randint(int(v.split("-")[0]), int(v.split("-")[1]))
                             logger.debug("Query nq: %d, top-k: %d, param: %s" % (nq, top_k, json.dumps(search_param)))
-                            vector_query = {"vector": {vec_field_name: {
+                            vector_query = {"vector": {index_field_name: {
                                 "topk": top_k,
                                 "query": query_vectors[:nq],
                                 "metric_type": real_metric_type,
