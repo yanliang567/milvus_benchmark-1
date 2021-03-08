@@ -36,6 +36,10 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
     with open(file_path) as f:
         values_dict = full_load(f)
         f.close()
+   
+    cluster = False
+    if deploy_mode == "cluster":
+        cluster = True
     
     # TODO: disable change config
     # cluster = False
@@ -134,37 +138,42 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
     # # update values.yaml with the given host
     nas_url = IDC_NAS_URL
     if hostname:
-        values_dict['nodeSelector'] = {'kubernetes.io/hostname': hostname}
         cpus = server_config["cpus"]
-
-        # set limit/request cpus in resources
-        values_dict["image"]['resources'] = {
-            "limits": {
-                # "cpu": str(int(cpus)) + ".0"
-                "cpu": str(int(cpus)) + ".0"
-            },
-            "requests": {
-                # "cpu": str(int(cpus) // 2) + ".0"
-                "cpu": "4.0"
+        if cluster is False:
+            values_dict['standalone']['nodeSelector'] = {'kubernetes.io/hostname': hostname}
+            # set limit/request cpus in resources
+            values_dict['standalone']["image"]['resources'] = {
+                "limits": {
+                    # "cpu": str(int(cpus)) + ".0"
+                    "cpu": str(int(cpus)) + ".0"
+                },
+                "requests": {
+                    # "cpu": str(int(cpus) // 2) + ".0"
+                    "cpu": "4.0"
+                }
             }
-        }
-        # update readonly resouces limits/requests
-        values_dict["readonly"]['resources'] = {
-            "limits": {
-                # "cpu": str(int(cpus)) + ".0"
-                "cpu": str(int(cpus)) + ".0"
-            },
-            "requests": {
-                # "cpu": str(int(cpus) // 2) + ".0"
-                "cpu": "4.0"
-            }
-        }
-        values_dict['tolerations'] = [{
-            "key": "worker",
-            "operator": "Equal",
-            "value": "performance",
-            "effect": "NoSchedule"
-        }]
+            values_dict['standalone']['tolerations'] = [{
+                "key": "worker",
+                "operator": "Equal",
+                "value": "performance",
+                "effect": "NoSchedule"
+            }]
+        else:
+            values_dict['querynode']['nodeSelector'] = {'kubernetes.io/hostname': hostname}
+            values_dict['indexnode']['nodeSelector'] = {'kubernetes.io/hostname': hostname}
+            values_dict['querynode']['tolerations'] = [{
+                "key": "worker",
+                "operator": "Equal",
+                "value": "performance",
+                "effect": "NoSchedule"
+            }]
+            values_dict['indexnode']['tolerations'] = [{
+                "key": "worker",
+                "operator": "Equal",
+                "value": "performance",
+                "effect": "NoSchedule"
+            }]
+ 
     # add extra volumes
     values_dict['extraVolumes'] = [{
         'name': 'test',
@@ -184,31 +193,6 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
         'name': 'test',
         'mountPath': '/test'
     }]
-
-    # add extra volumes for mysql
-    # values_dict['mysql']['persistence']['enabled'] = True
-    # values_dict['mysql']['configurationFilesPath'] = "/etc/mysql/mysql.conf.d/"
-    # values_dict['mysql']['imageTag'] = '5.6'
-    # values_dict['mysql']['securityContext'] = {
-    #         'enabled': True}
-    # mysql_db_path = "/test"
-    if deploy_mode == "cluster" and use_external_mysql:
-        # mount_path = values_dict["primaryPath"]+'/data'
-        # long_str = '- name: test-mysql\n  flexVolume:\n    driver: fstab/cifs\n    fsType: cifs\n    secretRef:\n      name: cifs-test-secret\n    options:\n      networkPath: //192.168.1.126/test\n      mountOptions: vers=1.0'
-        # values_dict['mysql']['extraVolumes'] = literal_str(long_str)
-        # long_str_2 = "- name: test-mysql\n  mountPath: %s" % mysql_db_path
-        # values_dict['mysql']['extraVolumeMounts'] = literal_str(long_str_2)
-        # mysql_cnf_str = '[mysqld]\npid-file=%s/mysql.pid\ndatadir=%s' % (mount_path, mount_path)
-        # values_dict['mysql']['configurationFiles'] = {}
-        # values_dict['mysql']['configurationFiles']['mysqld.cnf'] = literal_str(mysql_cnf_str)
-
-        values_dict['mysql']['enabled'] = False
-        values_dict['externalMysql']['enabled'] = True
-        values_dict['externalMysql']["ip"] = "192.168.1.197"
-        values_dict['externalMysql']["port"] = 3306
-        values_dict['externalMysql']["user"] = "root"
-        values_dict['externalMysql']["password"] = "Fantast1c"
-        values_dict['externalMysql']["database"] = "db"
 
     # logger.debug(values_dict)
     #  print(dump(values_dict))
@@ -241,6 +225,8 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set image.all.repository=%s \
                 --set image.all.tag=%s \
                 --set image.all.pullPolicy=Always \
+                --set minio.persistence.enabled=false \
+                --set etcd.persistence.enabled=false \
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     logger.debug(install_cmd)

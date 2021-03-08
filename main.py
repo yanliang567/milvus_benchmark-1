@@ -50,8 +50,6 @@ def positive_int(s):
 
 def get_image_tag(image_version, image_type):
     return "%s-release" % (image_version)
-    # return "%s-%s-centos7-release" % ("0.7.1", image_type)
-    # return "%s-%s-centos7-release" % ("PR-2780", image_type)
 
 
 def queue_worker(queue):
@@ -108,7 +106,7 @@ def main():
     arg_parser.add_argument(
         "--deploy-mode",
         default='',
-        help="single or shards")
+        help="single or cluster")
 
     # local mode
     arg_parser.add_argument(

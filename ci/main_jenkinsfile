@@ -7,10 +7,9 @@ pipeline {
 
     parameters{
         string defaultValue: 'r0.3-test', description: 'server image version', name: 'IMAGE_VERSION', trim: true
-        choice choices: ['single', 'shards'], description: 'server deploy mode', name: 'DEPLOY_MODE'
+        choice choices: ['single', 'cluster'], description: 'server deploy mode', name: 'DEPLOY_MODE'
         choice choices: ['kubernetes', 'idc-kubernetes'], description: 'cluster name', name: 'CLUSTER_NAME'
         string defaultValue: '011_data.json', description: 'test suite config yaml', name: 'CONFIG_FILE', trim: true
-        string defaultValue: 'shards.json', description: 'shards test suite config yaml', name: 'SHARDS_CONFIG_FILE', trim: true
         string defaultValue: 'd0928627-efb6-4cfd-8030-9bf635988d85', description: 'git credentials', name: 'GIT_USER', trim: true
     }
 
@@ -20,7 +19,6 @@ pipeline {
         TEST_URL = "https://github.com/zilliztech/milvus_benchmark.git"
         TEST_BRANCH = "distributed"
         HELM_RELEASE_NAME = "distributed-benchmark-test-${env.BUILD_NUMBER}"
-        HELM_SHARDS_RELEASE_NAME = "milvus-shards-benchmark-test-${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -109,11 +107,7 @@ pipeline {
                                     print "Use cluster name idc001"
                                     sh 'export KUBECONFIG=/root/kube/.kube/config'
                                 }
-                                if ("${params.DEPLOY_MODE}" == "single") {
-                                    load "${env.WORKSPACE}/ci/jenkinsfile/deploy_test.groovy"
-                                } else {
-                                    load "${env.WORKSPACE}/ci/jenkinsfile/deploy_shards_test.groovy"
-                                }
+                                load "${env.WORKSPACE}/ci/jenkinsfile/deploy_test.groovy"
                             }
                         }
                     }
@@ -123,11 +117,7 @@ pipeline {
                     steps {
                         container('milvus-test-env') {
                             script {
-                                if ("${params.DEPLOY_MODE}" == "single") {
-                                    load "${env.WORKSPACE}/ci/jenkinsfile/cleanup.groovy"
-                                } else {
-                                    load "${env.WORKSPACE}/ci/jenkinsfile/cleanupShards.groovy"
-                                }
+                                load "${env.WORKSPACE}/ci/jenkinsfile/cleanup.groovy"
                             }
                         }
                     }
