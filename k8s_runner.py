@@ -364,15 +364,35 @@ class K8sRunner(Runner):
                 "dataset_name": collection_name,
                 "fields": fields
             }
-            if not milvus_instance.exists_collection():
-                logger.error("Table name: %s not existed" % collection_name)
-                return
+            # disable
+            # if not milvus_instance.exists_collection():
+            #     logger.error("Table name: %s not existed" % collection_name)
+            #     return
+            ni_per = collection["ni_per"]
+            if milvus_instance.exists_collection():
+                logger.debug("Start drop collection")
+                milvus_instance.drop()
+                time.sleep(10)
 
+            # need to init data currently
             vector_type = self.get_vector_type(data_type)
+            other_fields = collection["other_fields"] if "other_fields" in collection else None
+            milvus_instance.create_collection(dimension, data_type=vector_type,
+                                              other_fields=other_fields)
+            index_type = collection["index_type"]
+            index_param = collection["index_param"]
+            self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
+            milvus_instance.flush()
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            start_time = time.time()
+            milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+
             vec_field_name = utils.get_default_field_name(vector_type)
             logger.info(milvus_instance.count())
             index_info = milvus_instance.describe_index()
             logger.info(index_info)
+            logger.info("Start load collection")
             milvus_instance.load_collection()
             logger.info("Start warm up query")
             res = self.do_query(milvus_instance, collection_name, vec_field_name, [1], [1], 2,
