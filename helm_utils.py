@@ -151,17 +151,18 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         cpus = int(server_tag.split("c")[0]) 
     if cluster is False:
         values_dict['standalone']['nodeSelector'] = node_config
+        # TODO: disable
         # set limit/request cpus in resources
-        values_dict['standalone']["image"]['resources'] = {
-            "limits": {
-                # "cpu": str(int(cpus)) + ".0"
-                "cpu": str(int(cpus)) + ".0"
-            },
-            "requests": {
-                # "cpu": str(int(cpus) // 2) + ".0"
-                "cpu": "4.0"
-            }
-        }
+        # values_dict['standalone']["image"]['resources'] = {
+        #     "limits": {
+        #         # "cpu": str(int(cpus)) + ".0"
+        #         "cpu": str(int(cpus)) + ".0"
+        #     },
+        #     "requests": {
+        #         # "cpu": str(int(cpus) // 2) + ".0"
+        #         "cpu": "4.0"
+        #     }
+        # }
         if hostname:
             values_dict['standalone']['tolerations'] = perf_tolerations 
     else:
