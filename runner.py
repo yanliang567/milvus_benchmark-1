@@ -253,7 +253,7 @@ class Runner(object):
 
     def do_query(self, milvus, collection_name, vec_field_name, top_ks, nqs, run_count=1, search_param=None, filter_query=None):
         bi_res = []
-        (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
+        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         base_query_vectors = get_vectors_from_binary(MAX_NQ, dimension, data_type)
         for nq in nqs:
             tmp_res = []
@@ -287,7 +287,7 @@ class Runner(object):
         return end_time - start_time
 
     def do_query_ids(self, milvus, collection_name, vec_field_name, top_k, nq, search_param=None, filter_query=None):
-        (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
+        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         base_query_vectors = get_vectors_from_binary(MAX_NQ, dimension, data_type)
         query_vectors = base_query_vectors[0:nq]
         logger.info("Start query, query params: top-k: {}, nq: {}, actually length of vectors: {}".format(top_k, nq, len(query_vectors)))
@@ -302,7 +302,7 @@ class Runner(object):
         return result_ids
 
     def do_query_acc(self, milvus, collection_name, top_k, nq, id_store_name, search_param=None):
-        (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
+        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         base_query_vectors = get_vectors_from_binary(MAX_NQ, dimension, data_type)
         vectors = base_query_vectors[0:nq]
         logger.info("Start query, query params: top-k: {}, nq: {}, actually length of vectors: {}".format(top_k, nq, len(vectors)))
