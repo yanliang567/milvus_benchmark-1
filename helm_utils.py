@@ -136,7 +136,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
     # else:
     #     values_dict["mysql"]["enabled"] = False
     # # update values.yaml with the given host
-    nas_url = IDC_NAS_URL
+
     perf_tolerations = [{
             "key": "worker",
             "operator": "Equal",
@@ -147,6 +147,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         node_config = {'kubernetes.io/hostname': hostname}
         cpus = server_config["cpus"]
     else:
+        # server tag
         node_config = {'instance-type': server_tag}
         cpus = int(server_tag.split("c")[0]) 
     if cluster is False:
@@ -182,7 +183,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
                 'name': "cifs-test-secret"
             },
             'options': {
-                'networkPath': nas_url,
+                'networkPath': IDC_NAS_URL,
                 'mountOptions': "vers=1.0"
             }
         }
