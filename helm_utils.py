@@ -147,7 +147,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         node_config = {'kubernetes.io/hostname': hostname}
         cpus = server_config["cpus"]
     else:
-        node_confg = {'instance-type': server_tag}
+        node_config = {'instance-type': server_tag}
         cpus = int(server_tag.split("c")[0]) 
     if cluster is False:
         values_dict['standalone']['nodeSelector'] = node_config
@@ -218,7 +218,6 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --namespace %s \
                 %s ." % (REGISTRY_URL, image_tag, namespace, name)
     elif deploy_mode == "cluster":
-        host = "%s-milvus-ha-proxynode.%s.svc.cluster.local" % (name, namespace)
         install_cmd = "helm install \
                 --set standalone.enabled=false \
                 --set image.all.repository=%s \
