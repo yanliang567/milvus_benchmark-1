@@ -10,3 +10,5 @@ nohup.out
 
 *.swp
 *.swo
+
+.DS_Store

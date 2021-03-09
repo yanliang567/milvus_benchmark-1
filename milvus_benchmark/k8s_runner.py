@@ -22,10 +22,11 @@ from metrics.api import report
 from metrics.models import Env, Hardware, Server, Metric
 import helm_utils
 import utils
+import config
+
 
 logger = logging.getLogger("milvus_benchmark.k8s_runner")
 namespace = "milvus"
-default_port = 19530
 DELETE_INTERVAL_TIME = 5
 # TODO
 INSERT_INTERVAL = 2000
@@ -36,17 +37,17 @@ default_path = "/var/lib/milvus"
 
 
 class K8sRunner(Runner):
-    """run docker mode"""
+    """run at k8s mode"""
 
     def __init__(self):
         super(K8sRunner, self).__init__()
         self.service_name = utils.get_unique_name()
         self.host = None
-        self.port = default_port
+        self.port = config.SERVER_PORT_DEFAULT
         self.hostname = None
         self.env_value = None
         self.hardware = Hardware()
-        self.deploy_mode = None 
+        self.deploy_mode = None
 
     def init_env(self, milvus_config, server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
         logger.debug("Tests run on server host:")

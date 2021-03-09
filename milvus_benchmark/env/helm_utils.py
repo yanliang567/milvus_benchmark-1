@@ -4,8 +4,8 @@ import time
 import logging
 import hashlib
 from yaml import full_load, dump
-import utils
-import config
+from milvus_benchmark import utils
+from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.utils")
 
