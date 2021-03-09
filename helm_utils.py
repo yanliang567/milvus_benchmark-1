@@ -5,10 +5,9 @@ import logging
 import hashlib
 from yaml import full_load, dump
 import utils
+import config
 
 logger = logging.getLogger("milvus_benchmark.utils")
-REGISTRY_URL = "registry.zilliz.com/milvus-distributed/milvus-distributed"
-IDC_NAS_URL = "//172.16.70.249/test"
 
 
 def get_host_cpus(hostname):
@@ -173,7 +172,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         if hostname:
             logger.debug("Add tolerations into cluster server")
             values_dict['querynode']['tolerations'] = perf_tolerations
-            values_dict['indexnode']['tolerations'] = perf_tolerations 
+            values_dict['indexnode']['tolerations'] = perf_tolerations
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
@@ -185,7 +184,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
                 'name': "cifs-test-secret"
             },
             'options': {
-                'networkPath': IDC_NAS_URL,
+                'networkPath': config.IDC_NAS_URL,
                 'mountOptions': "vers=1.0"
             }
         }
@@ -207,7 +206,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
 
 # deploy server
 def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, namespace):
-    timeout = 300
+    timeout = 600
     logger.debug("Server deploy mode: %s" % deploy_mode)
     host = "%s-milvus-ha.%s.svc.cluster.local" % (name, namespace)
     if deploy_mode == "single":
@@ -219,7 +218,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
                 --namespace %s \
-                %s ." % (REGISTRY_URL, image_tag, namespace, name)
+                %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
     elif deploy_mode == "cluster":
         install_cmd = "helm install \
                 --set standalone.enabled=false \
@@ -229,7 +228,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
                 --namespace %s \
-                %s ." % (REGISTRY_URL, image_tag, namespace, name)
+                %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
     logger.debug(install_cmd)
     logger.debug(host)
     if os.system("cd %s && %s" % (helm_path, install_cmd)):

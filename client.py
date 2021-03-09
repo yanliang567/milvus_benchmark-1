@@ -9,11 +9,11 @@ from multiprocessing import Process
 from milvus import Milvus, DataType
 import numpy as np
 import utils
+import config
 
 logger = logging.getLogger("milvus_benchmark.client")
 
-SERVER_HOST_DEFAULT = "127.0.0.1"
-SERVER_PORT_DEFAULT = 19530
+
 INDEX_MAP = {
     "flat": "FLAT",
     "ivf_flat": "IVF_FLAT",
@@ -55,9 +55,9 @@ class MilvusClient(object):
         self._collection_name = collection_name
         start_time = time.time()
         if not host:
-            host = SERVER_HOST_DEFAULT
+            host = config.SERVER_HOST_DEFAULT
         if not port:
-            port = SERVER_PORT_DEFAULT
+            port = config.SERVER_PORT_DEFAULT
         logger.debug(host)
         logger.debug(port)
         # retry connect remote server
@@ -74,7 +74,7 @@ class MilvusClient(object):
                 logger.error(str(e))
                 logger.error("Milvus connect failed: %d times" % i)
                 i = i + 1
-                time.sleep(i)
+                time.sleep(30)
 
         if time.time() > start_time + timeout:
             raise Exception("Server connect timeout")
