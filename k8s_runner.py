@@ -48,7 +48,7 @@ class K8sRunner(Runner):
         self.hardware = Hardware()
         self.deploy_mode = None 
 
-    def init_env(self, milvus_config, server_config, server_host, deploy_mode, image_type, image_tag):
+    def init_env(self, milvus_config, server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
         logger.debug("Tests run on server host:")
         logger.debug(server_host)
         self.hostname = server_host
@@ -75,7 +75,7 @@ class K8sRunner(Runner):
         if not os.path.exists(values_file_path):
             raise Exception("File %s not existed" % values_file_path)
         if milvus_config:
-            helm_utils.update_values(values_file_path, deploy_mode, server_host, milvus_config, server_config)
+            helm_utils.update_values(values_file_path, deploy_mode, server_host, server_tag, milvus_config, server_config)
             logger.debug("Config file has been updated")
         try:
             logger.debug("Start install server")

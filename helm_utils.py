@@ -21,7 +21,7 @@ def get_host_cpus(hostname):
 
 
 # update values.yaml
-def update_values(file_path, deploy_mode, hostname, milvus_config, server_config=None):
+def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, server_config=None):
     if not os.path.isfile(file_path):
         raise Exception('File: %s not found' % file_path)
     # 　bak values.yaml
@@ -137,42 +137,39 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
     #     values_dict["mysql"]["enabled"] = False
     # # update values.yaml with the given host
     nas_url = IDC_NAS_URL
+    perf_tolerations = [{
+            "key": "worker",
+            "operator": "Equal",
+            "value": "performance",
+            "effect": "NoSchedule"
+        }]  
     if hostname:
+        node_config = {'kubernetes.io/hostname': hostname}
         cpus = server_config["cpus"]
-        if cluster is False:
-            values_dict['standalone']['nodeSelector'] = {'kubernetes.io/hostname': hostname}
-            # set limit/request cpus in resources
-            values_dict['standalone']["image"]['resources'] = {
-                "limits": {
-                    # "cpu": str(int(cpus)) + ".0"
-                    "cpu": str(int(cpus)) + ".0"
-                },
-                "requests": {
-                    # "cpu": str(int(cpus) // 2) + ".0"
-                    "cpu": "4.0"
-                }
+    else:
+        node_confg = {'instance-type': server_tag}
+        cpus = int(server_tag.split("c")[0]) 
+    if cluster is False:
+        values_dict['standalone']['nodeSelector'] = node_config
+        # set limit/request cpus in resources
+        values_dict['standalone']["image"]['resources'] = {
+            "limits": {
+                # "cpu": str(int(cpus)) + ".0"
+                "cpu": str(int(cpus)) + ".0"
+            },
+            "requests": {
+                # "cpu": str(int(cpus) // 2) + ".0"
+                "cpu": "4.0"
             }
-            values_dict['standalone']['tolerations'] = [{
-                "key": "worker",
-                "operator": "Equal",
-                "value": "performance",
-                "effect": "NoSchedule"
-            }]
-        else:
-            values_dict['querynode']['nodeSelector'] = {'kubernetes.io/hostname': hostname}
-            values_dict['indexnode']['nodeSelector'] = {'kubernetes.io/hostname': hostname}
-            values_dict['querynode']['tolerations'] = [{
-                "key": "worker",
-                "operator": "Equal",
-                "value": "performance",
-                "effect": "NoSchedule"
-            }]
-            values_dict['indexnode']['tolerations'] = [{
-                "key": "worker",
-                "operator": "Equal",
-                "value": "performance",
-                "effect": "NoSchedule"
-            }]
+        }
+        if hostname:
+            values_dict['standalone']['tolerations'] = perf_tolerations 
+    else:
+        values_dict['querynode']['nodeSelector'] = node_config
+        values_dict['indexnode']['nodeSelector'] = node_config
+        if hostname:
+            values_dict['querynode']['tolerations'] = perf_tolerations
+            values_dict['indexnode']['tolerations'] = perf_tolerations 
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
@@ -194,7 +191,6 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
         'mountPath': '/test'
     }]
 
-    logger.debug(values_dict)
     with open(file_path, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
@@ -202,6 +198,7 @@ def update_values(file_path, deploy_mode, hostname, milvus_config, server_config
     with open(file_path) as f:
         for line in f.readlines():
             line = line.strip("\n")
+            logger.debug(line)
 
 
 # deploy server

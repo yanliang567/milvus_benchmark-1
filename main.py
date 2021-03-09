@@ -71,10 +71,12 @@ def queue_worker(queue):
         collections = run_params["collections"]
         for collection in collections:
             # run tests
+            milvus_config = collection["milvus"] if "milvus" in collection else None
             server_config = collection["server"] if "server" in collection else None
+            logger.debug(milvus_config)
             logger.debug(server_config)
             runner = K8sRunner()
-            if runner.init_env(server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
+            if runner.init_env(milvus_config, server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
                 logger.debug("Start run tests")
                 try:
                     runner.run(run_type, collection)
