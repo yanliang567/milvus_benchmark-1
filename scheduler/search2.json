@@ -1,9 +1,9 @@
 [
     {
-        "server": "idc-sh005",
+        "server_tag": "16c32m0g",
         "suite_params": [
             {
-                "suite": "011_insert_performance_debug.yaml",
+                "suite": "2_cpu_search.yaml",
                 "image_type": "cpu"
             }
         ]
