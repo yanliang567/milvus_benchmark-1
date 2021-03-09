@@ -59,8 +59,7 @@ class K8sRunner(Runner):
                 cpus = helm_utils.get_host_cpus(self.hostname)
             except Exception as e:
                 logger.error(str(e))
-                cpus = 64
-            logger.debug(type(cpus))
+                cpus = 32 
             if server_config:
                 if "cpus" in server_config.keys():
                     cpus = min(server_config["cpus"], int(cpus))
