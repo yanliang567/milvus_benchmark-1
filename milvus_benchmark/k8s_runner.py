@@ -21,8 +21,8 @@ from milvus_benchmark.runner import Runner
 from milvus_benchmark.metrics.api import report
 from milvus_benchmark.metrics.models import Env, Hardware, Server, Metric
 from milvus_benchmark.env.helm import HelmEnv
-import milvus_benchmark.utils
-import milvus_benchmark.config
+from milvus_benchmark import utils
+from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.k8s_runner")
 DELETE_INTERVAL_TIME = 5
