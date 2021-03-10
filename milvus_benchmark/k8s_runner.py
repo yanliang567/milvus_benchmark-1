@@ -70,11 +70,11 @@ class K8sRunner(Runner):
             logger.debug(server_host)
         helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/charts/milvus-ha")
         self.env = HelmEnv(deploy_mode)
-        server_config = self.update_server_config(server_name, server_tag, server_config)
+        server_config = self.update_server_config(server_host, server_tag, server_config)
         self.hardware = Hardware(name=self.hostname, cpus=server_config["cpus"])
         helm_install_params = {
             "namespace": config.HELM_NAMESPACE,
-            "server_name": service_name,
+            "server_name": server_host,
             "server_tag": server_tag,
             "server_config": server_config,
             "milvus_config": milvus_config,
