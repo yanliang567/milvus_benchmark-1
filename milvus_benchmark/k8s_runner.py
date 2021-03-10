@@ -61,7 +61,11 @@ class K8sRunner(Runner):
             # self.hardware = Hardware(name=self.hostname, cpus=cpus)
         if server_tag:
             cpus = int(server_tag.split("c")[0])
-        server_config.update({"cpus": cpus})
+        kv = {"cpus": cpus}
+        if server_config:
+            server_config.update(kv)
+        else:
+            server_config = kv
         return server_config
 
     def init_env(self, milvus_config, server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
