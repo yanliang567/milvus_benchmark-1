@@ -15,14 +15,15 @@ def get_host_cpus(hostname):
     from kubernetes import client, config
     config.load_kube_config()
     client.rest.logger.setLevel(logging.WARNING)
-    cpus = config.DEFAULT_CPUS
     v1 = client.CoreV1Api()
     try:
         cpus = v1.read_node(hostname).status.allocatable.get("cpu")
     except Exception as e:
         logger.error(traceback.format_exc())
-        raise e
-    return cpus
+        logger.error(str(e))
+        cpus = 0
+    finally:
+        return cpus
 
 
 # update values.yaml

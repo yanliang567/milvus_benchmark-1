@@ -49,9 +49,12 @@ class K8sRunner(Runner):
         self.env = None
 
     def update_server_config(self, server_name, server_tag, server_config):
+        cpus = config.DEFAULT_CPUS
         if server_name:
             try:
                 cpus = helm_utils.get_host_cpus(server_name)
+                if not cpus:
+                    cpus = config.DEFAULT_CPUS
             except Exception as e:
                 logger.error("Get cpus on host: {} failed".format(server_name))
                 logger.error(str(e))
@@ -62,6 +65,7 @@ class K8sRunner(Runner):
         if server_tag:
             cpus = int(server_tag.split("c")[0])
         kv = {"cpus": cpus}
+        logger.debug(kv)
         if server_config:
             server_config.update(kv)
         else:
