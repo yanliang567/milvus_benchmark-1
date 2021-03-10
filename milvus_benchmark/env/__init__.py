@@ -6,9 +6,9 @@ logger = logging.getLogger("milvus_benchmark.env")
 
 class Env(object):
     """docstring for Env"""
-    def __init__(self, deploy_mode):
+    def __init__(self, deploy_mode="single"):
         self.deploy_mode = deploy_mode
-        self.env_name = utils.get_unique_name()
+        self._name = utils.get_unique_name()
 
     def start_up(self):
         pass
@@ -21,3 +21,8 @@ class Env(object):
 
     def resources(self):
         pass
+
+    @property
+    def name(self):
+        return self._name
+    

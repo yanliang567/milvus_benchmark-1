@@ -20,13 +20,11 @@ import parser
 from runner import Runner
 from metrics.api import report
 from metrics.models import Env, Hardware, Server, Metric
-import helm_utils
+from env.helm import HelmEnv
 import utils
 import config
 
-
 logger = logging.getLogger("milvus_benchmark.k8s_runner")
-namespace = "milvus"
 DELETE_INTERVAL_TIME = 5
 # TODO
 INSERT_INTERVAL = 2000
@@ -41,63 +39,61 @@ class K8sRunner(Runner):
 
     def __init__(self):
         super(K8sRunner, self).__init__()
-        self.service_name = utils.get_unique_name()
         self.host = None
         self.port = config.SERVER_PORT_DEFAULT
         self.hostname = None
         self.env_value = None
         self.hardware = Hardware()
         self.deploy_mode = None
+        self.env = None
 
-    def init_env(self, milvus_config, server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
-        logger.debug("Tests run on server host:")
-        logger.debug(server_host)
-        self.hostname = server_host
-        self.deploy_mode = deploy_mode
-        # disabled
-        if self.hostname:
+    def update_server_config(self, server_name, server_tag, server_config):
+        if server_name:
+            cpus = 32
             try:
-                cpus = helm_utils.get_host_cpus(self.hostname)
+                cpus = helm_utils.get_host_cpus(server_name)
             except Exception as e:
+                logger.error("Get cpus on host: {} failed".format(server_name))
                 logger.error(str(e))
-                cpus = 32 
             if server_config:
                 if "cpus" in server_config.keys():
                     cpus = min(server_config["cpus"], int(cpus))
-                else:
-                    server_config.update({"cpus": cpus})
-            else:
-                server_config = {"cpus": cpus}
-            self.hardware = Hardware(name=self.hostname, cpus=cpus)
-        # update values
+            # self.hardware = Hardware(name=self.hostname, cpus=cpus)
+        if server_tag:
+            cpus = int(server_tag.split("c")[0])
+        server_config.update({"cpus": cpus})
+        return server_config
+
+    def init_env(self, milvus_config, server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
+        if server_host:
+            logger.debug("Tests run on server host:")
+            logger.debug(server_host)
         helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/charts/milvus-ha")
-        values_file_path = helm_path + "/values.yaml"
-        if not os.path.exists(values_file_path):
-            raise Exception("File %s not existed" % values_file_path)
-        if milvus_config:
-            helm_utils.update_values(values_file_path, deploy_mode, server_host, server_tag, milvus_config, server_config)
-            logger.debug("Config file has been updated")
+        self.env = HelmEnv(deploy_mode)
+        server_config = self.update_server_config(server_name, server_tag, server_config)
+        self.hardware = Hardware(name=self.hostname, cpus=server_config["cpus"])
+        helm_install_params = {
+            "namespace": config.HELM_NAMESPACE,
+            "server_name": service_name,
+            "server_tag": server_tag,
+            "server_config": server_config,
+            "milvus_config": milvus_config,
+            "image_tag": image_tag,
+            "image_type": image_type
+        }
+        logger.debug(helm_install_params)
         try:
-            logger.debug("Start install server")
-            self.host = helm_utils.helm_install_server(helm_path, deploy_mode, image_tag, image_type, self.service_name,
-                                                       namespace)
+            self.hostname = env.start_up(helm_path, helm_install_params)
+            if self.hostname:
+                return True
         except Exception as e:
-            logger.error("Helm install server failed: %s" % (str(e)))
-            logger.error(traceback.format_exc())
-            logger.error(self.hostname)
-            self.clean_up()
+            logger.error("Helm env: %s start failed".format(env.name))
             return False
-        logger.debug(server_config)
-        # for debugging
-        if not self.host:
-            logger.error("Helm install server failed")
-            self.clean_up()
-            return False
-        return True
+        return False
 
     def clean_up(self):
-        logger.debug("Start clean up: %s" % self.service_name)
-        helm_utils.helm_del_server(self.service_name, namespace)
+        logger.debug("Start clean up env: {}".format(self.env.name))
+        self.env.tear_down()
 
     def report_wrapper(self, milvus_instance, env_value, hostname, collection_info, index_info, search_params,
                        run_params=None, server_config=None):
