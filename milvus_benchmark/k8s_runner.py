@@ -21,6 +21,7 @@ from milvus_benchmark.runner import Runner
 from milvus_benchmark.metrics.api import report
 from milvus_benchmark.metrics.models import Env, Hardware, Server, Metric
 from milvus_benchmark.env.helm import HelmEnv
+from milvus_benchmark.env import helm_utils
 from milvus_benchmark import utils
 from milvus_benchmark import config
 
@@ -49,7 +50,6 @@ class K8sRunner(Runner):
 
     def update_server_config(self, server_name, server_tag, server_config):
         if server_name:
-            cpus = 32
             try:
                 cpus = helm_utils.get_host_cpus(server_name)
             except Exception as e:

@@ -3,19 +3,25 @@ import pdb
 import time
 import logging
 import hashlib
+import traceback
 from yaml import full_load, dump
 from milvus_benchmark import utils
 from milvus_benchmark import config
 
-logger = logging.getLogger("milvus_benchmark.utils")
+logger = logging.getLogger("milvus_benchmark.env.helm_utils")
 
 
 def get_host_cpus(hostname):
     from kubernetes import client, config
     config.load_kube_config()
     client.rest.logger.setLevel(logging.WARNING)
+    cpus = config.DEFAULT_CPUS
     v1 = client.CoreV1Api()
-    cpus = v1.read_node(hostname).status.allocatable.get("cpu")
+    try:
+        cpus = v1.read_node(hostname).status.allocatable.get("cpu")
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        raise e
     return cpus
 
 
