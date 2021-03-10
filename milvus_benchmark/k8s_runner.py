@@ -90,7 +90,7 @@ class K8sRunner(Runner):
         logger.debug(helm_install_params)
         try:
             self.env = HelmEnv(deploy_mode)
-            self.hostname = self.env.start_up(helm_path, helm_install_params)
+            self.hostname = self.env.start_up(helm_path, **helm_install_params)
             if self.hostname:
                 return True
         except Exception as e:
