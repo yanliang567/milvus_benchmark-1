@@ -167,13 +167,16 @@ def main():
         thread_num = len(server_names)
         processes = []
 
-        for i in range(thread_num):
-            x = Process(target=queue_worker, args=(queues[i], ))
-            processes.append(x)
-            x.start()
-            time.sleep(10)
-        for x in processes:
-            x.join()
+        # debug mode
+        queue_worker(queues[0])
+        
+        # for i in range(thread_num):
+        #     x = Process(target=queue_worker, args=(queues[i], ))
+        #     processes.append(x)
+        #     x.start()
+        #     time.sleep(10)
+        # for x in processes:
+        #     x.join()
 
     elif args.local:
         # for local mode
