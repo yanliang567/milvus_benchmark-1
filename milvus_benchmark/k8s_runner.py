@@ -24,6 +24,7 @@ from milvus_benchmark.env.helm import HelmEnv
 from milvus_benchmark.env import helm_utils
 from milvus_benchmark import utils
 from milvus_benchmark import config
+from milvus_benchmark import parser
 
 logger = logging.getLogger("milvus_benchmark.k8s_runner")
 DELETE_INTERVAL_TIME = 5
@@ -40,9 +41,9 @@ class K8sRunner(Runner):
 
     def __init__(self):
         super(K8sRunner, self).__init__()
-        self.host = None
         self.port = config.SERVER_PORT_DEFAULT
         self.hostname = None
+        self.server_host = None
         self.env_value = None
         self.hardware = Hardware()
         self.deploy_mode = None
@@ -76,9 +77,10 @@ class K8sRunner(Runner):
         if server_host:
             logger.debug("Tests run on server host:")
             logger.debug(server_host)
+        self.server_host = server_host
         helm_path = os.path.join(os.getcwd(), "../../milvus-helm-charts/charts/milvus-ha")
         server_config = self.update_server_config(server_host, server_tag, server_config)
-        self.hardware = Hardware(name=self.hostname, cpus=server_config["cpus"])
+        self.hardware = Hardware(name=server_host, cpus=server_config["cpus"])
         helm_install_params = {
             "server_name": server_host,
             "server_tag": server_tag,
@@ -102,7 +104,7 @@ class K8sRunner(Runner):
         logger.debug("Start clean up env: {}".format(self.env.name))
         self.env.tear_down()
 
-    def report_wrapper(self, milvus_instance, env_value, hostname, collection_info, index_info, search_params,
+    def report_wrapper(self, milvus_instance, env_value, server_host, collection_info, index_info, search_params,
                        run_params=None, server_config=None):
         metric = Metric()
         metric.set_run_id(timestamp)
@@ -126,7 +128,7 @@ class K8sRunner(Runner):
         logger.debug(run_type)
         logger.debug(collection)
         collection_name = collection["collection_name"] if "collection_name" in collection else None
-        milvus_instance = MilvusClient(collection_name=collection_name, host=self.host)
+        milvus_instance = MilvusClient(collection_name=collection_name, host=self.hostname)
 
         # TODO: removed
         # self.env_value = milvus_instance.get_server_config()
@@ -178,7 +180,7 @@ class K8sRunner(Runner):
                 "other_fields": other_fields,
                 "ni_per": ni_per
             }
-            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info,
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info, index_info,
                                          search_params)
             total_time = res["total_time"]
             build_time = 0
@@ -249,7 +251,7 @@ class K8sRunner(Runner):
             logger.debug(milvus_instance.count())
             end_time = time.time()
             # end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
-            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info,
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info, index_info,
                                          search_params)
             metric.metrics = {
                 "type": "build_performance",
@@ -301,7 +303,7 @@ class K8sRunner(Runner):
             # end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             logger.debug("Table row counts: %d" % milvus_instance.count())
             # milvus_instance.set_config("storage", "auto_flush_interval", DEFAULT_FLUSH_INTERVAL)
-            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info,
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info, index_info,
                                          search_params)
             delete_time = round(end_time - start_time, 1)
             metric.metrics = {
@@ -343,7 +345,7 @@ class K8sRunner(Runner):
                 run_params = {"ids_num": ids_num}
                 logger.info(
                     "Segment num: %d, ids num per segment: %d, run_time: %f" % (segment_num, ids_num, total_time))
-                metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info,
+                metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info,
                                              index_info, search_params, run_params=run_params)
                 metric.metrics = {
                     "type": run_type,
@@ -432,7 +434,7 @@ class K8sRunner(Runner):
                                 "filter": filter_param
                             }
                             search_time = res[index_nq][index_top_k]
-                            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname,
+                            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host,
                                                          collection_info, index_info, search_param_group)
                             metric.metrics = {
                                 "type": "search_performance",
@@ -503,7 +505,7 @@ class K8sRunner(Runner):
                 run_params["tasks"].update({task_type["type"]: task_type["weight"] if "weight" in task_type else 1})
 
             # . collect stats
-            locust_stats = locust_user.locust_executor(self.host, self.port, collection_name,
+            locust_stats = locust_user.locust_executor(self.hostname, self.port, collection_name,
                                                        connection_type=connection_type, run_params=run_params)
             logger.info(locust_stats)
             collection_info = {
@@ -511,7 +513,7 @@ class K8sRunner(Runner):
                 "metric_type": metric_type,
                 "dataset_name": collection_name
             }
-            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info,
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info, index_info,
                                          search_params)
             metric.metrics = {
                 "type": run_type,
@@ -559,7 +561,7 @@ class K8sRunner(Runner):
                 logger.debug("Query top-k: %d, ids_num: %d, param: %s" % (top_k, ids_num, json.dumps(search_param)))
                 result = milvus_instance.query_ids(top_k, ids_param, search_param=search_param)
             # end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
-            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info,
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info, index_info,
                                          {})
             metric.metrics = {
                 "type": "search_ids_stability",
@@ -617,7 +619,7 @@ class K8sRunner(Runner):
                         logger.info("Query accuracy: %s" % acc_value)
                         tmp_res.append(acc_value)
                         # logger.info("Memory usage: %s" % mem_used)
-                        metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info,
+                        metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info,
                                                      index_info, search_param_group)
                         metric.metrics = {
                             "type": "accuracy",
@@ -737,7 +739,7 @@ class K8sRunner(Runner):
                                 result_ids = milvus_instance.get_ids(result)
                                 acc_value = self.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
                                 logger.info("Query ann_accuracy: %s" % acc_value)
-                                metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname,
+                                metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host,
                                                              collection_info, index_info, search_param_group)
                                 metric.metrics = {
                                     "type": "ann_accuracy",
@@ -794,7 +796,7 @@ class K8sRunner(Runner):
                 }}
                 milvus_instance.query(vector_query)
             # end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
-            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info,
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info, index_info,
                                          {})
             metric.metrics = {
                 "type": "search_stability",
@@ -951,7 +953,7 @@ class K8sRunner(Runner):
                 logger.debug("Loop time: %d" % i)
             # end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             end_row_count = milvus_instance.count()
-            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info,
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.server_host, collection_info, index_info,
                                          {})
             metric.metrics = {
                 "type": "stability",
