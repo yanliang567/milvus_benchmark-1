@@ -370,7 +370,7 @@ class MilvusClient(object):
                 else:
                     break
             except Exception as e:
-                logger.debug(str(e))
+                logger.warning(str(e))
                 break
         if i >= timeout:
             logger.error("Delete collection timeout")

@@ -1,1 +1,1 @@
-from utils import report
+from milvus_benchmark.metrics.utils import report

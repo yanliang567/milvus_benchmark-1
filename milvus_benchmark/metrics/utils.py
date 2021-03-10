@@ -1,11 +1,11 @@
 import logging
 from pymongo import MongoClient
 
-from models.env import Env
-from models.hardware import Hardware
-from models.metric import Metric
-from models.server import Server
-from config import MONGO_SERVER, DB, UNIQUE_ID_COLLECTION, DOC_COLLECTION
+from .models.env import Env
+from .models.hardware import Hardware
+from .models.metric import Metric
+from .models.server import Server
+from .config import MONGO_SERVER, DB, UNIQUE_ID_COLLECTION, DOC_COLLECTION
 
 _client = MongoClient(MONGO_SERVER)
 

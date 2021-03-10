@@ -4,7 +4,7 @@ import traceback
 
 from milvus_benchmark.env import Env
 from milvus_benchmark.env import utils
-import helm_utils
+from milvus_benchmark.env import helm_utils
 
 logger = logging.getLogger("milvus_benchmark.env.helm")
 

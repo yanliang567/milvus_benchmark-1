@@ -14,15 +14,15 @@ from milvus import DataType
 from yaml import full_load, dump
 import concurrent.futures
 
-import locust_user
-from client import MilvusClient
-import parser
-from runner import Runner
-from metrics.api import report
-from metrics.models import Env, Hardware, Server, Metric
-from env.helm import HelmEnv
-import utils
-import config
+import milvus_benchmark.locust_user
+from milvus_benchmark.client import MilvusClient
+import milvus_benchmark.parser
+from milvus_benchmark.runner import Runner
+from milvus_benchmark.metrics.api import report
+from milvus_benchmark.metrics.models import Env, Hardware, Server, Metric
+from milvus_benchmark.env.helm import HelmEnv
+import milvus_benchmark.utils
+import milvus_benchmark.config
 
 logger = logging.getLogger("milvus_benchmark.k8s_runner")
 DELETE_INTERVAL_TIME = 5

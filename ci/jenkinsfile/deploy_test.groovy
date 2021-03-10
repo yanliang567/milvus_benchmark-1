@@ -12,9 +12,9 @@ try {
     sh "python3 -m pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
     // sh "python3 -m pip install -r requirements.txt"
     if ("${params.CLUSTER_NAME}" == "idc-kubernetes") {
-        sh "export KUBECONFIG=/root/kube/.kube/config && cd milvus_benchmark && python3 main.py --image-version=${params.IMAGE_VERSION} --schedule-conf=scheduler/${params.CONFIG_FILE} --deploy-mode=${params.DEPLOY_MODE}"
+        sh "export KUBECONFIG=/root/kube/.kube/config && export PYTHONPATH=${env.WORKSPACE}/milvus_benchmark && cd milvus_benchmark && python3 main.py --image-version=${params.IMAGE_VERSION} --schedule-conf=scheduler/${params.CONFIG_FILE} --deploy-mode=${params.DEPLOY_MODE}"
     } else {
-        sh "cd milvus_benchmark && python3 main.py --image-version=${params.IMAGE_VERSION} --schedule-conf=scheduler/${params.CONFIG_FILE} --deploy-mode=${params.DEPLOY_MODE}"
+        sh "export PYTHONPATH=${env.WORKSPACE}/milvus_benchmark && cd milvus_benchmark && python3 main.py --image-version=${params.IMAGE_VERSION} --schedule-conf=scheduler/${params.CONFIG_FILE} --deploy-mode=${params.DEPLOY_MODE}"
     }
     // }
 } catch (exc) {
