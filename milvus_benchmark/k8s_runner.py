@@ -92,11 +92,13 @@ class K8sRunner(Runner):
         logger.debug(helm_install_params)
         try:
             self.env = HelmEnv(deploy_mode)
+            logger.debug(self.env.name)
             self.hostname = self.env.start_up(helm_path, helm_install_params)
+            logger.debug(self.hostname)
             if self.hostname:
                 return True
         except Exception as e:
-            logger.error("Helm env: %s start failed".format(self.env.name))
+            logger.error("Helm env: {} start failed".format(self.env.name))
             return False
         return False
 

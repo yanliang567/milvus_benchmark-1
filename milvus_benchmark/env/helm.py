@@ -24,6 +24,7 @@ class HelmEnv(Env):
         image_tag = helm_install_params["image_tag"]
         image_type = helm_install_params["image_type"]
 
+        logger.debug(image_type)
         # update values
         values_file_path = helm_path + "/values.yaml"
         if not os.path.exists(values_file_path):
