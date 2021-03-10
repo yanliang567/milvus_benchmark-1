@@ -161,28 +161,47 @@ class LocalRunner(Runner):
                     mem_usage = milvus_instance.get_mem_info()["memory_used"]
                     logger.info(mem_usage)
 
-        elif run_type == "locust_search_performance":
-            (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
+        elif run_type in ["locust_search_performance", "locust_insert_performance", "locust_mix_performance"]:
+            (data_type, collection_size, dimension, metric_type) = parser.collection_parser(
+                collection_name)
             ni_per = collection["ni_per"]
             build_index = collection["build_index"]
+            if milvus_instance.exists_collection():
+                milvus_instance.drop()
+                time.sleep(10)
             vector_type = self.get_vector_type(data_type)
             index_field_name = utils.get_default_field_name(vector_type)
-            # if build_index is True:
-            #     index_type = collection["index_type"]
-            #     index_param = collection["index_param"]
-            # # TODO: debug
-            # if milvus_instance.exists_collection():
-            #     milvus_instance.drop()
-            #     time.sleep(10)
-            # other_fields = collection["other_fields"] if "other_fields" in collection else None
-            # milvus_instance.create_collection(dimension, data_type=vector_type, other_fields=other_fields)
-            # milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
-            # res = self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
-            # milvus_instance.flush()
-            # logger.debug("Table row counts: %d" % milvus_instance.count())
-            # if build_index is True:
-            #     logger.debug("Start build index for last file")
-            #     milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+            milvus_instance.create_collection(dimension, data_type=vector_type, other_fields=None)
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            if build_index is True:
+                index_type = collection["index_type"]
+                index_param = collection["index_param"]
+                index_info = {
+                    "index_type": index_type,
+                    "index_param": index_param
+                }
+                logger.info(index_info)
+                milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+                logger.debug(milvus_instance.describe_index(index_field_name))
+            if run_type in ["locust_search_performance", "locust_mix_performance"]:
+                res = self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
+                if "flush" in collection and collection["flush"] == "no":
+                    logger.debug("No manual flush")
+                else:
+                    milvus_instance.flush()
+                if build_index is True:
+                    logger.debug("Start build index for last file")
+                    milvus_instance.create_index(index_field_name, index_type, metric_type, _async=True,
+                                                 index_param=index_param)
+                    logger.debug(milvus_instance.describe_index(index_field_name))
+                logger.debug("Table row counts: %d" % milvus_instance.count())
+                milvus_instance.load_collection()
+                logger.info("Start warm up query")
+                for i in range(2):
+                    res = self.do_query(milvus_instance, collection_name, index_field_name, [1], [1], 2,
+                                        search_param={"nprobe": 16})
+                logger.info("End warm up query")
             real_metric_type = utils.metric_type_trans(metric_type)
             ### spawn locust requests
             task = collection["task"]
@@ -194,34 +213,13 @@ class LocalRunner(Runner):
             hatch_rate = task["hatch_rate"]
             during_time = utils.timestr_to_int(task["during_time"])
             task_types = task["types"]
-            # """
-            # task: 
-            #     connection_num: 1
-            #     clients_num: 100
-            #     hatch_rate: 2
-            #     during_time: 5m
-            #     types:
-            #     -
-            #         type: query
-            #         weight: 1
-            #         params:
-            #         top_k: 10
-            #         nq: 1
-            #         # filters:
-            #         #   -
-            #         #     range:
-            #         #       int64:
-            #         #         LT: 0
-            #         #         GT: 1000000
-            #         search_param:
-            #             nprobe: 16
-            # """
             run_params = {"tasks": {}, "clients_num": clients_num, "spawn_rate": hatch_rate, "during_time": during_time}
             for task_type in task_types:
                 run_params["tasks"].update({task_type["type"]: task_type["weight"] if "weight" in task_type else 1})
 
-            #. collect stats
-            locust_stats = locust_user.locust_executor(self.host, self.port, collection_name, connection_type=connection_type, run_params=run_params)
+            # . collect stats
+            locust_stats = locust_user.locust_executor(self.host, self.port, collection_name,
+                                                       connection_type=connection_type, run_params=run_params)
             logger.info(locust_stats)
 
         elif run_type == "search_ids_stability":
