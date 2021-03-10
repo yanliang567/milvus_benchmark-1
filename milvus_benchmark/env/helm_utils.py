@@ -216,17 +216,16 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     timeout = 600
     logger.debug("Server deploy mode: %s" % deploy_mode)
     host = "%s-milvus-ha.%s.svc.cluster.local" % (name, namespace)
-    if deploy_mode == "single":
-        install_cmd = "helm install \
-                --set standalone.service.type=ClusterIP \
-                --set image.all.repository=%s \
-                --set image.all.tag=%s \
-                --set minio.persistence.enabled=false \
-                --set etcd.persistence.enabled=false \
-                --namespace %s \
-                %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
-                # --set image.all.pullPolicy=Always \
-    elif deploy_mode == "cluster":
+    install_cmd = "helm install \
+            --set standalone.service.type=ClusterIP \
+            --set image.all.repository=%s \
+            --set image.all.tag=%s \
+            --set minio.persistence.enabled=false \
+            --set etcd.persistence.enabled=false \
+            --namespace %s \
+            %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
+            # --set image.all.pullPolicy=Always \
+    if deploy_mode == "cluster":
         install_cmd = "helm install \
                 --set standalone.enabled=false \
                 --set image.all.repository=%s \
@@ -236,7 +235,8 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --namespace %s \
                 %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
                 # --set image.all.pullPolicy=Always \
-
+    elif deploy_mode != "single":
+        raise Exception("Deploy mode: {} not support".format(deploy_mode))
     logger.debug(install_cmd)
     logger.debug(host)
     if os.system("cd %s && %s" % (helm_path, install_cmd)):

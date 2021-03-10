@@ -80,7 +80,6 @@ class K8sRunner(Runner):
         server_config = self.update_server_config(server_host, server_tag, server_config)
         self.hardware = Hardware(name=self.hostname, cpus=server_config["cpus"])
         helm_install_params = {
-            "namespace": config.HELM_NAMESPACE,
             "server_name": server_host,
             "server_tag": server_tag,
             "server_config": server_config,

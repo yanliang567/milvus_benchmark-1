@@ -5,6 +5,7 @@ import traceback
 from milvus_benchmark.env import Env
 from milvus_benchmark.env import utils
 from milvus_benchmark.env import helm_utils
+from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.env.helm")
 
@@ -13,10 +14,9 @@ class HelmEnv(Env):
     """helm env class wrapper"""
     def __init__(self, deploy_mode):
         super(HelmEnv, self).__init__(deploy_mode)
-        self.namespace = None
 
     def start_up(self, helm_path, **helm_install_params):
-        self.namespace = helm_install_params["namespace"]
+        self.namespace = helm_install_params["namespace"] if "namespace" in helm_install_params else config.HELM_NAMESPACE
         server_name = helm_install_params["server_name"]
         server_tag = helm_install_params["server_tag"] if "server_tag" in helm_install_params else None
         server_config = helm_install_params["server_config"]
@@ -29,11 +29,11 @@ class HelmEnv(Env):
         if not os.path.exists(values_file_path):
             raise Exception("File {} not existed".format(values_file_path))
         if milvus_config:
-            helm_utils.update_values(values_file_path, deploy_mode, server_host, server_tag, milvus_config, server_config)
+            helm_utils.update_values(values_file_path, self.deploy_mode, server_name, server_tag, milvus_config, server_config)
             logger.debug("Config file has been updated")
         try:
             logger.debug("Start install server")
-            hostname = helm_utils.helm_install_server(helm_path, deploy_mode, image_tag, image_type, self.name,
+            hostname = helm_utils.helm_install_server(helm_path,self.deploy_mode, image_tag, image_type, self.name,
                                                        self.namespace)
             if not hostname:
                 logger.error("Helm install server failed")
