@@ -15,7 +15,7 @@ class HelmEnv(Env):
     def __init__(self, deploy_mode):
         super(HelmEnv, self).__init__(deploy_mode)
 
-    def start_up(self, helm_path, **helm_install_params):
+    def start_up(self, helm_path, helm_install_params):
         self.namespace = helm_install_params["namespace"] if "namespace" in helm_install_params else config.HELM_NAMESPACE
         server_name = helm_install_params["server_name"]
         server_tag = helm_install_params["server_tag"] if "server_tag" in helm_install_params else None
