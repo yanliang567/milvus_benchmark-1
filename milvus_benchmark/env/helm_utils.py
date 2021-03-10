@@ -214,21 +214,22 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set standalone.service.type=ClusterIP \
                 --set image.all.repository=%s \
                 --set image.all.tag=%s \
-                --set image.all.pullPolicy=Always \
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
                 --namespace %s \
                 %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
+                # --set image.all.pullPolicy=Always \
     elif deploy_mode == "cluster":
         install_cmd = "helm install \
                 --set standalone.enabled=false \
                 --set image.all.repository=%s \
                 --set image.all.tag=%s \
-                --set image.all.pullPolicy=Always \
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
                 --namespace %s \
                 %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
+                # --set image.all.pullPolicy=Always \
+
     logger.debug(install_cmd)
     logger.debug(host)
     if os.system("cd %s && %s" % (helm_path, install_cmd)):
