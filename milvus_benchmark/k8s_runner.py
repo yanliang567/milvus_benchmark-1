@@ -76,8 +76,7 @@ class K8sRunner(Runner):
         if server_host:
             logger.debug("Tests run on server host:")
             logger.debug(server_host)
-        helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/charts/milvus-ha")
-        self.env = HelmEnv(deploy_mode)
+        helm_path = os.path.join(os.getcwd(), "../../milvus-helm-charts/charts/milvus-ha")
         server_config = self.update_server_config(server_host, server_tag, server_config)
         self.hardware = Hardware(name=self.hostname, cpus=server_config["cpus"])
         helm_install_params = {
@@ -91,6 +90,7 @@ class K8sRunner(Runner):
         }
         logger.debug(helm_install_params)
         try:
+            self.env = HelmEnv(deploy_mode)
             self.hostname = self.env.start_up(helm_path, helm_install_params)
             if self.hostname:
                 return True

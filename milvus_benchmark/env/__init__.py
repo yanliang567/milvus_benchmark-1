@@ -11,6 +11,7 @@ class Env(object):
         self._name = utils.get_unique_name()
 
     def start_up(self):
+        logger.debug("IN ENV CLASS")
         pass
 
     def tear_down(self):
