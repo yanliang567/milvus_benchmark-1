@@ -24,15 +24,15 @@ class HelmEnv(Env):
         image_tag = helm_install_params["image_tag"]
         image_type = helm_install_params["image_type"]
 
-        logger.debug(image_type)
+        logger.debug(self.deploy_mode)
         # update values
         values_file_path = helm_path + "/values.yaml"
         if not os.path.exists(values_file_path):
             raise Exception("File {} not existed".format(values_file_path))
-        if milvus_config:
-            helm_utils.update_values(values_file_path, self.deploy_mode, server_name, server_tag, milvus_config, server_config)
-            logger.debug("Config file has been updated")
         try:
+            if milvus_config:
+                helm_utils.update_values(values_file_path, self.deploy_mode, server_name, server_tag, milvus_config, server_config)
+                logger.debug("Config file has been updated")
             logger.debug("Start install server")
             hostname = helm_utils.helm_install_server(helm_path,self.deploy_mode, image_tag, image_type, self.name,
                                                        self.namespace)
