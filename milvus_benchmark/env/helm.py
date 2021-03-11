@@ -32,7 +32,6 @@ class HelmEnv(Env):
             raise Exception("File {} not existed".format(values_file_path))
         try:
             # debug
-            time.sleep(36000)
             if milvus_config:
                 helm_utils.update_values(values_file_path, self.deploy_mode, server_name, server_tag, milvus_config, server_config)
                 logger.debug("Config file has been updated")

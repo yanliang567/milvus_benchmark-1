@@ -78,7 +78,7 @@ class K8sRunner(Runner):
             logger.debug("Tests run on server host:")
             logger.debug(server_host)
         self.server_host = server_host
-        helm_path = os.path.join(os.getcwd(), "../../milvus-helm-charts/charts/milvus-ha")
+        helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/charts/milvus-ha")
         server_config = self.update_server_config(server_host, server_tag, server_config)
         self.hardware = Hardware(name=server_host, cpus=server_config["cpus"])
         helm_install_params = {
