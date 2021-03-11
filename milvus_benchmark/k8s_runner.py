@@ -99,6 +99,7 @@ class K8sRunner(Runner):
                 return True
         except Exception as e:
             logger.error("Helm env: {} start failed".format(self.env.name))
+            logger.error(traceback.format_exc())
             return False
         return False
 
