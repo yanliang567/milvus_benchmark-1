@@ -10,10 +10,10 @@ from multiprocessing import Process
 from queue import Queue
 from logging import handlers
 from yaml import full_load, dump
-from k8s_runner import K8sRunner
-from local_runner import LocalRunner
-from docker_runner import DockerRunner
-import parser
+from milvus_benchmark.k8s_runner import K8sRunner
+from milvus_benchmark.local_runner import LocalRunner
+from milvus_benchmark.docker_runner import DockerRunner
+from milvus_benchmark import parser
 
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
 LOG_FOLDER = "logs"
@@ -167,13 +167,16 @@ def main():
         thread_num = len(server_names)
         processes = []
 
-        for i in range(thread_num):
-            x = Process(target=queue_worker, args=(queues[i], ))
-            processes.append(x)
-            x.start()
-            time.sleep(10)
-        for x in processes:
-            x.join()
+        # debug mode
+        queue_worker(queues[0])
+        
+        # for i in range(thread_num):
+        #     x = Process(target=queue_worker, args=(queues[i], ))
+        #     processes.append(x)
+        #     x.start()
+        #     time.sleep(10)
+        # for x in processes:
+        #     x.join()
 
     elif args.local:
         # for local mode
