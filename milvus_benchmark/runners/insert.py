@@ -57,22 +57,16 @@ class InsertRunner(BaseRunner):
             "other_fields": other_fields,
             "ni_per": ni_per
         }
-        total_time = res["total_time"]
         build_time = 0
         if build_index is True:
             logger.debug("Start build index for last file")
             start_time = time.time()
             self.milvus.create_index(index_field_name, index_type, metric_type, index_param=index_param)
             build_time = time.time() - start_time
-            total_time = total_time + build_time
+        super().report_metric(collection_info, index_info, search_params)
+        super().result.update(({"flush_time": flush_time, "build_time": build_time}))
         self.metric.metrics = {
             "type": self.name,
-            "value": {
-                "total_time": total_time,
-                "qps": res["qps"],
-                "ni_time": res["ni_time"],
-                "flush_time": flush_time,
-                "build_time": build_time
-            }
+            "value": super().result
         }
         logger.debug(self.metric.metrics)

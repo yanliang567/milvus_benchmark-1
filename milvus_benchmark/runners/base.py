@@ -40,6 +40,13 @@ class BaseRunner(object):
     def result(self):
         return self._result
 
+    def report_metric(self, collection_info, index_info, search_params, run_params={}):
+        self._metric.collection = collection_info
+        self._metric.index = index_info
+        self._metric.search = search_params
+        self._metric.run_params = run_params
+        return self._metric
+
     # TODO: need to improve
     def insert_from_files(self, milvus, collection_name, data_type, dimension, size, ni):
         total_time = 0.0

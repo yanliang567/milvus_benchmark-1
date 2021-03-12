@@ -212,7 +212,7 @@ def main():
             metric.set_mode(env_mode)
             # metric.env = None
             # metric.hardware = None
-            server_version = "2.0"
+            # server_version = "2.0"
             # metric.server = Server(version=server_version, mode=deploy_mode)
             env = get_env(env_mode, deploy_mode)
             env.start_up(host, port)
@@ -235,3 +235,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # metric = api.Metric()
+    # logger.info(type(metric))
+    # api.save(metric)

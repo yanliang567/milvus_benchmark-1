@@ -2,6 +2,9 @@ import time
 import datetime
 import json
 import hashlib
+from .env import Env
+from .server import Server
+from .hardware import Hardware
 
 
 class Metric(object):
@@ -10,10 +13,11 @@ class Metric(object):
         self._type = 'metric'
         self.run_id = None
         self.mode = None
-        self.server = 'todo'
-        self.hardware = 'todo'
-        self.env = 'todo'
+        self.server = Server()
+        self.hardware = Hardware()
+        self.env = Env()
         self.status = "INIT"
+        self.collection = {}
         self.index = {}
         self.search = {}
         self.run_params = {}

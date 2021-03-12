@@ -12,4 +12,4 @@ class LocalEnv(BaseEnv):
         super(LocalEnv, self).__init__(deploy_mode)
 
     def start_up(self, hostname, port):
-    	self.set_hostname(hostname)
+        self.set_hostname(hostname)
