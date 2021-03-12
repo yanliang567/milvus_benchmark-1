@@ -15,28 +15,15 @@ from milvus_benchmark.runners import get_runner
 from milvus_benchmark.metrics import api
 from milvus_benchmark import config
 from milvus_benchmark import parser
+from logs import log
+
+log.setup_logging()
+logger = logging.getLogger("milvus_benchmark.main")
 
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
 LOG_FOLDER = "logs"
 NAMESPACE = "milvus"
-LOG_PATH = "/test/milvus/benchmark/logs/"
-BRANCH = "0331"
 
-logger = logging.getLogger('milvus_benchmark.main')
-logger.setLevel(logging.DEBUG)
-# create file handler which logs even debug messages
-fh = logging.FileHandler(LOG_PATH+'benchmark-{}-{:%Y-%m-%d}.log'.format(BRANCH, datetime.now()))
-fh.setLevel(logging.DEBUG)
-# create console handler with a higher log level
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(fh)
-logger.addHandler(ch)
 
 def positive_int(s):
     i = None
@@ -176,9 +163,9 @@ def main():
             server_names.append(server_host)
             q = Queue()
             for suite_param in suite_params:
-                suite = "suites/"+suite_param["suite"]
+                suite = "suites/" + suite_param["suite"]
                 image_type = suite_param["image_type"]
-                image_tag = get_image_tag(image_version, image_type)    
+                image_tag = get_image_tag(image_version, image_type)
                 q.put({
                     "suite": suite,
                     "server_host": server_host,
@@ -194,7 +181,7 @@ def main():
 
         # debug mode
         queue_worker(queues[0])
-        
+
         # for i in range(thread_num):
         #     x = Process(target=queue_worker, args=(queues[i], ))
         #     processes.append(x)
@@ -238,17 +225,12 @@ def main():
             runner = get_runner(run_type, env, metric)
             if runner.run(collection):
                 metric.update(status="RUN_SUCC")
-                api.save(metric)
             else:
-                logger.error(str(e))
-                logger.error(traceback.format_exc())
+                metric.update(status="RUN_FAILED")
         finally:
+            api.save(metric)
             time.sleep(10)
             env.tear_down()
-            metric.update(status="CLEAN_SUCC")
-        runner = LocalRunner(host, port)
-        logger.info("Start run local mode test, test type: %s" % run_type)
-        runner.run(run_type, collection)
 
 
 if __name__ == "__main__":

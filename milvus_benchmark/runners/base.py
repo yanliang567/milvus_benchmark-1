@@ -3,6 +3,7 @@ import pdb
 import logging
 import threading
 import grpc
+import numpy as np
 
 from milvus_benchmark.env import get_env
 from milvus_benchmark import config
@@ -14,6 +15,7 @@ logger = logging.getLogger("milvus_benchmark.runners.base")
 
 class BaseRunner(object):
     """runner is actually the executors"""
+
     def __init__(self, env, metric):
         self._metric = metric
         self._env = env
@@ -37,7 +39,7 @@ class BaseRunner(object):
     @property
     def result(self):
         return self._result
-    
+
     # TODO: need to improve
     def insert_from_files(self, milvus, collection_name, data_type, dimension, size, ni):
         total_time = 0.0
@@ -59,7 +61,7 @@ class BaseRunner(object):
                 data = np.load(file_name)
                 # logger.info("Load npy file: %s end" % file_name)
                 for j in range(vectors_per_file // ni):
-                    vectors = data[j*ni:(j+1)*ni].tolist()
+                    vectors = data[j * ni:(j + 1) * ni].tolist()
                     if vectors:
                         # start insert vectors
                         start_id = i * vectors_per_file + j * ni
@@ -73,6 +75,7 @@ class BaseRunner(object):
                         except grpc.RpcError as e:
                             if e.code() == grpc.StatusCode.UNAVAILABLE:
                                 logger.debug("Retry insert")
+
                                 def retry():
                                     res_ids = milvus.insert(entities, ids=ids)
 
@@ -91,7 +94,7 @@ class BaseRunner(object):
                 vectors.clear()
                 loops = ni // vectors_per_file
                 for j in range(loops):
-                    file_name = utils.gen_file_name(loops*i+j, dimension, data_type)
+                    file_name = utils.gen_file_name(loops * i + j, dimension, data_type)
                     data = np.load(file_name)
                     vectors.extend(data.tolist())
                 if vectors:
@@ -106,6 +109,7 @@ class BaseRunner(object):
                     except grpc.RpcError as e:
                         if e.code() == grpc.StatusCode.UNAVAILABLE:
                             logger.debug("Retry insert")
+
                             def retry():
                                 res_ids = milvus.insert(entities, ids=ids)
 
@@ -124,7 +128,7 @@ class BaseRunner(object):
         rps = round(size / total_time, 2)
         ni_time = round(total_time / (size / ni), 2)
         self._result.update({
-            "total_time":round(total_time, 2),
+            "total_time": round(total_time, 2),
             "rps": rps,
             "ni_time": ni_time
         })

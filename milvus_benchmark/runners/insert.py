@@ -18,8 +18,7 @@ class InsertRunner(BaseRunner):
     def run(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         self.milvus.set_collection(collection_name)
-        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(
-            collection_name)
+        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"]
         if self.milvus.exists_collection():
@@ -42,7 +41,7 @@ class InsertRunner(BaseRunner):
             index_field_name = utils.get_default_field_name(vector_type)
             self.milvus.create_index(index_field_name, index_type, metric_type, index_param=index_param)
             logger.debug(self.milvus.describe_index(index_field_name))
-        res = self.insert_from_files(self.milvus, collection_name, data_type, dimension, collection_size, ni_per)
+        self.insert_from_files(self.milvus, collection_name, data_type, dimension, collection_size, ni_per)
         flush_time = 0.0
         if "flush" in collection and collection["flush"] == "no":
             logger.debug("No manual flush")
@@ -67,7 +66,7 @@ class InsertRunner(BaseRunner):
             build_time = time.time() - start_time
             total_time = total_time + build_time
         self.metric.metrics = {
-            "type": run_type,
+            "type": self.name,
             "value": {
                 "total_time": total_time,
                 "qps": res["qps"],

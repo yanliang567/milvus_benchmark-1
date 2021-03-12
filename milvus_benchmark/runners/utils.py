@@ -23,10 +23,13 @@ WARM_TOP_K = 1
 WARM_NQ = 1
 DEFAULT_DIM = 512
 
-RANDOM_SRC_DATA_DIR = config.RAW_DATA_DIR+'random/'
-SIFT_SRC_DATA_DIR = config.RAW_DATA_DIR+'sift1b/'
-DEEP_SRC_DATA_DIR = config.RAW_DATA_DIR+'deep1b/'
-BINARY_SRC_DATA_DIR = config.RAW_DATA_DIR+'binary/'
+RANDOM_SRC_DATA_DIR = config.RAW_DATA_DIR + 'random/'
+SIFT_SRC_DATA_DIR = config.RAW_DATA_DIR + 'sift1b/'
+DEEP_SRC_DATA_DIR = config.RAW_DATA_DIR + 'deep1b/'
+JACCARD_SRC_DATA_DIR = config.RAW_DATA_DIR + 'jaccard/'
+HAMMING_SRC_DATA_DIR = config.RAW_DATA_DIR + 'hamming/'
+STRUCTURE_SRC_DATA_DIR = config.RAW_DATA_DIR + 'structure/'
+BINARY_SRC_DATA_DIR = config.RAW_DATA_DIR + 'binary/'
 SIFT_SRC_GROUNDTRUTH_DATA_DIR = SIFT_SRC_DATA_DIR + 'gnd'
 
 DEFAULT_F_FIELD_NAME = 'float_vector'
@@ -58,6 +61,7 @@ METRIC_MAP = {
 
 
 def get_len_vectors_per_file(data_type, dimension):
+    logger.debug(data_type)
     if data_type == "random":
         if dimension == 512:
             vectors_per_file = VECTORS_PER_FILE
@@ -102,7 +106,7 @@ def get_default_field_name(data_type=DataType.FLOAT_VECTOR):
         raise Exception("Not supported data type")
     return field_name
 
-        
+
 def get_vector_type(data_type):
     vector_type = ''
     if data_type in ["random", "sift", "deep", "glove"]:
@@ -153,3 +157,21 @@ def generate_combinations(args):
         return [dict(x) for x in product(*flat)]
     else:
         raise TypeError("No args handling exists for %s" % type(args).__name__)
+
+
+def gen_file_name(idx, dimension, data_type):
+    s = "%05d" % idx
+    fname = FILE_PREFIX + str(dimension) + "d_" + s + ".npy"
+    if data_type == "random":
+        fname = RANDOM_SRC_DATA_DIR + fname
+    elif data_type == "sift":
+        fname = SIFT_SRC_DATA_DIR + fname
+    elif data_type == "deep":
+        fname = DEEP_SRC_DATA_DIR + fname
+    elif data_type == "jaccard":
+        fname = JACCARD_SRC_DATA_DIR + fname
+    elif data_type == "hamming":
+        fname = HAMMING_SRC_DATA_DIR + fname
+    elif data_type == "sub" or data_type == "super":
+        fname = STRUCTURE_SRC_DATA_DIR + fname
+    return fname
