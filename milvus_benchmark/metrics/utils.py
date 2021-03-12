@@ -18,23 +18,7 @@ def insert_or_get(md5):
     return found['_id']
 
 
-def report(obj):
-    if not isinstance(obj, Metric):
-        logging.error("obj is not instance of Metric")
-        return False
-
-    if not isinstance(obj.server, Server):
-        logging.error("obj.server is not instance of Server")
-        return False
-
-    if not isinstance(obj.hardware, Hardware):
-        logging.error("obj.hardware is not instance of Hardware")
-        return False
-
-    if not isinstance(obj.env, Env):
-        logging.error("obj.env is not instance of Env")
-        return False
-
+def save(obj):
     md5 = obj.server.json_md5()
     server_doc_id = insert_or_get(md5)
     obj.server = {"id": server_doc_id, "value": vars(obj.server)}

@@ -10,9 +10,9 @@ from milvus import Milvus, DataType
 import numpy as np
 import utils
 import config
+from milvus_benchmark.runners import utils
 
 logger = logging.getLogger("milvus_benchmark.client")
-
 
 INDEX_MAP = {
     "flat": "FLAT",
@@ -82,6 +82,9 @@ class MilvusClient(object):
 
     def __str__(self):
         return 'Milvus collection %s' % self._collection_name
+
+    def set_collection(self, collection_name):
+        self._collection_name = collection_name
 
     def check_status(self, status):
         if not status.OK():

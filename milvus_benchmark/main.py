@@ -10,9 +10,10 @@ from multiprocessing import Process
 from queue import Queue
 from logging import handlers
 from yaml import full_load, dump
-from milvus_benchmark.k8s_runner import K8sRunner
-from milvus_benchmark.local_runner import LocalRunner
-from milvus_benchmark.docker_runner import DockerRunner
+from milvus_benchmark.env import get_env
+from milvus_benchmark.runners import get_runner
+from milvus_benchmark.metrics import api
+from milvus_benchmark import config
 from milvus_benchmark import parser
 
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
@@ -21,7 +22,7 @@ NAMESPACE = "milvus"
 LOG_PATH = "/test/milvus/benchmark/logs/"
 BRANCH = "0331"
 
-logger = logging.getLogger('milvus_benchmark')
+logger = logging.getLogger('milvus_benchmark.main')
 logger.setLevel(logging.DEBUG)
 # create file handler which logs even debug messages
 fh = logging.FileHandler(LOG_PATH+'benchmark-{}-{:%Y-%m-%d}.log'.format(BRANCH, datetime.now()))
@@ -48,7 +49,7 @@ def positive_int(s):
     return i
 
 
-def get_image_tag(image_version, image_type):
+def get_image_tag(image_version):
     return "%s-release" % (image_version)
 
 
@@ -69,27 +70,51 @@ def queue_worker(queue):
 
         run_type, run_params = parser.operations_parser(suite_dict)
         collections = run_params["collections"]
+        env_mode = "helm"
+        helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/charts/milvus-ha")
+        metric = api.Metric()
         for collection in collections:
             # run tests
             milvus_config = collection["milvus"] if "milvus" in collection else None
             server_config = collection["server"] if "server" in collection else None
             logger.debug(milvus_config)
             logger.debug(server_config)
-            runner = K8sRunner()
-            if runner.init_env(milvus_config, server_config, server_host, server_tag, deploy_mode, image_type, image_tag):
-                logger.debug("Start run tests")
-                try:
-                    runner.run(run_type, collection)
-                except Exception as e:
+            helm_install_params = {
+                "server_name": server_host,
+                "server_tag": server_tag,
+                "server_config": server_config,
+                "milvus_config": milvus_config,
+                "image_tag": image_tag,
+                "image_type": image_type
+            }
+            try:
+                metric.set_run_id()
+                # metric.env = None
+                # metric.hardware = None
+                server_version = "2.0"
+                # metric.server = Server(version=server_version, mode=deploy_mode)
+                metric.run_params = run_params
+                env = get_env(env_mode, deploy_mode)
+                if not env.start_up(helm_path, helm_install_params):
+                    metric.update(status="DEPLOYE_FAILED")
+                else:
+                    metric.update(status="DEPLOYE_SUCC")
+            except Exception as e:
+                logger.error(str(e))
+                logger.error(traceback.format_exc())
+                metric.update(status="DEPLOYE_FAILED")
+            else:
+                runner = get_runner(run_type, env, metric)
+                if runner.run(run_params):
+                    metric.update(status="RUN_SUCC")
+                    api.save(metric)
+                else:
                     logger.error(str(e))
                     logger.error(traceback.format_exc())
-                finally:
-                    time.sleep(10)
-                    runner.clean_up()
-            else:
-                logger.error("Runner init failed")
-    if server_host:
-        logger.debug("All task finished in queue: %s" % server_host)
+            finally:
+                time.sleep(10)
+                env.stop()
+                metric.update(status="CLEAN_SUCC")
 
 
 def main():
@@ -192,6 +217,35 @@ def main():
         if len(collections) > 1:
             raise Exception("Multi collections not supported in Local Mode")
         collection = collections[0]
+        env_mode = "local"
+        deploy_mode = None
+        metric = api.Metric()
+        try:
+            metric.set_run_id()
+            metric.set_mode(env_mode)
+            # metric.env = None
+            # metric.hardware = None
+            server_version = "2.0"
+            # metric.server = Server(version=server_version, mode=deploy_mode)
+            env = get_env(env_mode, deploy_mode)
+            env.start_up(host, port)
+            metric.update(status="DEPLOYE_SUCC")
+        except Exception as e:
+            logger.error(str(e))
+            logger.error(traceback.format_exc())
+            metric.update(status="DEPLOYE_FAILED")
+        else:
+            runner = get_runner(run_type, env, metric)
+            if runner.run(collection):
+                metric.update(status="RUN_SUCC")
+                api.save(metric)
+            else:
+                logger.error(str(e))
+                logger.error(traceback.format_exc())
+        finally:
+            time.sleep(10)
+            env.tear_down()
+            metric.update(status="CLEAN_SUCC")
         runner = LocalRunner(host, port)
         logger.info("Start run local mode test, test type: %s" % run_type)
         runner.run(run_type, collection)

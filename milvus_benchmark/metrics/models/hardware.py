@@ -16,7 +16,7 @@ class Hardware:
     def __init__(self, name=None, cpus=0.0):
         self._version = '0.1'
         self._type = 'hardware'
-        self.name = name,
+        self.name = name
         self.cpus = cpus
 
     def json_md5(self):

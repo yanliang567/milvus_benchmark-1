@@ -20,8 +20,7 @@ import milvus_benchmark.parser
 from milvus_benchmark.runner import Runner
 from milvus_benchmark.metrics.api import report
 from milvus_benchmark.metrics.models import Env, Hardware, Server, Metric
-from milvus_benchmark.env.helm import HelmEnv
-from milvus_benchmark.env import helm_utils
+from milvus_benchmark.env import get_env
 from milvus_benchmark import utils
 from milvus_benchmark import config
 from milvus_benchmark import parser
@@ -45,6 +44,7 @@ class K8sRunner(Runner):
         self.hostname = None
         self.server_host = None
         self.env_value = None
+        self._env_mode = "helm"
         self.hardware = Hardware()
         self.deploy_mode = None
         self.env = None
@@ -91,7 +91,7 @@ class K8sRunner(Runner):
         }
         logger.debug(helm_install_params)
         try:
-            self.env = HelmEnv(deploy_mode)
+            self.env = get_env(self._env_mode)
             logger.debug(self.env.name)
             self.hostname = self.env.start_up(helm_path, helm_install_params)
             logger.debug(self.hostname)

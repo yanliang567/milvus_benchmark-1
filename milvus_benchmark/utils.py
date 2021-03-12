@@ -14,7 +14,6 @@ import random
 import numpy as np
 # import psutil
 import sklearn.preprocessing
-import h5py
 # import docker
 from yaml import full_load, dump
 import yaml
@@ -23,27 +22,6 @@ from pprint import pprint
 from milvus import DataType
 
 logger = logging.getLogger("milvus_benchmark.utils")
-
-DEFAULT_F_FIELD_NAME = 'float_vector'
-DEFAULT_B_FIELD_NAME = 'binary_vector'
-DEFAULT_INT_FIELD_NAME = 'int64'
-DEFAULT_FLOAT_FIELD_NAME = 'float'
-
-METRIC_MAP = {
-    "l2": "L2",
-    "ip": "IP",
-    "jaccard": "JACCARD",
-    "hamming": "HAMMING",
-    "sub": "SUBSTRUCTURE",
-    "super": "SUPERSTRUCTURE"
-}
-
-
-def metric_type_trans(metric_type):
-    if metric_type in METRIC_MAP.keys():
-        return METRIC_MAP[metric_type]
-    else:
-        raise Exception("metric_type: %s not in METRIC_MAP" % metric_type)
 
 
 def timestr_to_int(time_str):
@@ -122,35 +100,6 @@ def timestr_to_int(time_str):
     return time_int
 
 
-def get_default_field_name(data_type=DataType.FLOAT_VECTOR):
-    if data_type == DataType.FLOAT_VECTOR:
-        field_name = DEFAULT_F_FIELD_NAME
-    elif data_type == DataType.BINARY_VECTOR:
-        field_name = DEFAULT_B_FIELD_NAME
-    elif data_type == DataType.INT64:
-        field_name = DEFAULT_INT_FIELD_NAME
-    elif data_type == DataType.FLOAT:
-        field_name = DEFAULT_FLOAT_FIELD_NAME
-    else:
-        logger.error(data_type)
-        raise Exception("Not supported data type")
-    return field_name
-
-
-def normalize(metric_type, X):
-    if metric_type == "ip":
-        logger.info("Set normalize for metric_type: %s" % metric_type)
-        X = sklearn.preprocessing.normalize(X, axis=1, norm='l2')
-        X = X.tolist()
-    elif metric_type in ["jaccard", "hamming", "sub", "super"]:
-        tmp = []
-        for index, item in enumerate(X):
-            new_vector = bytes(np.packbits(item, axis=-1).tolist())
-            tmp.append(new_vector)
-        X = tmp
-    return X
-
-
 def convert_nested(dct):
     def insert(dct, lst):
         for x in lst[:-2]:
@@ -188,13 +137,6 @@ def print_table(headers, columns, data):
         tmp.extend(data[index])
         bodys.append(tmp)
     tp.table(bodys, headers)
-
-
-def get_dataset(hdf5_file_path):
-    if not os.path.exists(hdf5_file_path):
-        raise Exception("%s not existed" % hdf5_file_path)
-    dataset = h5py.File(hdf5_file_path)
-    return dataset
 
 
 def modify_config(k, v, type=None, file_path="conf/server_config.yaml", db_slave=None):

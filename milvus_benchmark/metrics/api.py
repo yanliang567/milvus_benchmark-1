@@ -1,1 +1,2 @@
-from milvus_benchmark.metrics.utils import report
+from .utils import save
+from .models.metric import Metric

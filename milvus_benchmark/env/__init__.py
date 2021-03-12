@@ -1,28 +1,14 @@
 import logging
-from milvus_benchmark import utils
+from .helm import HelmEnv
+from .docker import DockerEnv
+from .local import LocalEnv
 
 logger = logging.getLogger("milvus_benchmark.env")
 
 
-class Env(object):
-    """docstring for Env"""
-    def __init__(self, deploy_mode="single"):
-        self.deploy_mode = deploy_mode
-        self._name = utils.get_unique_name()
-
-    def start_up(self):
-        logger.debug("IN ENV CLASS")
-        pass
-
-    def tear_down(self):
-        pass
-
-    def restart(self):
-        pass
-
-    def resources(self):
-        pass
-
-    @property
-    def name(self):
-        return self._name
+def get_env(env_mode, deploy_mode=None):
+    return {
+        "helm": HelmEnv(deploy_mode),
+        "docker": DockerEnv(None),
+        "local": LocalEnv(None),
+    }.get(env_mode)

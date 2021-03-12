@@ -3,21 +3,24 @@ import time
 import logging
 import traceback
 
-from milvus_benchmark.env import Env
-from milvus_benchmark.env import utils
 from milvus_benchmark.env import helm_utils
+from milvus_benchmark.env.base import BaseEnv
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.env.helm")
 
 
-class HelmEnv(Env):
+class HelmEnv(BaseEnv):
     """helm env class wrapper"""
-    def __init__(self, deploy_mode):
+    env_mode = "helm"
+
+    def __init__(self, deploy_mode="single"):
         super(HelmEnv, self).__init__(deploy_mode)
+        self._name_space = config.HELM_NAMESPACE
 
     def start_up(self, helm_path, helm_install_params):
-        self.namespace = helm_install_params["namespace"] if "namespace" in helm_install_params else config.HELM_NAMESPACE
+        if "namespace" in helm_install_params:
+            self._name_space = helm_install_params["namespace"]
         server_name = helm_install_params["server_name"]
         server_tag = helm_install_params["server_tag"] if "server_tag" in helm_install_params else None
         server_config = helm_install_params["server_config"]
@@ -37,12 +40,13 @@ class HelmEnv(Env):
                 logger.debug("Config file has been updated")
             logger.debug("Start install server")
             hostname = helm_utils.helm_install_server(helm_path,self.deploy_mode, image_tag, image_type, self.name,
-                                                       self.namespace)
+                                                       self._name_space)
             if not hostname:
                 logger.error("Helm install server failed")
                 self.clean_up()
                 return False
             else:
+                self.set_hostname(hostname)
                 return hostname
         except Exception as e:
             logger.error("Helm install server failed: %s" % (str(e)))
@@ -51,5 +55,5 @@ class HelmEnv(Env):
             return False
 
     def tear_down(self):
-        logger.debug("Start clean up: {}.{}".format(self.name, self.namespace))
-        helm_utils.helm_del_server(self.name, self.namespace)
+        logger.debug("Start clean up: {}.{}".format(self.name, self._name_space))
+        helm_utils.helm_del_server(self.name, self._name_space)

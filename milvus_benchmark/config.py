@@ -7,3 +7,6 @@ SERVER_PORT_DEFAULT = 19530
 HELM_NAMESPACE = "milvus"
 
 DEFAULT_CPUS = 32
+
+RAW_DATA_DIR = "/test/milvus/raw_data/"
+
