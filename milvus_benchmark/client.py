@@ -29,6 +29,8 @@ INDEX_MAP = {
     "rhnsw_sq": "RHNSW_SQ"
 }
 epsilon = 0.1
+DEFAULT_WARM_QUERY_TOPK = 1
+DEFAULT_WARM_QUERY_NQ = 1
 
 
 def time_wrapper(func):
@@ -286,6 +288,25 @@ class MilvusClient(object):
         }
         result = self._milvus.search(tmp_collection_name, query)
         return result
+
+    @time_wrapper
+    def warm_query(self, index_field_name, search_param, times=2):
+        query_vectors = [[random.random() for _ in range(self._dimension)] for _ in range(DEFAULT_WARM_QUERY_NQ)]
+        index_info = self.describe_index(index_field_name)
+        vector_query = {"vector": {index_field_name: {
+            "topk": DEFAULT_WARM_QUERY_TOPK, 
+            "query": query_vectors, 
+            "metric_type": index_info["metric_type"], 
+            "params": search_param}
+        }}
+        must_params = [vector_query]
+        query = {
+            "bool": {"must": must_params}
+        }
+        logger.debug("Start warm up query")
+        for i in range(times):
+            self._milvus.search(self._collection_name, query)
+        logger.debug("End warm up query")
 
     @time_wrapper
     def load_and_query(self, vector_query, filter_query=None, collection_name=None):

@@ -11,5 +11,5 @@ class LocustRunner(BaseRunner):
     def __init__(self, env, metric):
         super(LocustRunner, self).__init__(env, metric)
 
-    def run(self, run_params):
+    def run_case(self, case_metric, **case_param):
     	pass

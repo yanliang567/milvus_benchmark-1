@@ -19,6 +19,7 @@ class BaseRunner(object):
     def __init__(self, env, metric):
         self._metric = metric
         self._env = env
+        self._run_as_group = False
         self._result = dict()
         self._milvus = MilvusClient(host=self._env.hostname)
 
@@ -40,12 +41,19 @@ class BaseRunner(object):
     def result(self):
         return self._result
 
-    def report_metric(self, collection_info, index_info, search_params, run_params={}):
+    @property
+    def run_as_group(self):
+        return self._run_as_group
+    
+    def update_metric(self, name, collection_info, index_info, search_info, run_params={}):
         self._metric.collection = collection_info
         self._metric.index = index_info
-        self._metric.search = search_params
+        self._metric.search = search_info
         self._metric.run_params = run_params
-        return self._metric
+        self._metric.metrics = {
+            "type": name,
+            "value": self._result
+        }
 
     # TODO: need to improve
     def insert_from_files(self, milvus, collection_name, data_type, dimension, size, ni):

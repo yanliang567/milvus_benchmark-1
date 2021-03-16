@@ -37,5 +37,8 @@ class Metric(object):
         json_str = json.dumps(vars(self), sort_keys=True)
         return hashlib.md5(json_str.encode('utf-8')).hexdigest()
 
-    def update(self, status):
+    def update_status(self, status):
         self.status = status
+
+    def update_result(self, result):
+        self.metrics["value"].update(result)

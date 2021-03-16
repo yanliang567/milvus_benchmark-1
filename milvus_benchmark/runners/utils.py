@@ -78,6 +78,23 @@ def get_len_vectors_per_file(data_type, dimension):
     return vectors_per_file
 
 
+def get_vectors_from_binary(nq, dimension, data_type):
+    # use the first file, nq should be less than VECTORS_PER_FILE
+    if nq > MAX_NQ:
+        raise Exception("Over size nq")
+    if data_type == "random":
+        file_name = RANDOM_SRC_DATA_DIR+'query_%d.npy' % dimension
+    elif data_type == "sift":
+        file_name = SIFT_SRC_DATA_DIR+'query.npy'
+    elif data_type == "deep":
+        file_name = DEEP_SRC_DATA_DIR+'query.npy'
+    elif data_type == "binary":
+        file_name = BINARY_SRC_DATA_DIR+'query.npy'
+    data = np.load(file_name)
+    vectors = data[0:nq].tolist()
+    return vectors
+
+
 def metric_type_trans(metric_type):
     if metric_type in METRIC_MAP.keys():
         return METRIC_MAP[metric_type]

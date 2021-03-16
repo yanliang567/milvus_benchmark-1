@@ -194,8 +194,8 @@ def main():
         # for local mode
         host = args.host
         port = args.port
-        suite = args.suite
-        with open(suite) as f:
+        suite_file = args.suite
+        with open(suite_file) as f:
             suite_dict = full_load(f)
             f.close()
         logger.debug(suite_dict)
@@ -203,7 +203,7 @@ def main():
         collections = run_params["collections"]
         if len(collections) > 1:
             raise Exception("Multi collections not supported in Local Mode")
-        collection = collections[0]
+        suite = collections[0]
         env_mode = "local"
         deploy_mode = None
         metric = api.Metric()
@@ -216,17 +216,21 @@ def main():
             # metric.server = Server(version=server_version, mode=deploy_mode)
             env = get_env(env_mode, deploy_mode)
             env.start_up(host, port)
-            metric.update(status="DEPLOYE_SUCC")
+            metric.update_status(status="DEPLOYE_SUCC")
         except Exception as e:
             logger.error(str(e))
             logger.error(traceback.format_exc())
-            metric.update(status="DEPLOYE_FAILED")
+            metric.update_status(status="DEPLOYE_FAILED")
         else:
             runner = get_runner(run_type, env, metric)
-            if runner.run(collection):
-                metric.update(status="RUN_SUCC")
-            else:
-                metric.update(status="RUN_FAILED")
+            cases, case_metrics = runner.extract_cases(suite)
+            for index, case in enumerate(cases):
+                case_metric = case_metrics[index]
+                if runner.run_case(case_metric, **case):
+                    case_metric.update_status(status="RUN_SUCC")
+                else:
+                    case_metric.update_status(status="RUN_FAILED")
+                api.save(case_metric)
         finally:
             api.save(metric)
             time.sleep(10)
