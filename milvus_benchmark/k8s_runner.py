@@ -707,6 +707,7 @@ class K8sRunner(Runner):
                     if index_type != "flat":
                         milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
                     logger.info(milvus_instance.describe_index(index_field_name))
+                    milvus_instance.release_collection()
                     logger.info("Start load collection: %s" % collection_name)
                     milvus_instance.load_collection()
                     logger.info("End load collection: %s" % collection_name)

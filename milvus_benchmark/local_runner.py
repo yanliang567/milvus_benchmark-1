@@ -358,12 +358,12 @@ class LocalRunner(Runner):
             logger.info("Table: %s, row count: %d" % (collection_name, res_count))
             if res_count != len(insert_vectors):
                 raise Exception("Table row count is not equal to insert vectors")
-            logger.info(milvus_instance.get_stats())
             for index_type in index_types:
                 for index_param in index_params:
                     logger.debug("Building index with param: %s, metric_type: %s" % (json.dumps(index_param), metric_type))
                     if index_type != "flat":
                         milvus_instance.create_index(vec_field_name, index_type, metric_type, index_param=index_param)
+                    milvus_instance.release_collection()
                     logger.info("Start preload collection: %s" % collection_name)
                     milvus_instance.load_collection()
                     for search_param in search_params:
