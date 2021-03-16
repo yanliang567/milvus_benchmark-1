@@ -298,13 +298,15 @@ class MilvusClient(object):
         return result
 
     def get_ids(self, result):
-        idss = result._entities.ids
+        # idss = result._entities.ids
         ids = []
-        len_idss = len(idss)
-        len_r = len(result)
-        top_k = len_idss // len_r
-        for offset in range(0, len_idss, top_k):
-            ids.append(idss[offset: min(offset + top_k, len_idss)])
+        # len_idss = len(idss)
+        # len_r = len(result)
+        # top_k = len_idss // len_r
+        # for offset in range(0, len_idss, top_k):
+        #     ids.append(idss[offset: min(offset + top_k, len_idss)])
+        for res in result:
+            ids.append(res.ids)
         return ids
 
     def query_rand(self, nq_max=100):
