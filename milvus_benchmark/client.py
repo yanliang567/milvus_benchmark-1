@@ -60,8 +60,6 @@ class MilvusClient(object):
             host = config.SERVER_HOST_DEFAULT
         if not port:
             port = config.SERVER_PORT_DEFAULT
-        logger.debug(host)
-        logger.debug(port)
         # retry connect remote server
         i = 0
         while time.time() < start_time + timeout:
@@ -88,12 +86,13 @@ class MilvusClient(object):
     def set_collection(self, collection_name):
         self._collection_name = collection_name
 
-    def check_status(self, status):
-        if not status.OK():
-            logger.error(status.message)
-            logger.error(self._milvus.server_status())
-            logger.error(self.count())
-            raise Exception("Status not ok")
+    # TODO: server not support
+    # def check_status(self, status):
+    #     if not status.OK():
+    #         logger.error(status.message)
+    #         logger.error(self._milvus.server_status())
+    #         logger.error(self.count())
+    #         raise Exception("Status not ok")
 
     def check_result_ids(self, result):
         for index, item in enumerate(result):
@@ -394,7 +393,7 @@ class MilvusClient(object):
                 else:
                     break
             except Exception as e:
-                logger.warning(str(e))
+                logger.warning("Collection count failed: {}".format(str(e)))
                 break
         if i >= timeout:
             logger.error("Delete collection timeout")

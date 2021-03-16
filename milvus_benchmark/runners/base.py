@@ -2,6 +2,7 @@ import time
 import pdb
 import logging
 import threading
+import traceback
 import grpc
 import numpy as np
 
@@ -45,7 +46,7 @@ class BaseRunner(object):
     def run_as_group(self):
         return self._run_as_group
     
-    def update_metric(self, name, collection_info, index_info, search_info, run_params={}):
+    def init_metric(self, name, collection_info=None, index_info=None, search_info=None, run_params=None):
         self._metric.collection = collection_info
         self._metric.index = index_info
         self._metric.search = search_info
@@ -55,15 +56,16 @@ class BaseRunner(object):
             "value": self._result
         }
 
+    # TODO: need an easy method to change value in metric
+    def update_metric(self, key, value):
+        pass
+
     # TODO: need to improve
     def insert_from_files(self, milvus, collection_name, data_type, dimension, size, ni):
         total_time = 0.0
-        qps = 0.0
+        rps = 0.0
         ni_time = 0.0
         vectors_per_file = utils.get_len_vectors_per_file(data_type, dimension)
-        logger.debug(vectors_per_file)
-        logger.debug(size)
-        logger.debug(ni)
         if size % vectors_per_file or size % ni:
             logger.error("Not invalid collection size or ni")
             return False
@@ -86,18 +88,10 @@ class BaseRunner(object):
                         entities = milvus.generate_entities(vectors, ids)
                         ni_start_time = time.time()
                         try:
-                            res_ids = milvus.insert(entities, ids=ids)
+                            _res_ids = milvus.insert(entities, ids=ids)
                         except grpc.RpcError as e:
-                            if e.code() == grpc.StatusCode.UNAVAILABLE:
-                                logger.debug("Retry insert")
-
-                                def retry():
-                                    res_ids = milvus.insert(entities, ids=ids)
-
-                                t0 = threading.Thread(target=retry)
-                                t0.start()
-                                t0.join()
-                                logger.debug("Retry successfully")
+                            logger.error(str(e))
+                            logger.error(traceback.format_exc())
                             raise e
                         # assert ids == res_ids
                         # milvus.flush()
@@ -120,18 +114,10 @@ class BaseRunner(object):
                     entities = milvus.generate_entities(vectors, ids)
                     ni_start_time = time.time()
                     try:
-                        res_ids = milvus.insert(entities, ids=ids)
-                    except grpc.RpcError as e:
-                        if e.code() == grpc.StatusCode.UNAVAILABLE:
-                            logger.debug("Retry insert")
-
-                            def retry():
-                                res_ids = milvus.insert(entities, ids=ids)
-
-                            t0 = threading.Thread(target=retry)
-                            t0.start()
-                            t0.join()
-                            logger.debug("Retry successfully")
+                        _res_ids = milvus.insert(entities, ids=ids)
+                    except Exception as e:
+                        logger.error(str(e))
+                        logger.error(traceback.format_exc())
                         raise e
 
                     # assert ids == res_ids

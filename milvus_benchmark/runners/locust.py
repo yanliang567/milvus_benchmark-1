@@ -6,7 +6,7 @@ logger = logging.getLogger("milvus_benchmark.runners.locust")
 
 class LocustRunner(BaseRunner):
     """run insert"""
-    name = "LocustRunner"
+    name = "locust_performance"
 
     def __init__(self, env, metric):
         super(LocustRunner, self).__init__(env, metric)

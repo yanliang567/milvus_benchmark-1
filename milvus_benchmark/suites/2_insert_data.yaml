@@ -1,4 +1,4 @@
-InsertRunner:
+insert_performance:
   collections:
      -
        milvus:
@@ -17,7 +17,7 @@ InsertRunner:
          wal_enable: true
        collection_name: sift_10w_128_l2
 #       other_fields: int,float
-       ni_per: 20000
+       ni_per: 50000
        build_index: false
        index_type: ivf_sq8
        index_param:

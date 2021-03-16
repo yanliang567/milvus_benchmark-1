@@ -1,4 +1,4 @@
-search_performance:
+insert_search_performance:
   collections:
     -
       milvus:

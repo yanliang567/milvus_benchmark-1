@@ -10,6 +10,10 @@ from multiprocessing import Process
 from queue import Queue
 from logging import handlers
 from yaml import full_load, dump
+from milvus_benchmark.metrics.models.server import Server
+from milvus_benchmark.metrics.models.hardware import Hardware
+from milvus_benchmark.metrics.models.env import Env
+
 from milvus_benchmark.env import get_env
 from milvus_benchmark.runners import get_runner
 from milvus_benchmark.metrics import api
@@ -210,10 +214,10 @@ def main():
         try:
             metric.set_run_id()
             metric.set_mode(env_mode)
-            # metric.env = None
-            # metric.hardware = None
-            # server_version = "2.0"
-            # metric.server = Server(version=server_version, mode=deploy_mode)
+            metric.env = Env()
+            metric.hardware = Hardware()
+            server_version = "2.0"
+            metric.server = Server(version=server_version, mode=deploy_mode)
             env = get_env(env_mode, deploy_mode)
             env.start_up(host, port)
             metric.update_status(status="DEPLOYE_SUCC")
@@ -223,6 +227,7 @@ def main():
             metric.update_status(status="DEPLOYE_FAILED")
         else:
             runner = get_runner(run_type, env, metric)
+            logger.debug(suite)
             cases, case_metrics = runner.extract_cases(suite)
             for index, case in enumerate(cases):
                 case_metric = case_metrics[index]
@@ -230,6 +235,10 @@ def main():
                     case_metric.update_status(status="RUN_SUCC")
                 else:
                     case_metric.update_status(status="RUN_FAILED")
+                logger.debug(case_metric.collection)
+                logger.debug(case_metric.index)
+                logger.debug(case_metric.search)
+                logger.debug(case_metric.metrics)
                 api.save(case_metric)
         finally:
             api.save(metric)

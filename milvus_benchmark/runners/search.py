@@ -1,5 +1,7 @@
 import time
 import pdb
+import copy
+import json
 import logging
 from milvus_benchmark import parser
 from milvus_benchmark.runners import utils
@@ -8,19 +10,16 @@ from milvus_benchmark.runners.base import BaseRunner
 logger = logging.getLogger("milvus_benchmark.runners.search")
 
 
-
 class SearchRunner(BaseRunner):
     """run search"""
-    name = "SearchRunner"
+    name = "search_performance"
 
     def __init__(self, env, metric):
         super(SearchRunner, self).__init__(env, metric)
-        self.run_as_group = True
 
-    def extract_cases(self, suite):
-        collection = suite["collection"]
+    def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
-        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
+        (data_type, _collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         run_count = collection["run_count"]
         top_ks = collection["top_ks"]
         nqs = collection["nqs"]
@@ -36,12 +35,15 @@ class SearchRunner(BaseRunner):
             "dataset_name": collection_name,
             "fields": fields
         }
+        # TODO: need to get index_info
         index_info = None
-        vector_type = self.get_vector_type(data_type)
+        vector_type = utils.get_vector_type(data_type)
         index_field_name = utils.get_default_field_name(vector_type)
         base_query_vectors = utils.get_vectors_from_binary(utils.MAX_NQ, dimension, data_type)
-        cases = list[]
+        cases = list()
         case_metrics = list()
+        self.init_metric(self.name, collection_info, index_info, None)
+        case_metric = copy.deepcopy(self.metric)
         for search_param in search_params:
             logger.info("Search param: %s" % json.dumps(search_param))
             if not filters:
@@ -58,36 +60,39 @@ class SearchRunner(BaseRunner):
                 for nq in nqs:
                     query_vectors = base_query_vectors[0:nq]
                     for top_k in top_ks:
-                        for i in range(run_count):
-                            search_info = {
-                                "topk": top_k, 
-                                "query": query_vectors, 
-                                "metric_type": utils.metric_type_trans(metric_type), 
-                                "params": search_param}
-                            self.update_metric(self.name, collection_info, index_info, search_info)
-                            vector_query = {"vector": {vec_field_name: search_info}}
-                            case = {
-                                "collection_name": collection_name,
-                                "index_field_name": index_field_name,
-                                "run_count": run_count,
-                                "filter_query": filter_query,
-                                "vector_query": vector_query,
-                            }
-                            cases.append(case)
-                            case_metrics.append(case_metric)
+                        search_info = {
+                            "topk": top_k, 
+                            "query": query_vectors, 
+                            "metric_type": utils.metric_type_trans(metric_type), 
+                            "params": search_param}
+                        # TODO: only update search_info
+                        case_metric.search = {
+                            "nq": nq,
+                            "topk": top_k,
+                            "search_param": search_param,
+                            "filter": filter_param
+                        }
+                        vector_query = {"vector": {index_field_name: search_info}}
+                        case = {
+                            "collection_name": collection_name,
+                            "index_field_name": index_field_name,
+                            "run_count": run_count,
+                            "filter_query": filter_query,
+                            "vector_query": vector_query,
+                        }
+                        cases.append(case)
+                        case_metrics.append(case_metric)
         return cases, case_metrics
 
     def run_case(self, case_metric, **case_param):
         collection_name = case_param["collection_name"]
-        index_field_name = case_param["index_field_name"]
+        # index_field_name = case_param["index_field_name"]
         run_count = case_param["run_count"]
 
         self.milvus.set_collection(collection_name)
         if not self.milvus.exists_collection():
             logger.error("collection name: {} not existed".format(collection_name))
             return False
-        index_info = self.milvus.describe_index(index_field_name)
-        logger.debug(index_info)
         logger.debug(self.milvus.count())
         logger.info("Start load collection")
         self.milvus.load_collection()
@@ -99,34 +104,39 @@ class SearchRunner(BaseRunner):
         for i in range(run_count):
             logger.debug("Start run query, run %d of %s" % (i+1, run_count))
             start_time = time.time()
-            query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
+            _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
             interval_time = time.time() - start_time
             total_query_time += interval_time
             if (i == 0) or (min_query_time > interval_time):
                 min_query_time = round(interval_time, 2)
         avg_query_time = round(total_query_time/run_count, 2)
         logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
-        case_metric.update_result({"search_time": min_query_time, "avc_search_time": avg_query_time})
+        case_metric.metrics["value"].update({"search_time": min_query_time, "avc_search_time": avg_query_time})
         # TODO: return result
 
 
 class InsertSearchRunner(BaseRunner):
     """run insert and search"""
-    name = "InsertSearchRunner"
+    name = "insert_search_performance"
 
     def __init__(self, env, metric):
         super(InsertSearchRunner, self).__init__(env, metric)
 
-    def extract_cases(self, suite):
-        collection = suite["collection"]
+    def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
+        build_index = collection["build_index"] if "build_index" in collection else False
+        index_type = collection["index_type"] if "index_type" in collection else None
+        index_param = collection["index_param"] if "index_param" in collection else None
         run_count = collection["run_count"]
         top_ks = collection["top_ks"]
         nqs = collection["nqs"]
+        other_fields = collection["other_fields"] if "other_fields" in collection else None
         filters = collection["filters"] if "filters" in collection else []
         filter_query = []
         search_params = collection["search_params"]
+        ni_per = collection["ni_per"]
+
         # TODO: get fields by describe_index
         # fields = self.get_fields(self.milvus, collection_name)
         fields = None
@@ -136,13 +146,18 @@ class InsertSearchRunner(BaseRunner):
             "dataset_name": collection_name,
             "fields": fields
         }
-        vector_type = self.get_vector_type(data_type)
+        index_info = {
+            "index_type": index_type,
+            "index_param": index_param
+        }
+        vector_type = utils.get_vector_type(data_type)
         index_field_name = utils.get_default_field_name(vector_type)
         base_query_vectors = utils.get_vectors_from_binary(utils.MAX_NQ, dimension, data_type)
-        cases = list[]
+        cases = list()
         case_metrics = list()
+        self.init_metric(self.name, collection_info, index_info, None)
+        case_metric = copy.deepcopy(self.metric)
         for search_param in search_params:
-            logger.info("Search param: %s" % json.dumps(search_param))
             if not filters:
                 filters.append(None)
             for filter in filters:
@@ -157,28 +172,37 @@ class InsertSearchRunner(BaseRunner):
                 for nq in nqs:
                     query_vectors = base_query_vectors[0:nq]
                     for top_k in top_ks:
-                        for i in range(run_count):
-                            search_info = {
-                                "topk": top_k, 
-                                "query": query_vectors, 
-                                "metric_type": utils.metric_type_trans(metric_type), 
-                                "params": search_param}
-                            self.update_metric(self.name, collection_info, index_info, search_info)
-                            vector_query = {"vector": {vec_field_name: search_info}}
-                            case = {
-                                "collection_name": collection_name,
-                                "index_field_name": index_field_name,
-                                "data_type": data_type,
-                                "build_index": build_index,
-                                "index_type": index_type,
-                                "index_param": index_param,
-
-                                "run_count": run_count,
-                                "filter_query": filter_query,
-                                "vector_query": vector_query,
-                            }
-                            cases.append(case)
-                            case_metrics.append(case_metric)
+                        search_info = {
+                            "topk": top_k, 
+                            "query": query_vectors, 
+                            "metric_type": utils.metric_type_trans(metric_type), 
+                            "params": search_param}
+                        # TODO: only update search_info
+                        case_metric.search = {
+                            "nq": nq,
+                            "topk": top_k,
+                            "search_param": search_param,
+                            "filter": filter_param
+                        }
+                        vector_query = {"vector": {index_field_name: search_info}}
+                        case = {
+                            "collection_name": collection_name,
+                            "index_field_name": index_field_name,
+                            "other_fields": other_fields,
+                            "dimension": dimension,
+                            "data_type": data_type,
+                            "vector_type": vector_type,
+                            "collection_size": collection_size,
+                            "ni_per": ni_per,
+                            "build_index": build_index,
+                            "index_type": index_type,
+                            "index_param": index_param,
+                            "run_count": run_count,
+                            "filter_query": filter_query,
+                            "vector_query": vector_query,
+                        }
+                        cases.append(case)
+                        case_metrics.append(case_metric)
         return cases, case_metrics
 
     def run_case(self, case_metric, **case_param):
@@ -188,6 +212,7 @@ class InsertSearchRunner(BaseRunner):
         other_fields = case_param["other_fields"]
         index_field_name = case_param["index_field_name"]
         run_count = case_param["run_count"]
+        build_index = case_param["build_index"]
 
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
@@ -205,35 +230,37 @@ class InsertSearchRunner(BaseRunner):
         #     "fields": fields
         # }
         if build_index is True:
-            self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"], index_param=case_param["index_param"])
-            logger.debug(self.milvus.describe_index(index_field_name))
+            if case_param["index_type"]:
+                self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"], index_param=case_param["index_param"])
+                logger.debug(self.milvus.describe_index(index_field_name))
+            else:
+                build_index = False
+                logger.warning("Please specify the index_type")
         self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         flush_time = 0.0
         build_time = 0.0
         start_time = time.time()
         self.milvus.flush()
-        flush_time = time.time() - start_time
+        flush_time = round(time.time()-start_time, 2)
         logger.debug(self.milvus.count())
-        if case_param["build_index"] is True:
+        if build_index is True:
             logger.debug("Start build index for last file")
             start_time = time.time()
             self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"], index_param=case_param["index_param"])
-            build_time = time.time() - start_time
+            build_time = round(time.time()-start_time, 2)
         tmp_result = {"flush_time": flush_time, "build_time": build_time}
-        index_info = self.milvus.describe_index(index_field_name)
-        logger.info(index_info)
         logger.info(self.milvus.count())
         logger.info("Start load collection")
         load_start_time = time.time() 
         self.milvus.load_collection()
-        tmp_result.update({"load_time": time.time()-load_start_time})
+        tmp_result.update({"load_time": round(time.time()-load_start_time, 2)})
         avg_query_time = 0.0
         min_query_time = 0.0
         total_query_time = 0.0        
         for i in range(run_count):
             logger.debug("Start run query, run %d of %s" % (i+1, run_count))
             start_time = time.time()
-            query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
+            _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
             interval_time = time.time() - start_time
             total_query_time += interval_time
             if (i == 0) or (min_query_time > interval_time):
@@ -241,5 +268,5 @@ class InsertSearchRunner(BaseRunner):
         avg_query_time = round(total_query_time/run_count, 2)
         logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
         tmp_result.update({"search_time": min_query_time, "avc_search_time": avg_query_time})
-        case_metric.update_result(tmp_result)
+        case_metric.metrics["value"].update(tmp_result)
         # TODO: return result

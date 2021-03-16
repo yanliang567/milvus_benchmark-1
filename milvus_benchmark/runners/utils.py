@@ -61,7 +61,6 @@ METRIC_MAP = {
 
 
 def get_len_vectors_per_file(data_type, dimension):
-    logger.debug(data_type)
     if data_type == "random":
         if dimension == 512:
             vectors_per_file = VECTORS_PER_FILE
