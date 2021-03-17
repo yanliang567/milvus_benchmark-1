@@ -84,11 +84,8 @@ class SearchRunner(BaseRunner):
                         case_metrics.append(case_metric)
         return cases, case_metrics
 
-    def run_case(self, case_metric, **case_param):
+    def prepare(self, **case_param):
         collection_name = case_param["collection_name"]
-        # index_field_name = case_param["index_field_name"]
-        run_count = case_param["run_count"]
-
         self.milvus.set_collection(collection_name)
         if not self.milvus.exists_collection():
             logger.error("collection name: {} not existed".format(collection_name))
@@ -98,6 +95,10 @@ class SearchRunner(BaseRunner):
         self.milvus.load_collection()
         # TODO: enable warm query
         # self.milvus.warm_query(index_field_name, search_params[0], times=2)
+
+    def run_case(self, case_metric, **case_param):
+        # index_field_name = case_param["index_field_name"]
+        run_count = case_param["run_count"]
         avg_query_time = 0.0
         min_query_time = 0.0
         total_query_time = 0.0        
@@ -110,9 +111,8 @@ class SearchRunner(BaseRunner):
             if (i == 0) or (min_query_time > interval_time):
                 min_query_time = round(interval_time, 2)
         avg_query_time = round(total_query_time/run_count, 2)
-        logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
-        case_metric.metrics["value"].update({"search_time": min_query_time, "avc_search_time": avg_query_time})
-        # TODO: return result
+        tmp_result = {"search_time": min_query_time, "avc_search_time": avg_query_time}
+        return tmp_result
 
 
 class InsertSearchRunner(BaseRunner):
@@ -156,7 +156,6 @@ class InsertSearchRunner(BaseRunner):
         cases = list()
         case_metrics = list()
         self.init_metric(self.name, collection_info, index_info, None)
-        case_metric = copy.deepcopy(self.metric)
         for search_param in search_params:
             if not filters:
                 filters.append(None)
@@ -178,6 +177,7 @@ class InsertSearchRunner(BaseRunner):
                             "metric_type": utils.metric_type_trans(metric_type), 
                             "params": search_param}
                         # TODO: only update search_info
+                        case_metric = copy.deepcopy(self.metric)
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
@@ -205,13 +205,12 @@ class InsertSearchRunner(BaseRunner):
                         case_metrics.append(case_metric)
         return cases, case_metrics
 
-    def run_case(self, case_metric, **case_param):
+    def prepare(self, **case_param):
         collection_name = case_param["collection_name"]
         dimension = case_param["dimension"]
         vector_type = case_param["vector_type"]
         other_fields = case_param["other_fields"]
         index_field_name = case_param["index_field_name"]
-        run_count = case_param["run_count"]
         build_index = case_param["build_index"]
 
         self.milvus.set_collection(collection_name)
@@ -248,12 +247,15 @@ class InsertSearchRunner(BaseRunner):
             start_time = time.time()
             self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"], index_param=case_param["index_param"])
             build_time = round(time.time()-start_time, 2)
-        tmp_result = {"flush_time": flush_time, "build_time": build_time}
+        logger.debug({"flush_time": flush_time, "build_time": build_time})
         logger.info(self.milvus.count())
         logger.info("Start load collection")
         load_start_time = time.time() 
         self.milvus.load_collection()
-        tmp_result.update({"load_time": round(time.time()-load_start_time, 2)})
+        logger.debug({"load_time": round(time.time()-load_start_time, 2)})
+        
+    def run_case(self, case_metric, **case_param):
+        run_count = case_param["run_count"]
         avg_query_time = 0.0
         min_query_time = 0.0
         total_query_time = 0.0        
@@ -267,6 +269,5 @@ class InsertSearchRunner(BaseRunner):
                 min_query_time = round(interval_time, 2)
         avg_query_time = round(total_query_time/run_count, 2)
         logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
-        tmp_result.update({"search_time": min_query_time, "avc_search_time": avg_query_time})
-        case_metric.metrics["value"].update(tmp_result)
-        # TODO: return result
+        tmp_result = {"search_time": min_query_time, "avc_search_time": avg_query_time}
+        return tmp_result

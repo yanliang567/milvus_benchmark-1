@@ -128,8 +128,9 @@ class BaseRunner(object):
                 i += loops
         rps = round(size / total_time, 2)
         ni_time = round(total_time / (size / ni), 2)
-        self._result.update({
+        result = {
             "total_time": round(total_time, 2),
             "rps": rps,
             "ni_time": ni_time
-        })
+        }
+        return result

@@ -27,7 +27,7 @@ logger = logging.getLogger("milvus_benchmark.main")
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
 LOG_FOLDER = "logs"
 NAMESPACE = "milvus"
-
+SERVER_VERSION = "2.0"
 
 def positive_int(s):
     i = None
@@ -80,24 +80,23 @@ def queue_worker(queue):
             }
             try:
                 metric.set_run_id()
-                # metric.env = None
-                # metric.hardware = None
-                server_version = "2.0"
-                # metric.server = Server(version=server_version, mode=deploy_mode)
+                metric.set_mode(env_mode)
+                metric.env = Env()
+                metric.hardware = Hardware()
                 metric.run_params = run_params
                 env = get_env(env_mode, deploy_mode)
                 if not env.start_up(helm_path, helm_install_params):
-                    metric.update(status="DEPLOYE_FAILED")
+                    metric.update_status(status="DEPLOYE_FAILED")
                 else:
-                    metric.update(status="DEPLOYE_SUCC")
+                    metric.update_status(status="DEPLOYE_SUCC")
             except Exception as e:
                 logger.error(str(e))
                 logger.error(traceback.format_exc())
-                metric.update(status="DEPLOYE_FAILED")
+                metric.update_status(status="DEPLOYE_FAILED")
             else:
                 runner = get_runner(run_type, env, metric)
                 if runner.run(run_params):
-                    metric.update(status="RUN_SUCC")
+                    metric.update_status(status="RUN_SUCC")
                     api.save(metric)
                 else:
                     logger.error(str(e))
@@ -105,7 +104,6 @@ def queue_worker(queue):
             finally:
                 time.sleep(10)
                 env.stop()
-                metric.update(status="CLEAN_SUCC")
 
 
 def main():
@@ -169,7 +167,7 @@ def main():
             for suite_param in suite_params:
                 suite = "suites/" + suite_param["suite"]
                 image_type = suite_param["image_type"]
-                image_tag = get_image_tag(image_version, image_type)
+                image_tag = get_image_tag(image_version)
                 q.put({
                     "suite": suite,
                     "server_host": server_host,
@@ -216,8 +214,7 @@ def main():
             metric.set_mode(env_mode)
             metric.env = Env()
             metric.hardware = Hardware()
-            server_version = "2.0"
-            metric.server = Server(version=server_version, mode=deploy_mode)
+            metric.server = Server(version=SERVER_VERSION, mode=deploy_mode)
             env = get_env(env_mode, deploy_mode)
             env.start_up(host, port)
             metric.update_status(status="DEPLOYE_SUCC")
@@ -229,20 +226,28 @@ def main():
             runner = get_runner(run_type, env, metric)
             logger.debug(suite)
             cases, case_metrics = runner.extract_cases(suite)
+            # TODO: only run when the as_group is equal to True
+            logger.info("Prepare to run cases")
+            runner.prepare(**cases[0])
+            logger.info("Start run case")
             for index, case in enumerate(cases):
                 case_metric = case_metrics[index]
-                if runner.run_case(case_metric, **case):
+                result = runner.run_case(case_metric, **case)
+                if result:
                     case_metric.update_status(status="RUN_SUCC")
                 else:
                     case_metric.update_status(status="RUN_FAILED")
+                logger.info(result)
+                case_metric.update_result(result)
                 logger.debug(case_metric.collection)
                 logger.debug(case_metric.index)
                 logger.debug(case_metric.search)
                 logger.debug(case_metric.metrics)
-                api.save(case_metric)
+                if not api.save(case_metric):
+                    logger.error("Error occured during db operation")
         finally:
             api.save(metric)
-            time.sleep(10)
+            # time.sleep(10)
             env.tear_down()
 
 

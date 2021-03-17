@@ -1,3 +1,4 @@
+import pdb
 import logging
 from pymongo import MongoClient
 
@@ -24,6 +25,8 @@ def save(obj):
     #     logger.error("obj is not instance of Metric")
     #     return False
 
+    # logger.debug(vars(obj))
+    # logger.debug(isinstance(obj.server, Server))
     # if not isinstance(obj.server, Server):
     #     logger.error("obj.server is not instance of Server")
     #     return False

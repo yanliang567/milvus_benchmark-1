@@ -89,7 +89,7 @@ class InsertRunner(BaseRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
-        self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
+        tmp_result = self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         flush_time = 0.0
         build_time = 0.0
         if case_param["flush_after_insert"] is True:
@@ -102,4 +102,5 @@ class InsertRunner(BaseRunner):
             start_time = time.time()
             self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"], index_param=case_param["index_param"])
             build_time = round(time.time()-start_time, 2)
-        case_metric.metrics["value"].update({"flush_time": flush_time, "build_time": build_time})
+        tmp_result.update({"flush_time": flush_time, "build_time": build_time})
+        return tmp_result
