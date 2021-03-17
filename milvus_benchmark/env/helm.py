@@ -40,7 +40,7 @@ class HelmEnv(Env):
                                                        self.namespace)
             if not hostname:
                 logger.error("Helm install server failed")
-                self.clean_up()
+                self.tear_down()
                 return False
             else:
                 return hostname
