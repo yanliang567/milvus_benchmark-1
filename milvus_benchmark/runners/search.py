@@ -43,7 +43,6 @@ class SearchRunner(BaseRunner):
         cases = list()
         case_metrics = list()
         self.init_metric(self.name, collection_info, index_info, None)
-        case_metric = copy.deepcopy(self.metric)
         for search_param in search_params:
             logger.info("Search param: %s" % json.dumps(search_param))
             if not filters:
@@ -66,6 +65,7 @@ class SearchRunner(BaseRunner):
                             "metric_type": utils.metric_type_trans(metric_type), 
                             "params": search_param}
                         # TODO: only update search_info
+                        case_metric = copy.deepcopy(self.metric)
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,

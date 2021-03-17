@@ -21,23 +21,22 @@ def insert_or_get(md5):
 
 
 def save(obj):
-    # if not isinstance(obj, Metric):
-    #     logger.error("obj is not instance of Metric")
-    #     return False
+    if not isinstance(obj, Metric):
+        logger.error("obj is not instance of Metric")
+        return False
 
-    # logger.debug(vars(obj))
-    # logger.debug(isinstance(obj.server, Server))
-    # if not isinstance(obj.server, Server):
-    #     logger.error("obj.server is not instance of Server")
-    #     return False
+    logger.debug(vars(obj))
+    if not isinstance(obj.server, Server):
+        logger.error("obj.server is not instance of Server")
+        return False
 
-    # if not isinstance(obj.hardware, Hardware):
-    #     logger.error("obj.hardware is not instance of Hardware")
-    #     return False
+    if not isinstance(obj.hardware, Hardware):
+        logger.error("obj.hardware is not instance of Hardware")
+        return False
 
-    # if not isinstance(obj.env, Env):
-    #     logger.error("obj.env is not instance of Env")
-    #     return False
+    if not isinstance(obj.env, Env):
+        logger.error("obj.env is not instance of Env")
+        return False
 
     md5 = obj.server.json_md5()
     server_doc_id = insert_or_get(md5)

@@ -224,7 +224,6 @@ def main():
             metric.update_status(status="DEPLOYE_FAILED")
         else:
             runner = get_runner(run_type, env, metric)
-            logger.debug(suite)
             cases, case_metrics = runner.extract_cases(suite)
             # TODO: only run when the as_group is equal to True
             logger.info("Prepare to run cases")
@@ -243,10 +242,9 @@ def main():
                 logger.debug(case_metric.index)
                 logger.debug(case_metric.search)
                 logger.debug(case_metric.metrics)
-                if not api.save(case_metric):
-                    logger.error("Error occured during db operation")
+                api.save(case_metric)
         finally:
-            api.save(metric)
+            # api.save(metric)
             # time.sleep(10)
             env.tear_down()
 
