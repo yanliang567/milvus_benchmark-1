@@ -1,10 +1,12 @@
+import pdb
 import random
 import time
 import logging
 from locust import TaskSet, task
 
 dim = 128
-X = [[random.random() for _ in range(dim)] for _ in range(1)]
+
+logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
 class Tasks(TaskSet):
@@ -37,7 +39,9 @@ class Tasks(TaskSet):
 
     def insert(self):
         ids = [random.randint(1, 10000000)]
+        X = [[random.random() for _ in range(dim)] for _ in range(1)]
         entities = self.client.generate_entities(X, ids)
+        logger.debug(entities)
         self.client.insert(entities, ids, log=False)
 
     @task
