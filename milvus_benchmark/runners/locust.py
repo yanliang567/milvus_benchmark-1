@@ -1,6 +1,11 @@
+import time
+import copy
 import logging
 from . import locust_user
 from .base import BaseRunner
+from milvus_benchmark import parser
+from milvus_benchmark import utils
+from milvus_benchmark.runners import utils as runner_utils
 
 logger = logging.getLogger("milvus_benchmark.runners.locust")
 
@@ -10,13 +15,15 @@ class LocustInsertRunner(BaseRunner):
     name = "locust_insert_performance"
 
     def __init__(self, env, metric):
-        super(LocustRunner, self).__init__(env, metric)
+        super(LocustInsertRunner, self).__init__(env, metric)
 
     def extract_cases(self, collection):
+        collection_name = collection["collection_name"] if "collection_name" in collection else None
+
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"] if "build_index" in collection else False
-        vector_type = utils.get_vector_type(data_type)
+        vector_type = runner_utils.get_vector_type(data_type)
         other_fields = collection["other_fields"] if "other_fields" in collection else None
         collection_info = {
             "dimension": dimension,
@@ -83,7 +90,7 @@ class LocustInsertRunner(BaseRunner):
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
             self.milvus.drop()
-            time.sleep(utils.DELETE_INTERVAL_TIME)
+            time.sleep(runner_utils.DELETE_INTERVAL_TIME)
         self.milvus.create_collection(dimension, data_type=vector_type,
                                           other_fields=other_fields)
         # TODO: update fields in collection_info
