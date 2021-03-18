@@ -13,8 +13,7 @@ class LocustInsertRunner(BaseRunner):
         super(LocustRunner, self).__init__(env, metric)
 
     def extract_cases(self, collection):
-    	(data_type, collection_size, dimension, metric_type) = parser.collection_parser(
-            collection_name)
+        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"] if "build_index" in collection else False
         vector_type = utils.get_vector_type(data_type)
@@ -44,10 +43,10 @@ class LocustInsertRunner(BaseRunner):
         if connection_num > 1:
             connection_type = "multi"
         run_params = {
-        	"task": collection["task"],
+            "task": collection["task"],
             "connection_type": connection_type,
         }
-		self.init_metric(self.name, collection_info, index_info, None, run_params)
+        self.init_metric(self.name, collection_info, index_info, None, run_params)
         case_metric = copy.deepcopy(self.metric)
         case_metrics = list()
         case_params = list()
@@ -73,7 +72,7 @@ class LocustInsertRunner(BaseRunner):
         return case_params, case_metrics
 
     def prepare(self, **case_param):
-    	collection_name = case_param["collection_name"]
+        collection_name = case_param["collection_name"]
         dimension = case_param["dimension"]
         vector_type = case_param["vector_type"]
         other_fields = case_param["other_fields"]
@@ -106,7 +105,7 @@ class LocustInsertRunner(BaseRunner):
     def run_case(self, case_metric, **case_param):
         collection_name = case_param["collection_name"]
 
-		# spawn locust requests
+        # spawn locust requests
         task = case_param["task"]
         connection_type = case_param["connection_type"]
         clients_num = task["clients_num"]
