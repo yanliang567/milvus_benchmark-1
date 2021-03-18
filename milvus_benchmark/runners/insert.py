@@ -21,7 +21,7 @@ class InsertRunner(BaseRunner):
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"] if "build_index" in collection else False
-        index_info = {}
+        index_info = None
         vector_type = utils.get_vector_type(data_type)
         other_fields = collection["other_fields"] if "other_fields" in collection else None
         collection_info = {
@@ -68,10 +68,11 @@ class InsertRunner(BaseRunner):
         case_params.append(case_param)
         return case_params, case_metrics
 
-    # TODO: error handler
-    def run_case(self, case_metric, **case_param):
+    def prepare(self, **case_param):
         collection_name = case_param["collection_name"]
         dimension = case_param["dimension"]
+        vector_type = case_param["vector_type"]
+        other_fields = case_param["other_fields"]
         index_field_name = case_param["index_field_name"]
         build_index = case_param["build_index"]
 
@@ -80,8 +81,16 @@ class InsertRunner(BaseRunner):
             logger.debug("Start drop collection")
             self.milvus.drop()
             time.sleep(utils.DELETE_INTERVAL_TIME)
-        self.milvus.create_collection(case_param["dimension"], data_type=case_param["vector_type"],
-                                          other_fields=case_param["other_fields"], collection_name=collection_name)
+        self.milvus.create_collection(dimension, data_type=vector_type,
+                                          other_fields=other_fields)
+        # TODO: update fields in collection_info
+        # fields = self.get_fields(self.milvus, collection_name)
+        # collection_info = {
+        #     "dimension": dimension,
+        #     "metric_type": metric_type,
+        #     "dataset_name": collection_name,
+        #     "fields": fields
+        # }
         if build_index is True:
             if case_param["index_type"]:
                 self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"], index_param=case_param["index_param"])
@@ -89,6 +98,14 @@ class InsertRunner(BaseRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
+
+    # TODO: error handler
+    def run_case(self, case_metric, **case_param):
+        collection_name = case_param["collection_name"]
+        dimension = case_param["dimension"]
+        index_field_name = case_param["index_field_name"]
+        build_index = case_param["build_index"]
+
         tmp_result = self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         flush_time = 0.0
         build_time = 0.0

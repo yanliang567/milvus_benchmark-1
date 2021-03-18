@@ -2,7 +2,6 @@ locust_insert_performance:
   collections:
     - 
       milvus:
-        mysql: true
         db_config.primary_path: /test/milvus/db_data_011/insert_sift_1m_128_l2_2
         cache_config.cpu_cache_capacity: 8GB
         cache_config.insert_buffer_size: 2GB
@@ -15,7 +14,7 @@ locust_insert_performance:
         gpu_resource_config.build_index_resources:
           - gpu0
         wal_enable: true
-      collection_name: sift_1m_128_l2_011
+      collection_name: sift_1m_128_l2
       ni_per: 50000
       build_index: false
       index_type: ivf_sq8
@@ -23,9 +22,9 @@ locust_insert_performance:
         nlist: 1024
       task: 
         connection_num: 1
-        clients_num: 10
+        clients_num: 20
         hatch_rate: 2
-        during_time: 30
+        during_time: 2
         types:
           -
             type: insert
