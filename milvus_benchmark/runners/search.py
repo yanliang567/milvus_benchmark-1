@@ -236,7 +236,6 @@ class InsertSearchRunner(BaseRunner):
                 build_index = False
                 logger.warning("Please specify the index_type")
         self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
-        flush_time = 0.0
         build_time = 0.0
         start_time = time.time()
         self.milvus.flush()
