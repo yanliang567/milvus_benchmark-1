@@ -217,7 +217,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     logger.debug("Server deploy mode: %s" % deploy_mode)
     host = "%s-milvus-ha.%s.svc.cluster.local" % (name, namespace)
     # TODO: update etcd config
-    etcd_config_map_cmd = "kubectl create configmap -n %s %s --from-literal=ETCD_QUOTA_BACKEND_BYTES=8589934592 --from-literal=ETCD_SNAPSHOT_COUNT=5000" % (namespace, name)
+    etcd_config_map_cmd = "kubectl create configmap -n %s %s --from-literal=ETCD_QUOTA_BACKEND_BYTES=8589934592 --from-literal=ETCD_SNAPSHOT_COUNT=5000 --from-literal=ETCD_AUTO_COMPACTION_MODE=revision --from-literal=ETCD_AUTO_COMPACTION_RETENTION=1" % (namespace, name)
     if os.system(etcd_config_map_cmd):
         raise Exception("Create configmap: {} failed".format(name))
     logger.debug("Create configmap: {} successfully".format(name))
