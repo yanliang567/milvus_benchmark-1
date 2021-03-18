@@ -1,4 +1,4 @@
-build_performance:
+insert_build_performance:
   collections:
     -
       server:
@@ -14,7 +14,7 @@ build_performance:
         gpu_resource_config.build_index_resources:
           - gpu0
           - gpu1
-      collection_name: sift_1m_128_l2
+      collection_name: sift_10w_128_l2
       ni_per: 2000
       index_type: ivf_sq8
       index_param:
