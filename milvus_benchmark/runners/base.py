@@ -31,6 +31,14 @@ class BaseRunner(object):
         logger.debug("Start clean up env: {} in runner".format(self.env.name))
 
     @property
+    def hostname(self):
+        return self._env.hostname
+
+    @property
+    def port(self):
+        return self._env.port
+
+    @property
     def milvus(self):
         return self._milvus
 

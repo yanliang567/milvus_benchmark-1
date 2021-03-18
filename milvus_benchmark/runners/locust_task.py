@@ -3,7 +3,7 @@ import pdb
 import random
 import logging
 from locust import User, events
-from client import MilvusClient
+from milvus_benchmark.client import MilvusClient
 
 
 class MilvusTask(object):

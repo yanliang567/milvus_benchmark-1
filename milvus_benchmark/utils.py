@@ -85,21 +85,6 @@ def retry(times):
     return wrapper
 
 
-def timestr_to_int(time_str):
-    time_int = 0
-    if isinstance(time_str, int) or time_str.isdigit():
-        time_int = int(time_str)
-    elif time_str.endswith("s"):
-        time_int = int(time_str.split("s")[0])
-    elif time_str.endswith("m"):
-        time_int = int(time_str.split("m")[0]) * 60
-    elif time_str.endswith("h"):
-        time_int = int(time_str.split("h")[0]) * 60 * 60
-    else:
-        raise Exception("%s not support" % time_str)
-    return time_int
-
-
 def convert_nested(dct):
     def insert(dct, lst):
         for x in lst[:-2]:
