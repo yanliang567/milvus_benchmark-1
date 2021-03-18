@@ -124,6 +124,7 @@ class LocustInsertRunner(BaseRunner):
             run_params["tasks"].update({task_type["type"]: task_type["weight"] if "weight" in task_type else 1})
 
         # collect stats
+        logger.info(run_params)
         locust_stats = locust_user.locust_executor(self.hostname, self.port, collection_name,
                                                    connection_type=connection_type, run_params=run_params)
         return locust_stats

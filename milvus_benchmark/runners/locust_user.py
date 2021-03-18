@@ -15,7 +15,7 @@ from .locust_task import MilvusTask
 from .locust_tasks import Tasks
 
 locust.stats.CONSOLE_STATS_INTERVAL_SEC = 30
-logger = logging.getLogger("__locust__")
+logger = logging.getLogger("milvus_benchmark.runners.locust_user")
 
 
 class MyUser(User):
@@ -37,7 +37,6 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     runner = env.create_local_runner()
     # setup logging
     # setup_logging("WARNING", "/dev/null")
-    setup_logging("WARNING", "/dev/null")
     greenlet_exception_logger(logger=logger)
     gevent.spawn(stats_printer(env.stats))
     # env.create_web_ui("127.0.0.1", 8089)

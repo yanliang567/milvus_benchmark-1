@@ -145,12 +145,14 @@ class MilvusClient(object):
         if collection_name is None:
             collection_name = self._collection_name
         info = self.get_info(collection_name)
+        logger.debug(info)
         for field in info["fields"]:
             if field["name"] == "_id":
                 continue
             field_type = field["type"]
             entities.append(
                 {"name": field["name"], "type": field_type, "values": self.generate_values(field_type, vectors, ids)})
+        logger.debug(entities)
         return entities
 
     @time_wrapper
