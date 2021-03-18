@@ -57,12 +57,3 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     }
     runner.stop()
     return result
-
-
-if __name__ == '__main__':
-    connection_type = "single"
-    host = "127.0.0.1"
-    port = 19530
-    collection_name = "sift_1m_2000000_128_l2_2"
-    run_params = {"tasks": {"query": 1, "flush": 1}, "clients_num": 1, "spawn_rate": 1, "during_time": 3}
-    locust_executor(host, port, collection_name, run_params=run_params)
