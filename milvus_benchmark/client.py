@@ -77,6 +77,7 @@ def generate_entities(info, vectors, ids=None):
 class MilvusClient(object):
     def __init__(self, collection_name=None, host=None, port=None, timeout=300):
         self._collection_name = collection_name
+        self._collection_info = None
         start_time = time.time()
         if not host:
             host = config.SERVER_HOST_DEFAULT
@@ -107,12 +108,7 @@ class MilvusClient(object):
 
     def set_collection(self, collection_name):
         self._collection_name = collection_name
-        self._collection_info = self.get_info(collection_name)
 
-    @property
-    def collection_info(self):
-        return self._collection_info
-    
     # TODO: server not support
     # def check_status(self, status):
     #     if not status.OK():
@@ -406,7 +402,6 @@ class MilvusClient(object):
         return self._milvus.get_collection_stats(self._collection_name)
 
     def get_info(self, collection_name=None):
-        # pdb.set_trace()
         if collection_name is None:
             collection_name = self._collection_name
         return self._milvus.describe_collection(collection_name)

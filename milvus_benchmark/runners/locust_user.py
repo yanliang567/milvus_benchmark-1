@@ -33,6 +33,7 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     logger.error(MyUser.tasks)
     # MyUser.tasks = {Tasks.query: 1, Tasks.flush: 1}
     MyUser.client = MilvusTask(host=host, port=port, collection_name=collection_name, connection_type=connection_type, m=m)
+    MyUser.info = m.get_info(collection_name)
     env = Environment(events=events, user_classes=[MyUser])
     runner = env.create_local_runner()
     # setup logging

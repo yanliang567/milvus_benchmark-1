@@ -19,7 +19,6 @@ class MilvusTask(object):
             port = kwargs.get("port")
             collection_name = kwargs.get("collection_name")
             self.m = MilvusClient(host=host, port=port, collection_name=collection_name)
-        # logging.getLogger().error(id(self.m))
 
     def __getattr__(self, name):
         func = getattr(self.m, name)

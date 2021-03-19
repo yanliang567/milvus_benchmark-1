@@ -41,8 +41,7 @@ class Tasks(TaskSet):
     def insert(self):
         ids = [random.randint(1, 10000000)]
         X = [[random.random() for _ in range(dim)] for _ in range(1)]
-        entities = generate_entities(X, ids)
-        logger.debug(entities)
+        entities = generate_entities(self.info, X, ids)
         self.client.insert(entities, ids, log=False)
 
     @task
