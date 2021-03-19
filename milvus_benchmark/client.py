@@ -52,9 +52,32 @@ def time_wrapper(func):
     return wrapper
 
 
+def generate_values(data_type, vectors, ids):
+    values = None
+    if data_type in [DataType.INT32, DataType.INT64]:
+        values = ids
+    elif data_type in [DataType.FLOAT, DataType.DOUBLE]:
+        values = [(i + 0.0) for i in ids]
+    elif data_type in [DataType.FLOAT_VECTOR, DataType.BINARY_VECTOR]:
+        values = vectors
+    return values
+
+
+def generate_entities(info, vectors, ids=None):
+    entities = []
+    for field in info["fields"]:
+        if field["name"] == "_id":
+            continue
+        field_type = field["type"]
+        entities.append(
+            {"name": field["name"], "type": field_type, "values": generate_values(field_type, vectors, ids)})
+    return entities
+
+
 class MilvusClient(object):
     def __init__(self, collection_name=None, host=None, port=None, timeout=300):
         self._collection_name = collection_name
+        self._collection_info = None
         start_time = time.time()
         if not host:
             host = config.SERVER_HOST_DEFAULT
@@ -129,31 +152,6 @@ class MilvusClient(object):
         if not collection_name:
             collection_name = self._collection_name
         self._milvus.create_partition(collection_name, tag)
-
-    def generate_values(self, data_type, vectors, ids):
-        values = None
-        if data_type in [DataType.INT32, DataType.INT64]:
-            values = ids
-        elif data_type in [DataType.FLOAT, DataType.DOUBLE]:
-            values = [(i + 0.0) for i in ids]
-        elif data_type in [DataType.FLOAT_VECTOR, DataType.BINARY_VECTOR]:
-            values = vectors
-        return values
-
-    def generate_entities(self, vectors, ids=None, collection_name=None):
-        entities = []
-        if collection_name is None:
-            collection_name = self._collection_name
-        info = self.get_info(collection_name)
-        logger.debug(info)
-        for field in info["fields"]:
-            if field["name"] == "_id":
-                continue
-            field_type = field["type"]
-            entities.append(
-                {"name": field["name"], "type": field_type, "values": self.generate_values(field_type, vectors, ids)})
-        logger.debug(entities)
-        return entities
 
     @time_wrapper
     def insert(self, entities, ids=None, collection_name=None):
@@ -402,7 +400,6 @@ class MilvusClient(object):
         return self._milvus.get_collection_stats(self._collection_name)
 
     def get_info(self, collection_name=None):
-        # pdb.set_trace()
         if collection_name is None:
             collection_name = self._collection_name
         return self._milvus.describe_collection(collection_name)

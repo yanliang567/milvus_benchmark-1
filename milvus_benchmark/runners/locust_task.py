@@ -5,6 +5,8 @@ import logging
 from locust import User, events
 from milvus_benchmark.client import MilvusClient
 
+logger = logging.getLogger("milvus_benchmark.runners.locust_task")
+
 
 class MilvusTask(object):
     def __init__(self, *args, **kwargs):
@@ -17,7 +19,6 @@ class MilvusTask(object):
             port = kwargs.get("port")
             collection_name = kwargs.get("collection_name")
             self.m = MilvusClient(host=host, port=port, collection_name=collection_name)
-        # logging.getLogger().error(id(self.m))
 
     def __getattr__(self, name):
         func = getattr(self.m, name)

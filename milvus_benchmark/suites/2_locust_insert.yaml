@@ -24,7 +24,7 @@ locust_insert_performance:
         connection_num: 1
         clients_num: 1 
         hatch_rate: 1
-        during_time: 2
+        during_time: 20
         types:
           -
             type: insert
