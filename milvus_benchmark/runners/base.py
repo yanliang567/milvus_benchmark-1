@@ -8,7 +8,7 @@ import numpy as np
 
 from milvus_benchmark.env import get_env
 from milvus_benchmark import config
-from milvus_benchmark.client import MilvusClient
+from milvus_benchmark.client import MilvusClient, generate_entities
 from . import utils
 
 logger = logging.getLogger("milvus_benchmark.runners.base")
@@ -78,6 +78,7 @@ class BaseRunner(object):
             logger.error("Not invalid collection size or ni")
             return False
         i = 0
+        info = milvus.collection_inf
         while i < (size // vectors_per_file):
             vectors = []
             if vectors_per_file >= ni:
@@ -93,7 +94,7 @@ class BaseRunner(object):
                         end_id = start_id + len(vectors)
                         logger.debug("Start id: %s, end id: %s" % (start_id, end_id))
                         ids = [k for k in range(start_id, end_id)]
-                        entities = milvus.generate_entities(vectors, ids)
+                        entities = generate_entities(info, vectors, ids)
                         ni_start_time = time.time()
                         try:
                             _res_ids = milvus.insert(entities, ids=ids)
@@ -119,7 +120,7 @@ class BaseRunner(object):
                     end_id = start_id + len(vectors)
                     logger.info("Start id: %s, end id: %s" % (start_id, end_id))
                     ids = [k for k in range(start_id, end_id)]
-                    entities = milvus.generate_entities(vectors, ids)
+                    entities = generate_entities(info, vectors, ids)
                     ni_start_time = time.time()
                     try:
                         _res_ids = milvus.insert(entities, ids=ids)

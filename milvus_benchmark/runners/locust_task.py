@@ -5,6 +5,8 @@ import logging
 from locust import User, events
 from milvus_benchmark.client import MilvusClient
 
+logger = logging.getLogger("milvus_benchmark.runners.locust_task")
+
 
 class MilvusTask(object):
     def __init__(self, *args, **kwargs):
