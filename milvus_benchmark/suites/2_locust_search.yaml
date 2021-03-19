@@ -15,17 +15,17 @@ locust_search_performance:
           - gpu0
           - gpu1
         wal_enable: true
-      collection_name: sift_1m_128_l2_2
+      collection_name: sift_1m_128_l2
       ni_per: 50000
-      build_index: true
+      build_index: false
       index_type: ivf_sq8
       index_param:
         nlist: 16384
       task: 
         connection_num: 1
-        clients_num: 100
+        clients_num: 1
         hatch_rate: 2
-        during_time: 300
+        during_time: 30
         types:
           -
             type: query

@@ -29,4 +29,6 @@ locust_insert_performance:
           -
             type: insert
             weight: 1
-            params: None
+            params:
+              ni_per: 1
+

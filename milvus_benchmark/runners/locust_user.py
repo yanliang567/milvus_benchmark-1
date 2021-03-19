@@ -26,14 +26,16 @@ class MyUser(User):
 def locust_executor(host, port, collection_name, connection_type="single", run_params=None):
     m = MilvusClient(host=host, port=port, collection_name=collection_name)
     MyUser.tasks = {}
+    MyUser.run_params = {}
     tasks = run_params["tasks"]
-    for op, weight in tasks.items():
-        task = {eval("Tasks."+op): weight}
+    for op, value in tasks.items():
+        task = {eval("Tasks."+op): value["weight"]}
         MyUser.tasks.update(task)
+        MyUser.params[op] = value["params"]
     logger.error(MyUser.tasks)
     # MyUser.tasks = {Tasks.query: 1, Tasks.flush: 1}
     MyUser.client = MilvusTask(host=host, port=port, collection_name=collection_name, connection_type=connection_type, m=m)
-    MyUser.info = m.get_info(collection_name)
+    # MyUser.info = m.get_info(collection_name)
     env = Environment(events=events, user_classes=[MyUser])
     runner = env.create_local_runner()
     # setup logging

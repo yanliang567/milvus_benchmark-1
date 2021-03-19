@@ -205,6 +205,7 @@ def main():
         collections = run_params["collections"]
         if len(collections) > 1:
             raise Exception("Multi collections not supported in Local Mode")
+        # ensure there is only one case in suite
         suite = collections[0]
         env_mode = "local"
         deploy_mode = None
