@@ -3,7 +3,7 @@ import random
 import time
 import logging
 from locust import TaskSet, task
-from milvus_benchmark.client import generate_entities
+from . import utils
 
 dim = 128
 
@@ -41,7 +41,7 @@ class Tasks(TaskSet):
     def insert(self):
         ids = [random.randint(1, 10000000)]
         X = [[random.random() for _ in range(dim)] for _ in range(1)]
-        entities = generate_entities(self.info, X, ids)
+        entities = utils.generate_entities(self.info, X, ids)
         self.client.insert(entities, ids, log=False)
 
     @task
