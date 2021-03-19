@@ -264,9 +264,11 @@ class MilvusClient(object):
         self._milvus.create_index(self._collection_name, field_name, index_params, _async=_async)
 
     # TODO: need to check
-    def describe_index(self, field_name):
+    def describe_index(self, field_name, collection_name=None):
         # stats = self.get_stats()
-        info = self._milvus.describe_index(self._collection_name, field_name)
+        tmp_collection_name = self._collection_name if collection_name is None else collection_name
+        info = self._milvus.describe_index(tmp_collection_name, field_name)
+        logger.info(info)
         index_info = {"index_type": info["index_type"], "metric_type": info["metric_type"], "index_param": info["params"]}
         # transfer index type name
         for k, v in INDEX_MAP.items():
@@ -323,13 +325,9 @@ class MilvusClient(object):
         return result
 
     def get_ids(self, result):
-        idss = result._entities.ids
         ids = []
-        len_idss = len(idss)
-        len_r = len(result)
-        top_k = len_idss // len_r
-        for offset in range(0, len_idss, top_k):
-            ids.append(idss[offset: min(offset + top_k, len_idss)])
+        for res in result:
+            ids.append(res.ids)
         return ids
 
     def query_rand(self, nq_max=100):

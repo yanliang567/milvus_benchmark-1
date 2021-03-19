@@ -82,13 +82,13 @@ def get_vectors_from_binary(nq, dimension, data_type):
     if nq > MAX_NQ:
         raise Exception("Over size nq")
     if data_type == "random":
-        file_name = RANDOM_SRC_DATA_DIR+'query_%d.npy' % dimension
+        file_name = RANDOM_SRC_DATA_DIR + 'query_%d.npy' % dimension
     elif data_type == "sift":
-        file_name = SIFT_SRC_DATA_DIR+'query.npy'
+        file_name = SIFT_SRC_DATA_DIR + 'query.npy'
     elif data_type == "deep":
-        file_name = DEEP_SRC_DATA_DIR+'query.npy'
+        file_name = DEEP_SRC_DATA_DIR + 'query.npy'
     elif data_type == "binary":
-        file_name = BINARY_SRC_DATA_DIR+'query.npy'
+        file_name = BINARY_SRC_DATA_DIR + 'query.npy'
     data = np.load(file_name)
     vectors = data[0:nq].tolist()
     return vectors
@@ -191,3 +191,25 @@ def gen_file_name(idx, dimension, data_type):
     elif data_type == "sub" or data_type == "super":
         fname = STRUCTURE_SRC_DATA_DIR + fname
     return fname
+
+
+def get_recall_value(true_ids, result_ids):
+    """
+    Use the intersection length
+    """
+    sum_radio = 0.0
+    for index, item in enumerate(result_ids):
+        # tmp = set(item).intersection(set(flat_id_list[index]))
+        tmp = set(true_ids[index]).intersection(set(item))
+        sum_radio = sum_radio + len(tmp) / len(item)
+        # logger.debug(sum_radio)
+    return round(sum_radio / len(result_ids), 3)
+
+
+def get_ground_truth_ids(collection_size):
+    fname = GROUNDTRUTH_MAP[str(collection_size)]
+    fname = SIFT_SRC_GROUNDTRUTH_DATA_DIR + "/" + fname
+    a = np.fromfile(fname, dtype='int32')
+    d = a[0]
+    true_ids = a.reshape(-1, d + 1)[:, 1:].copy()
+    return true_ids

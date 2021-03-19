@@ -7,7 +7,7 @@ accuracy:
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: true
-        gpu_resource_config.cache_capacity: 4GB 
+        gpu_resource_config.cache_capacity: 4GB
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -27,7 +27,7 @@ accuracy:
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: true
-        gpu_resource_config.cache_capacity: 4GB 
+        gpu_resource_config.cache_capacity: 4GB
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1
@@ -47,7 +47,7 @@ accuracy:
         engine_config.use_blas_threshold: 1100
         engine_config.gpu_search_threshold: 1
         gpu_resource_config.enable: true
-        gpu_resource_config.cache_capacity: 4GB 
+        gpu_resource_config.cache_capacity: 4GB
         gpu_resource_config.search_resources:
           - gpu0
           - gpu1

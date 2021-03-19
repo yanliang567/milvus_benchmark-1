@@ -4,6 +4,7 @@ from .search import SearchRunner
 from .search import InsertSearchRunner
 from .build import InsertBuildRunner
 from .build import BuildRunner
+from .accuracy import AccuracyRunner
 
 
 def get_runner(name, env, metric):
@@ -14,4 +15,5 @@ def get_runner(name, env, metric):
         "locust_insert_performance": LocustInsertRunner(env, metric),
         "insert_build_performance": InsertBuildRunner(env, metric),
         "build_performance": BuildRunner(env, metric),
+        "accuracy": AccuracyRunner(env, metric)
     }.get(name)
