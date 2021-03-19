@@ -213,3 +213,19 @@ def get_ground_truth_ids(collection_size):
     d = a[0]
     true_ids = a.reshape(-1, d + 1)[:, 1:].copy()
     return true_ids
+
+
+def normalize(metric_type, X):
+    if metric_type == "ip":
+        logger.info("Set normalize for metric_type: %s" % metric_type)
+        X = sklearn.preprocessing.normalize(X, axis=1, norm='l2')
+        X = X.astype(np.float32)
+    elif metric_type == "l2":
+        X = X.astype(np.float32)
+    elif metric_type in ["jaccard", "hamming", "sub", "super"]:
+        tmp = []
+        for item in X:
+            new_vector = bytes(np.packbits(item, axis=-1).tolist())
+            tmp.append(new_vector)
+        X = tmp
+    return X
