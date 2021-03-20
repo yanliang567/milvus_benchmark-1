@@ -230,9 +230,9 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
             --set minio.persistence.enabled=false \
             --set etcd.persistence.enabled=false \
             --set etcd.envVarsConfigMap=%s \
+            --set image.all.pullPolicy=Always \
             --namespace %s \
             %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
-            # --set image.all.pullPolicy=Always \
     if deploy_mode == "cluster":
         install_cmd = "helm install \
                 --set standalone.enabled=false \
@@ -241,9 +241,9 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
                 --set etcd.envVarsConfigMap=%s \
+                --set image.all.pullPolicy=Always \
                 --namespace %s \
                 %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
-                # --set image.all.pullPolicy=Always \
     elif deploy_mode != "single":
         raise Exception("Deploy mode: {} not support".format(deploy_mode))
     logger.debug(install_cmd)
@@ -251,8 +251,8 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     if os.system("cd %s && %s" % (helm_path, install_cmd)):
         logger.error("Helm install failed: %s" % name)
         return None
-    logger.debug("Wait for 60s ..")
-    time.sleep(60)
+    logger.debug("Wait for 600s ..")
+    time.sleep(600)
     # config.load_kube_config()
     # v1 = client.CoreV1Api()
     # pod_name = None
