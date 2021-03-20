@@ -47,7 +47,7 @@ class HelmEnv(Env):
         except Exception as e:
             logger.error("Helm install server failed: %s" % (str(e)))
             logger.error(traceback.format_exc())
-            self.clean_up()
+            self.tear_down()
             return False
 
     def tear_down(self):
