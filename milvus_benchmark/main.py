@@ -19,6 +19,7 @@ from milvus_benchmark.runners import get_runner
 from milvus_benchmark.metrics import api
 from milvus_benchmark import config
 from milvus_benchmark import parser
+from scheduler import scheduler
 from logs import log
 
 log.setup_logging()
@@ -144,7 +145,8 @@ def main():
         default='')
 
     args = arg_parser.parse_args()
-
+    scheduler.start()
+    
     if args.schedule_conf:
         if args.local:
             raise Exception("Helm mode with scheduler and other mode are incompatible")
