@@ -14,9 +14,8 @@ build_performance:
         gpu_resource_config.build_index_resources:
           - gpu0
           - gpu1
-      collection_name: sift_1m_128_l2
-      ni_per: 2000
-      index_type: ivf_pq
+      collection_name: sift_10m_128_l2
+      ni_per: 50000
+      index_type: ivf_sq8
       index_param:
-        nlist: 8092
-        m: 32
+        nlist: 16384
