@@ -181,6 +181,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             logger.debug("Add tolerations into cluster server")
             values_dict['querynode']['tolerations'] = perf_tolerations
             values_dict['indexnode']['tolerations'] = perf_tolerations
+            values_dict['minio']['tolerations'] = perf_tolerations
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
