@@ -107,6 +107,48 @@ def queue_worker(queue):
                 env.stop()
 
 
+def run_suite(suite, env_mode, deploy_mode=None, run_params=None):
+    metric = api.Metric()
+    try:
+        metric.set_run_id()
+        metric.set_mode(env_mode)
+        metric.env = Env()
+        metric.hardware = Hardware()
+        metric.server = Server(version=SERVER_VERSION, mode=deploy_mode)
+        env = get_env(env_mode, deploy_mode)
+        env.start_up(run_params["host"], run_params["port"])
+        metric.update_status(status="DEPLOYE_SUCC")
+    except Exception as e:
+        logger.error(str(e))
+        logger.error(traceback.format_exc())
+        metric.update_status(status="DEPLOYE_FAILED")
+    else:
+        runner = get_runner(run_type, env, metric)
+        cases, case_metrics = runner.extract_cases(suite)
+        # TODO: only run when the as_group is equal to True
+        logger.info("Prepare to run cases")
+        runner.prepare(**cases[0])
+        logger.info("Start run case")
+        for index, case in enumerate(cases):
+            case_metric = case_metrics[index]
+            result = runner.run_case(case_metric, **case)
+            if result:
+                case_metric.update_status(status="RUN_SUCC")
+            else:
+                case_metric.update_status(status="RUN_FAILED")
+            logger.info(result)
+            case_metric.update_result(result)
+            logger.debug(case_metric.collection)
+            logger.debug(case_metric.index)
+            logger.debug(case_metric.search)
+            logger.debug(case_metric.metrics)
+            api.save(case_metric)
+    finally:
+        # api.save(metric)
+        # time.sleep(10)
+        env.tear_down()
+
+
 def main():
     arg_parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -145,7 +187,6 @@ def main():
         default='')
 
     args = arg_parser.parse_args()
-    scheduler.start()
     
     if args.schedule_conf:
         if args.local:
@@ -196,8 +237,10 @@ def main():
 
     elif args.local:
         # for local mode
-        host = args.host
-        port = args.port
+        run_params = {
+            "host": args.host,
+            "port": args.port
+        }
         suite_file = args.suite
         with open(suite_file) as f:
             suite_dict = full_load(f)
@@ -211,46 +254,8 @@ def main():
         suite = collections[0]
         env_mode = "local"
         deploy_mode = None
-        metric = api.Metric()
-        try:
-            metric.set_run_id()
-            metric.set_mode(env_mode)
-            metric.env = Env()
-            metric.hardware = Hardware()
-            metric.server = Server(version=SERVER_VERSION, mode=deploy_mode)
-            env = get_env(env_mode, deploy_mode)
-            env.start_up(host, port)
-            metric.update_status(status="DEPLOYE_SUCC")
-        except Exception as e:
-            logger.error(str(e))
-            logger.error(traceback.format_exc())
-            metric.update_status(status="DEPLOYE_FAILED")
-        else:
-            runner = get_runner(run_type, env, metric)
-            cases, case_metrics = runner.extract_cases(suite)
-            # TODO: only run when the as_group is equal to True
-            logger.info("Prepare to run cases")
-            runner.prepare(**cases[0])
-            logger.info("Start run case")
-            for index, case in enumerate(cases):
-                case_metric = case_metrics[index]
-                result = runner.run_case(case_metric, **case)
-                if result:
-                    case_metric.update_status(status="RUN_SUCC")
-                else:
-                    case_metric.update_status(status="RUN_FAILED")
-                logger.info(result)
-                case_metric.update_result(result)
-                logger.debug(case_metric.collection)
-                logger.debug(case_metric.index)
-                logger.debug(case_metric.search)
-                logger.debug(case_metric.metrics)
-                api.save(case_metric)
-        finally:
-            # api.save(metric)
-            # time.sleep(10)
-            env.tear_down()
-
+        scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_params])
+    scheduler.start()
 
 if __name__ == "__main__":
     main()
