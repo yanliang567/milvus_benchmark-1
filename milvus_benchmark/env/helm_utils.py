@@ -182,6 +182,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['querynode']['tolerations'] = perf_tolerations
             values_dict['indexnode']['tolerations'] = perf_tolerations
             values_dict['minio']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['tolerations'] = perf_tolerations
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
