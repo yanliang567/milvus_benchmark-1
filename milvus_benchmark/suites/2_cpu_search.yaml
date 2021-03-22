@@ -17,7 +17,7 @@ search_performance:
         wal_enable: true
       collection_name: sift_10m_128_l2
       ni_per: 50000
-      index_type: ivf_flat 
+      index_type: flat 
       index_param:
         nlist: 16384
 
