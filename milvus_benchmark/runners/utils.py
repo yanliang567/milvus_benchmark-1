@@ -4,6 +4,8 @@ import logging
 import numpy as np
 import sklearn.preprocessing
 import h5py
+import random
+from itertools import product
 
 from milvus import DataType
 from milvus_benchmark import config
@@ -95,7 +97,7 @@ def get_vectors_from_binary(nq, dimension, data_type):
 
 
 def generate_vectors(nb, dim):
-    return  [[random.random() for _ in range(dim)] for _ in range(nb)]
+    return [[random.random() for _ in range(dim)] for _ in range(nb)]
 
 
 def generate_values(data_type, vectors, ids):

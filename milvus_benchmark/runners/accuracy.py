@@ -4,7 +4,6 @@ import copy
 import logging
 import numpy as np
 
-from client import generate_entities
 from milvus_benchmark import parser
 from milvus_benchmark.runners import utils
 from milvus_benchmark.runners.base import BaseRunner
@@ -17,13 +16,15 @@ class AccuracyRunner(BaseRunner):
     """run accuracy"""
     name = "accuracy"
 
+    def __init__(self, env, metric):
+        super(AccuracyRunner, self).__init__(env, metric)
+
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         vector_type = utils.get_vector_type(data_type)
         index_field_name = utils.get_default_field_name(vector_type)
         base_query_vectors = utils.get_vectors_from_binary(utils.MAX_NQ, dimension, data_type)
-        hdf5_source_file = collection["source_file"]
         collection_info = {
             "dimension": dimension,
             "metric_type": metric_type,
@@ -69,7 +70,6 @@ class AccuracyRunner(BaseRunner):
                         vector_query = {"vector": {index_field_name: search_info}}
                         case = {
                             "collection_name": collection_name,
-                            "hdf5_source_file": hdf5_source_file,
                             "index_field_name": index_field_name,
                             "dimension": dimension,
                             "data_type": data_type,
@@ -184,7 +184,6 @@ class AccAccuracyRunner(BaseRunner):
     def prepare(self, **case_param):
         collection_name = case_param["collection_name"]
         metric_type = case_param["metric_type"]
-        hdf5_source_file = case_param["hdf5_source_file"]
         dimension = case_param["dimension"]
         vector_type = case_param["vector_type"]
         other_fields = case_param["other_fields"]
@@ -214,7 +213,7 @@ class AccAccuracyRunner(BaseRunner):
                     entities = utils.generate_entities(info, tmp_vectors.tolist(), ids)
                     res_ids = self.milvus.insert(entities, ids=ids)
                 else:
-                    entities = generate_entities(info, tmp_vectors, ids)
+                    entities = utils.generate_entities(info, tmp_vectors, ids)
                     res_ids = self.milvus.insert(entities, ids=ids)
                 assert res_ids == ids
         self.milvus.flush()
