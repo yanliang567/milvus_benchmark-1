@@ -45,9 +45,10 @@ class Tasks(TaskSet):
     #     self.client.delete([random.randint(1, 1000000)], log=False)
 
     def insert(self):
-        ids = [random.randint(1, 10000000) for _ in range(self.params["ni_per"])]
-        X = [[random.random() for _ in range(dim)] for _ in range(self.params["ni_per"])]
-        entities = utils.generate_entities(self.info["collection_info"], X, ids)
+        op = "insert"
+        ids = [random.randint(1, 10000000) for _ in range(self.params[op]["ni_per"])]
+        X = [[random.random() for _ in range(dim)] for _ in range(self.params[op]["ni_per"])]
+        entities = utils.generate_entities(self.op_info["collection_info"], X, ids)
         self.client.insert(entities, ids, log=False)
 
     @task

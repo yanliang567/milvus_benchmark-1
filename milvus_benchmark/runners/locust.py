@@ -1,3 +1,4 @@
+import pdb
 import time
 import copy
 import logging
@@ -27,18 +28,19 @@ class LocustRunner(BaseRunner):
         run_params = {"tasks": {}, "clients_num": clients_num, "spawn_rate": hatch_rate, "during_time": during_time}
         info_in_params = {
             "index_field_name": case_param["index_field_name"],
-            "dimension": case_param["dimension"]
-        }.update({"collection_info": self.milvus.get_info(collection_name)})
+            "dimension": case_param["dimension"],
+            "collection_info": self.milvus.get_info(collection_name)}
+        logger.info(info_in_params)
+        run_params.update({"op_info": info_in_params})
         for task_type in task_types:
             run_params["tasks"].update({
                     task_type["type"]: {
                         "weight": task_type["weight"] if "weight" in task_type else 1,
                         "params": task_type["params"],
-                        "info": info_in_params,
                     }
                 })
-
         # collect stats
+        # pdb.set_trace()
         logger.info(run_params)
         locust_stats = locust_user.locust_executor(self.hostname, self.port, collection_name,
                                                    connection_type=connection_type, run_params=run_params)
@@ -78,7 +80,7 @@ class LocustInsertRunner(LocustRunner):
                 "index_type": index_type,
                 "index_param": index_param
             }
-            index_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = runner_utils.get_default_field_name(vector_type)
         task = collection["task"]
         connection_type = "single"
         connection_num = task["connection_num"]
@@ -178,7 +180,7 @@ class LocustSearchRunner(LocustRunner):
                 "index_type": index_type,
                 "index_param": index_param
             }
-            index_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = runner_utils.get_default_field_name(vector_type)
         task = collection["task"]
         connection_type = "single"
         connection_num = task["connection_num"]
@@ -243,7 +245,6 @@ class LocustSearchRunner(LocustRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
-                if build_index is True:
         self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         build_time = 0.0
         start_time = time.time()
@@ -298,7 +299,7 @@ class LocustRandomRunner(LocustRunner):
                 "index_type": index_type,
                 "index_param": index_param
             }
-            index_field_name = utils.get_default_field_name(vector_type)
+            index_field_name = runner_utils.get_default_field_name(vector_type)
         task = collection["task"]
         connection_type = "single"
         connection_num = task["connection_num"]
@@ -363,7 +364,6 @@ class LocustRandomRunner(LocustRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
-                if build_index is True:
         self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         build_time = 0.0
         start_time = time.time()
