@@ -106,6 +106,10 @@ class AccuracyRunner(BaseRunner):
 
 class AccAccuracyRunner(BaseRunner):
     """run ann accuracy"""
+    """
+    1. entities from hdf5
+    2. one collection test different index
+    """
     name = "acc_accuracy"
 
     def extract_cases(self, collection):
@@ -119,6 +123,7 @@ class AccAccuracyRunner(BaseRunner):
             "metric_type": metric_type,
             "dataset_name": collection_name
         }
+        index_types = collection["index_types"]
         index_type = collection["index_type"]
         index_param = collection["index_param"]
         index_info = {
@@ -183,6 +188,7 @@ class AccAccuracyRunner(BaseRunner):
         dimension = case_param["dimension"]
         vector_type = case_param["vector_type"]
         other_fields = case_param["other_fields"]
+        info = self.milvus.get_info(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
             self.milvus.drop()
@@ -205,10 +211,10 @@ class AccAccuracyRunner(BaseRunner):
                 tmp_vectors = insert_vectors[start:end]
                 ids = [i for i in range(start, end)]
                 if not isinstance(tmp_vectors, list):
-                    entities = generate_entities(tmp_vectors.tolist(), ids)
+                    entities = utils.generate_entities(info, tmp_vectors.tolist(), ids)
                     res_ids = self.milvus.insert(entities, ids=ids)
                 else:
-                    entities = generate_entities(tmp_vectors, ids)
+                    entities = generate_entities(info, tmp_vectors, ids)
                     res_ids = self.milvus.insert(entities, ids=ids)
                 assert res_ids == ids
         self.milvus.flush()
@@ -216,4 +222,5 @@ class AccAccuracyRunner(BaseRunner):
         logger.info("Table: %s, row count: %d" % (collection_name, res_count))
         if res_count != len(insert_vectors):
             raise Exception("Table row count is not equal to insert vectors")
+
 
