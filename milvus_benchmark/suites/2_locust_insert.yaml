@@ -22,11 +22,13 @@ locust_insert_performance:
         nlist: 1024
       task: 
         connection_num: 1
-        clients_num: 1 
-        hatch_rate: 1
-        during_time: 20
+        clients_num: 50
+        hatch_rate: 2
+        during_time: 100
         types:
           -
             type: insert
             weight: 1
-            params: None
+            params:
+              ni_per: 1
+

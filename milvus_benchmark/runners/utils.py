@@ -94,6 +94,9 @@ def get_vectors_from_binary(nq, dimension, data_type):
     return vectors
 
 
+def generate_vectors(nb, dim):
+    return  [[random.random() for _ in range(dim)] for _ in range(nb)]
+
 
 def generate_values(data_type, vectors, ids):
     values = None
