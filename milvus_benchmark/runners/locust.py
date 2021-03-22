@@ -45,7 +45,7 @@ class LocustRunner(BaseRunner):
         return locust_stats
 
 
-class LocustInsertRunner(BaseRunner):
+class LocustInsertRunner(LocustRunner):
     """run insert"""
     name = "locust_insert_performance"
 
