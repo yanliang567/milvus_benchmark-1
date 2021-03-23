@@ -168,6 +168,7 @@ class K8sRunner(Runner):
                 milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
                 logger.debug(milvus_instance.describe_index(index_field_name))
             res = self.do_insert(milvus_instance, collection_name, data_type, dimension, collection_size, ni_per)
+            logger.debug(res)
             flush_time = 0.0
             if "flush" in collection and collection["flush"] == "no":
                 logger.debug("No manual flush")

@@ -198,6 +198,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         if hostname:
             logger.debug("Add tolerations into standalone server")
             values_dict['standalone']['tolerations'] = perf_tolerations 
+            values_dict['minio']['tolerations'] = perf_tolerations 
     else:
         values_dict['querynode']['nodeSelector'] = node_config
         values_dict['indexnode']['nodeSelector'] = node_config
@@ -205,6 +206,8 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             logger.debug("Add tolerations into cluster server")
             values_dict['querynode']['tolerations'] = perf_tolerations
             values_dict['indexnode']['tolerations'] = perf_tolerations
+            values_dict['minio']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['tolerations'] = perf_tolerations
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
@@ -253,9 +256,9 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
             --set minio.persistence.enabled=false \
             --set etcd.persistence.enabled=false \
             --set etcd.envVarsConfigMap=%s \
+            --set image.all.pullPolicy=Always \
             --namespace %s \
             %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
-            # --set image.all.pullPolicy=Always \
     if deploy_mode == "cluster":
         install_cmd = "helm install \
                 --set standalone.enabled=false \
@@ -264,9 +267,9 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
                 --set etcd.envVarsConfigMap=%s \
+                --set image.all.pullPolicy=Always \
                 --namespace %s \
                 %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
-                # --set image.all.pullPolicy=Always \
     elif deploy_mode != "single":
         raise Exception("Deploy mode: {} not support".format(deploy_mode))
     logger.debug(install_cmd)

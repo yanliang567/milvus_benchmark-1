@@ -17,5 +17,9 @@ DEFAULT_CPUS = 32
 
 RAW_DATA_DIR = "/test/milvus/raw_data/"
 
+<<<<<<< HEAD
 # nars log
 LOG_PATH = "/test/milvus/benchmark/logs/{}/".format(BRANCH)
+=======
+DEFAULT_CPUS = 48 
+>>>>>>> distributed
