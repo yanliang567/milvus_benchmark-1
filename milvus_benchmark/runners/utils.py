@@ -12,7 +12,7 @@ from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.runners.utils")
 
-DELETE_INTERVAL_TIME = 10
+DELETE_INTERVAL_TIME = 2
 
 VECTORS_PER_FILE = 1000000
 SIFT_VECTORS_PER_FILE = 100000

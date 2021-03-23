@@ -262,7 +262,11 @@ class LocustSearchRunner(LocustRunner):
         load_start_time = time.time() 
         self.milvus.load_collection()
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})
-        search_param = case_param["task"]["query"]["search_param"]
+        search_param = None
+        for op in case_param["task"]["types"]:
+            if op["type"] == "query":
+                search_param = op["params"]["search_param"]
+                break
         self.milvus.warm_query(index_field_name, search_param, times=2)
 
 
