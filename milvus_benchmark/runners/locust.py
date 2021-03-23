@@ -180,7 +180,7 @@ class LocustSearchRunner(LocustRunner):
                 "index_type": index_type,
                 "index_param": index_param
             }
-            index_field_name = runner_utils.get_default_field_name(vector_type)
+        index_field_name = runner_utils.get_default_field_name(vector_type)
         task = collection["task"]
         connection_type = "single"
         connection_num = task["connection_num"]
@@ -221,6 +221,7 @@ class LocustSearchRunner(LocustRunner):
         vector_type = case_param["vector_type"]
         other_fields = case_param["other_fields"]
         index_field_name = case_param["index_field_name"]
+        metric_type = case_param["metric_type"]
         build_index = case_param["build_index"]
 
         self.milvus.set_collection(collection_name)
@@ -267,7 +268,8 @@ class LocustSearchRunner(LocustRunner):
             if op["type"] == "query":
                 search_param = op["params"]["search_param"]
                 break
-        self.milvus.warm_query(index_field_name, search_param, times=2)
+        logger.info("index_field_name: {}".format(index_field_name))
+        self.milvus.warm_query(index_field_name, search_param, metric_type, times=2)
 
 
 class LocustRandomRunner(LocustRunner):

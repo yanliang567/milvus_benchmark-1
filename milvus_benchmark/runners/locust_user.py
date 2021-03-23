@@ -43,8 +43,8 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     env = Environment(events=events, user_classes=[MyUser])
     runner = env.create_local_runner()
     # setup logging
-    setup_logging("WARNING", "/dev/null")
-    greenlet_exception_logger(logger=logger)
+    # setup_logging("WARNING", "/dev/null")
+    # greenlet_exception_logger(logger=logger)
     gevent.spawn(stats_printer(env.stats))
     # env.create_web_ui("127.0.0.1", 8089)
     # gevent.spawn(stats_printer(env.stats), env, "test", full_history=True)
