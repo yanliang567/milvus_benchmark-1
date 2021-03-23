@@ -145,7 +145,7 @@ def main():
         with open(args.schedule_conf) as f:
             schedule_config = full_load(f)
             f.close()
-        helm_path = os.path.join(os.getcwd(), "../../milvus-helm-charts/charts/milvus-ha")
+        helm_path = os.path.join(os.getcwd(), "..//milvus-helm-charts/charts/milvus-ha")
         for item in schedule_config:
             server_host = item["server"] if "server" in item else ""
             server_tag = item["server_tag"] if "server_tag" in item else ""
