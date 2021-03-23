@@ -256,9 +256,9 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
             --set minio.persistence.enabled=false \
             --set etcd.persistence.enabled=false \
             --set etcd.envVarsConfigMap=%s \
-            --set image.all.pullPolicy=Always \
             --namespace %s \
             %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
+            # --set image.all.pullPolicy=Always \
     if deploy_mode == "cluster":
         install_cmd = "helm install \
                 --set standalone.enabled=false \
@@ -267,9 +267,9 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
                 --set etcd.envVarsConfigMap=%s \
-                --set image.all.pullPolicy=Always \
                 --namespace %s \
                 %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
+                # --set image.all.pullPolicy=Always \
     elif deploy_mode != "single":
         raise Exception("Deploy mode: {} not support".format(deploy_mode))
     logger.debug(install_cmd)
