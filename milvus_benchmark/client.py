@@ -269,13 +269,13 @@ class MilvusClient(object):
         return result
 
     @time_wrapper
-    def warm_query(self, index_field_name, search_param, times=2):
+    def warm_query(self, index_field_name, search_param, metric_type, times=2):
         query_vectors = [[random.random() for _ in range(self._dimension)] for _ in range(DEFAULT_WARM_QUERY_NQ)]
-        index_info = self.describe_index(index_field_name)
+        # index_info = self.describe_index(index_field_name)
         vector_query = {"vector": {index_field_name: {
             "topk": DEFAULT_WARM_QUERY_TOPK, 
             "query": query_vectors, 
-            "metric_type": index_info["metric_type"], 
+            "metric_type": metric_type,
             "params": search_param}
         }}
         must_params = [vector_query]
