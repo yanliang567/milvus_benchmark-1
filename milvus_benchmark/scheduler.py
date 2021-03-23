@@ -5,7 +5,7 @@ from apscheduler.executors.pool import ProcessPoolExecutor
 import config
 from pymongo import MongoClient
 
-logger = logging.getLogger("milvus_benchmark.scheduler")
+logger = logging.getLogger("apsscheduler.scheduler")
 
 mongo_client = MongoClient(config.MONGO_SERVER)
 jobstores = {
@@ -20,4 +20,4 @@ job_defaults = {
     'coalesce': False,
     'max_instances': 32
 }
-scheduler = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
+scheduler = BackgroundScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults, logger=logger)

@@ -11,18 +11,18 @@ logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
 class Tasks(TaskSet):
-
     @task
     def query(self):
-        X = utils.generate_vectors(self.params["nq"], self.info["dimension"])
-        vector_query = {"vector": {self.info["index_field_name"]: {
-            "topk": self.params["top_k"], 
+        op = "query"
+        X = utils.generate_vectors(self.params[op]["nq"], self.op_info["dimension"])
+        vector_query = {"vector": {self.op_info["index_field_name"]: {
+            "topk": self.params[op]["top_k"], 
             "query": X, 
             "metric_type": "L2", 
-            "params": self.params["search_param"]}
+            "params": self.params[op]["search_param"]}
         }}
         filter_query = []
-        for filter in self.params["filters"]:
+        for filter in self.params[op]["filters"]:
             filter_param = []
             if isinstance(filter, dict) and "range" in filter:
                 filter_query.append(eval(filter["range"]))
@@ -30,7 +30,7 @@ class Tasks(TaskSet):
             if isinstance(filter, dict) and "term" in filter:
                 filter_query.append(eval(filter["term"]))
                 # filter_param.append(filter["term"])
-        self.client.query(vector_query, filter_query=filter_query, log=False)
+        self.client.search(vector_query, filter_query=filter_query, log=False)
 
     @task
     def flush(self):

@@ -27,8 +27,8 @@ handlers:
 #        encoding: utf8
 
 loggers:
-    my_module:
-        level: ERROR
+    milvus_benchmark:
+        level: DEBUG
         handlers: [console, info_file_handler]
         propagate: no
 

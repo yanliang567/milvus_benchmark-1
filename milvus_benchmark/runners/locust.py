@@ -36,7 +36,7 @@ class LocustRunner(BaseRunner):
             run_params["tasks"].update({
                     task_type["type"]: {
                         "weight": task_type["weight"] if "weight" in task_type else 1,
-                        "params": task_type["params"],
+                        "params": task_type["params"] if "params" in task_type else None,
                     }
                 })
         # collect stats
@@ -262,7 +262,7 @@ class LocustSearchRunner(LocustRunner):
         load_start_time = time.time() 
         self.milvus.load_collection()
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})
-        search_param = case_param["task"]["search"]["search_param"]
+        search_param = case_param["task"]["query"]["search_param"]
         self.milvus.warm_query(index_field_name, search_param, times=2)
 
 
@@ -381,5 +381,3 @@ class LocustRandomRunner(LocustRunner):
         load_start_time = time.time() 
         self.milvus.load_collection()
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})
-        search_param = case_param["task"]["search"]["search_param"]
-        self.milvus.warm_query(index_field_name, search_param, times=2)

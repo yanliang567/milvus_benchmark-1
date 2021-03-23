@@ -29,6 +29,7 @@ DEFAULT_IMAGE = "milvusdb/milvus:latest"
 LOG_FOLDER = "logs"
 NAMESPACE = "milvus"
 SERVER_VERSION = "2.0"
+q = Queue()
 
 def positive_int(s):
     i = None
@@ -107,7 +108,11 @@ def queue_worker(queue):
                 env.stop()
 
 
-def run_suite(suite, env_mode, deploy_mode=None, run_params=None):
+def job_listerner(event):
+    pass
+
+
+def run_suite(suite, env_mode, deploy_mode=None, run_type=None, run_params=None, env_params=None):
     metric = api.Metric()
     try:
         metric.set_run_id()
@@ -116,7 +121,7 @@ def run_suite(suite, env_mode, deploy_mode=None, run_params=None):
         metric.hardware = Hardware()
         metric.server = Server(version=SERVER_VERSION, mode=deploy_mode)
         env = get_env(env_mode, deploy_mode)
-        env.start_up(run_params["host"], run_params["port"])
+        env.start_up(env_params["host"], env_params["port"])
         metric.update_status(status="DEPLOYE_SUCC")
     except Exception as e:
         logger.error(str(e))
@@ -237,7 +242,7 @@ def main():
 
     elif args.local:
         # for local mode
-        run_params = {
+        env_params = {
             "host": args.host,
             "port": args.port
         }
@@ -254,8 +259,10 @@ def main():
         suite = collections[0]
         env_mode = "local"
         deploy_mode = None
-        scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_params])
-    scheduler.start()
+
+        run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params)
+        # scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params, env_params])
+    # scheduler.start()
 
 if __name__ == "__main__":
     main()

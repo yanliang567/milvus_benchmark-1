@@ -1,4 +1,4 @@
-locust_mix_performance:
+locust_random_performance:
   collections:
     -
       milvus:
@@ -12,10 +12,10 @@ locust_mix_performance:
         gpu_resource_config.build_index_resources:
           gpu0
         wal_enable: true
-      collection_name: sift_1m_500000_128_l2
-      other_fields: int
+      collection_name: sift_10w_128_l2
+      # other_fields: int
       ni_per: 50000
-      build_index: true
+      build_index: false
       index_type: ivf_sq8
       index_param:
         nlist: 1024
@@ -29,19 +29,19 @@ locust_mix_performance:
             params:
               top_k: 10
               nq: 100
-              filters:
-                - range:
-                    int64:
-                      LT: 0
-                      GT: 1000000
+              # filters:
+              #   - range:
+              #       int64:
+              #         LT: 0
+              #         GT: 1000000
               search_param:
                 nprobe: 16
           -
             type: insert
             weight: 10
             params:
-              nb: 1
+              ni_per: 1
         connection_num: 1
         clients_num: 10
         hatch_rate: 2
-        during_time: 600 
+        during_time: 60 
