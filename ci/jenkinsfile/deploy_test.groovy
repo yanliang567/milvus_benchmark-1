@@ -9,7 +9,7 @@ try {
     // checkout([$class: 'GitSCM', branches: [[name: "${TEST_BRANCH}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${params.GIT_USER}", url: "${TEST_URL}", name: 'origin', refspec: "+refs/heads/${TEST_BRANCH}:refs/remotes/origin/${TEST_BRANCH}"]]])
     print "Install requirements"
     
-    sh "python3 -m pip install pymilvus-distributed==0.0.57"
+    // sh "python3 -m pip install pymilvus-distributed==0.0.57"
     sh "python3 -m pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
     // sh "python3 -m pip install -r requirements.txt"
     if ("${params.CLUSTER_NAME}" == "idc-kubernetes") {
