@@ -14,7 +14,6 @@ class Tasks(TaskSet):
     @task
     def query(self):
         op = "query"
-        filters = self.params[op]["filters"] if "filters" in self.params[op] else None
         X = utils.generate_vectors(self.params[op]["nq"], self.op_info["dimension"])
         vector_query = {"vector": {self.op_info["index_field_name"]: {
             "topk": self.params[op]["top_k"], 
@@ -23,8 +22,8 @@ class Tasks(TaskSet):
             "params": self.params[op]["search_param"]}
         }}
         filter_query = []
-        if filters:
-            for filter in filters:
+        if "filters" in self.params[op]:
+            for filter in self.params[op]["filters"]:
                 filter_param = []
                 if isinstance(filter, dict) and "range" in filter:
                     filter_query.append(eval(filter["range"]))
