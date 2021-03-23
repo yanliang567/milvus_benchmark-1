@@ -361,9 +361,11 @@ class LocalRunner(Runner):
             for index_type in index_types:
                 for index_param in index_params:
                     logger.debug("Building index with param: %s, metric_type: %s" % (json.dumps(index_param), metric_type))
-                    milvus_instance.create_index(vec_field_name, index_type, metric_type, index_param=index_param)
+                    if index_type != "flat":
+                        milvus_instance.create_index(vec_field_name, index_type, metric_type, index_param=index_param)
+                    milvus_instance.release_collection()
                     logger.info("Start preload collection: %s" % collection_name)
-                    milvus_instance.preload_collection()
+                    milvus_instance.load_collection()
                     for search_param in search_params:
                         for nq in nqs:
                             query_vectors = self.normalize(metric_type, np.array(dataset["test"][:nq]))

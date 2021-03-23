@@ -670,7 +670,7 @@ class K8sRunner(Runner):
             insert_vectors = self.normalize(metric_type, np.array(dataset["train"]))
             if len(insert_vectors) != dataset["train"].shape[0]:
                 raise Exception("Row count of insert vectors: %d is not equal to dataset size: %d" % (
-                len(insert_vectors), dataset["train"].shape[0]))
+                    len(insert_vectors), dataset["train"].shape[0]))
             logger.debug("The row count of entities to be inserted: %d" % len(insert_vectors))
             # Insert batch once
             # milvus_instance.insert(insert_vectors)
@@ -704,8 +704,10 @@ class K8sRunner(Runner):
                     #     milvus_instance.create_index(index_field_name, index_type, metric_type,
                     #                                  index_param=index_param)
 
-                    milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+                    if index_type != "flat":
+                        milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
                     logger.info(milvus_instance.describe_index(index_field_name))
+                    milvus_instance.release_collection()
                     logger.info("Start load collection: %s" % collection_name)
                     milvus_instance.load_collection()
                     logger.info("End load collection: %s" % collection_name)

@@ -23,8 +23,8 @@ locust_insert_performance:
       task: 
         connection_num: 1
         clients_num: 50
-        hatch_rate: 2
-        during_time: 100
+        hatch_rate: 10
+        during_time: 30
         types:
           -
             type: insert

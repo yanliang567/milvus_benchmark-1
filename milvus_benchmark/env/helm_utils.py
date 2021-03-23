@@ -241,14 +241,20 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     timeout = 600
     logger.debug("Server deploy mode: %s" % deploy_mode)
     host = "%s-milvus-ha.%s.svc.cluster.local" % (name, namespace)
+    # TODO: update etcd config
+    etcd_config_map_cmd = "kubectl create configmap -n %s %s --from-literal=ETCD_QUOTA_BACKEND_BYTES=8589934592 --from-literal=ETCD_SNAPSHOT_COUNT=5000 --from-literal=ETCD_AUTO_COMPACTION_MODE=revision --from-literal=ETCD_AUTO_COMPACTION_RETENTION=1" % (namespace, name)
+    if os.system(etcd_config_map_cmd):
+        raise Exception("Create configmap: {} failed".format(name))
+    logger.debug("Create configmap: {} successfully".format(name))
     install_cmd = "helm install \
             --set standalone.service.type=ClusterIP \
             --set image.all.repository=%s \
             --set image.all.tag=%s \
             --set minio.persistence.enabled=false \
             --set etcd.persistence.enabled=false \
+            --set etcd.envVarsConfigMap=%s \
             --namespace %s \
-            %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
+            %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
             # --set image.all.pullPolicy=Always \
     if deploy_mode == "cluster":
         install_cmd = "helm install \
@@ -257,8 +263,9 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set image.all.tag=%s \
                 --set minio.persistence.enabled=false \
                 --set etcd.persistence.enabled=false \
+                --set etcd.envVarsConfigMap=%s \
                 --namespace %s \
-                %s ." % (config.REGISTRY_URL, image_tag, namespace, name)
+                %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
                 # --set image.all.pullPolicy=Always \
     elif deploy_mode != "single":
         raise Exception("Deploy mode: {} not support".format(deploy_mode))
@@ -288,6 +295,10 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
 def helm_del_server(name, namespace):
     # logger.debug("Sleep 600s before uninstall server")
     # time.sleep(600)
+    delete_etcd_config_map_cmd = "kubectl delete configmap -n %s %s" % (namespace, name)
+    if os.system(delete_etcd_config_map_cmd):
+        logger.error("Delete configmap %s:%s failed" % (namespace, name))
+        return False
     del_cmd = "helm uninstall -n milvus %s" % name
     logger.info(del_cmd)
     if os.system(del_cmd):

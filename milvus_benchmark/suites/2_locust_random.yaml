@@ -42,6 +42,6 @@ locust_random_performance:
             params:
               ni_per: 1
         connection_num: 1
-        clients_num: 10
+        clients_num: 1
         hatch_rate: 2
-        during_time: 60 
+        during_time: 10 
