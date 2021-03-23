@@ -22,15 +22,16 @@ class Tasks(TaskSet):
             "params": self.params[op]["search_param"]}
         }}
         filter_query = []
-        for filter in self.params[op]["filters"]:
-            filter_param = []
-            if isinstance(filter, dict) and "range" in filter:
-                filter_query.append(eval(filter["range"]))
-                # filter_param.append(filter["range"])
-            if isinstance(filter, dict) and "term" in filter:
-                filter_query.append(eval(filter["term"]))
-                # filter_param.append(filter["term"])
-        self.client.search(vector_query, filter_query=filter_query, log=False)
+        if "filters" in self.params[op]:
+            for filter in self.params[op]["filters"]:
+                filter_param = []
+                if isinstance(filter, dict) and "range" in filter:
+                    filter_query.append(eval(filter["range"]))
+                    # filter_param.append(filter["range"])
+                if isinstance(filter, dict) and "term" in filter:
+                    filter_query.append(eval(filter["term"]))
+                    # filter_param.append(filter["term"])
+        self.client.query(vector_query, filter_query=filter_query, log=False)
 
     @task
     def flush(self):
