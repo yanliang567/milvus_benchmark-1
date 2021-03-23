@@ -15,13 +15,13 @@ ann_accuracy:
           - gpu1
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
-      index_types: ['flat']
+      index_types: ['ivf_flat']
       index_params:
-        nlist: [16384]
-      top_ks: [10]
-      nqs: [10000]
+        nlist: [1024]
+      top_ks: [5]
+      nqs: [10]
       search_params:
-        nprobe: [1, 512, 16384]
+        nprobe: [8, 16]
 
     # -
     #   milvus:

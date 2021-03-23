@@ -4,6 +4,8 @@ import logging
 import numpy as np
 import sklearn.preprocessing
 import h5py
+import random
+from itertools import product
 
 from milvus import DataType
 from milvus_benchmark import config
@@ -95,7 +97,7 @@ def get_vectors_from_binary(nq, dimension, data_type):
 
 
 def generate_vectors(nb, dim):
-    return  [[random.random() for _ in range(dim)] for _ in range(nb)]
+    return [[random.random() for _ in range(dim)] for _ in range(nb)]
 
 
 def generate_values(data_type, vectors, ids):
@@ -225,6 +227,7 @@ def get_recall_value(true_ids, result_ids):
     """
     sum_radio = 0.0
     for index, item in enumerate(result_ids):
+        pdb.set_trace()
         # tmp = set(item).intersection(set(flat_id_list[index]))
         tmp = set(true_ids[index]).intersection(set(item))
         sum_radio = sum_radio + len(tmp) / len(item)
@@ -239,3 +242,19 @@ def get_ground_truth_ids(collection_size):
     d = a[0]
     true_ids = a.reshape(-1, d + 1)[:, 1:].copy()
     return true_ids
+
+
+def normalize(metric_type, X):
+    if metric_type == "ip":
+        logger.info("Set normalize for metric_type: %s" % metric_type)
+        X = sklearn.preprocessing.normalize(X, axis=1, norm='l2')
+        X = X.astype(np.float32)
+    elif metric_type == "l2":
+        X = X.astype(np.float32)
+    elif metric_type in ["jaccard", "hamming", "sub", "super"]:
+        tmp = []
+        for item in X:
+            new_vector = bytes(np.packbits(item, axis=-1).tolist())
+            tmp.append(new_vector)
+        X = tmp
+    return X
