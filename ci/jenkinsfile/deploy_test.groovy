@@ -9,8 +9,8 @@ try {
     // checkout([$class: 'GitSCM', branches: [[name: "${TEST_BRANCH}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${params.GIT_USER}", url: "${TEST_URL}", name: 'origin', refspec: "+refs/heads/${TEST_BRANCH}:refs/remotes/origin/${TEST_BRANCH}"]]])
     print "Install requirements"
     
-    // sh "python3 -m pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
-    sh "python3 -m pip install -r requirements.txt"
+    sh "python3 -m pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
+    // sh "python3 -m pip install -r requirements.txt"
     if ("${params.CLUSTER_NAME}" == "idc-kubernetes") {
         sh "export KUBECONFIG=/root/kube/.kube/config && cd milvus_benchmark && export PYTHONPATH=${env.WORKSPACE}/ && python3 main.py --image-version=${params.IMAGE_VERSION} --schedule-conf=scheduler/${params.CONFIG_FILE} --deploy-mode=${params.DEPLOY_MODE}"
     } else {
