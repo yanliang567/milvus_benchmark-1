@@ -181,6 +181,8 @@ def main():
                     job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params], kwargs=kwargs)
                     logger.info(job)
                     logger.info(job.id)
+                    logger.info("Sleep 10s ..")
+                    time.sleep(10)
 
     elif args.local:
         # for local mode
