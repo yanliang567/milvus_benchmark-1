@@ -108,8 +108,8 @@ def queue_worker(queue):
                 env.stop()
 
 
-def job_listerner(event):
-    pass
+def shutdown(event):
+    scheduler.shutdown(wait=False)
 
 
 def run_suite(suite, env_mode, deploy_mode=None, run_type=None, run_params=None, env_params=None):
@@ -260,12 +260,23 @@ def main():
         env_mode = "local"
         deploy_mode = None
 
-        run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params)
-        # scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params, env_params])
-    # scheduler.start()
+        # run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params)
+        job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params, env_params])
+        logger.info(job)
+        logger.info(job.id)
+
 
 if __name__ == "__main__":
-    main()
-    # metric = api.Metric()
-    # logger.info(type(metric))
-    # api.save(metric)
+    try:
+        main()
+        from apscheduler.events import EVENT_JOB_EXECUTED
+        scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED)
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        logger.error("Received interruption")
+        scheduler.shutdown(wait=False)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        sys.exit(1)
+    logger.info("Finshed")

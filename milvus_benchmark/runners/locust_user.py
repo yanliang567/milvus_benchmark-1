@@ -2,10 +2,8 @@ import logging
 import random
 import pdb
 import gevent
-import gevent.monkey
-
-gevent.monkey.patch_all()
-
+# import gevent.monkey
+# gevent.monkey.patch_all()
 from locust import User, between, events, stats
 from locust.env import Environment
 import locust.stats
