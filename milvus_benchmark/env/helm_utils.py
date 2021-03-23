@@ -26,6 +26,31 @@ def get_host_cpus(hostname):
         return cpus
 
 
+def update_server_config(server_name, server_tag, server_config):
+    cpus = config.DEFAULT_CPUS
+    if server_name:
+        try:
+            cpus = get_host_cpus(server_name)
+            if not cpus:
+                cpus = config.DEFAULT_CPUS
+        except Exception as e:
+            logger.error("Get cpus on host: {} failed".format(server_name))
+            logger.error(str(e))
+        if server_config:
+            if "cpus" in server_config.keys():
+                cpus = min(server_config["cpus"], int(cpus))
+        # self.hardware = Hardware(name=self.hostname, cpus=cpus)
+    if server_tag:
+        cpus = int(server_tag.split("c")[0])
+    kv = {"cpus": cpus}
+    logger.debug(kv)
+    if server_config:
+        server_config.update(kv)
+    else:
+        server_config = kv
+    return server_config
+
+
 # update values.yaml
 def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, server_config=None):
     if not os.path.isfile(file_path):

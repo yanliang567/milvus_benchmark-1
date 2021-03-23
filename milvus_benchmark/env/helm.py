@@ -1,5 +1,6 @@
 import os
 import time
+import pdb
 import logging
 import traceback
 
@@ -23,12 +24,13 @@ class HelmEnv(BaseEnv):
             self._name_space = helm_install_params["namespace"]
         server_name = helm_install_params["server_name"]
         server_tag = helm_install_params["server_tag"] if "server_tag" in helm_install_params else None
-        server_config = helm_install_params["server_config"]
+        server_config = helm_install_params["server_config"] if "server_config" in helm_install_params else None
         milvus_config = helm_install_params["milvus_config"]
         image_tag = helm_install_params["image_tag"]
         image_type = helm_install_params["image_type"]
 
         logger.debug(self.deploy_mode)
+        server_config = helm_utils.update_server_config(server_name, server_tag, server_config)
         # update values
         values_file_path = helm_path + "/values.yaml"
         if not os.path.exists(values_file_path):
@@ -43,7 +45,7 @@ class HelmEnv(BaseEnv):
                                                        self._name_space)
             if not hostname:
                 logger.error("Helm install server failed")
-                self.clean_up()
+                self.tear_down()
                 return False
             else:
                 self.set_hostname(hostname)
@@ -51,7 +53,7 @@ class HelmEnv(BaseEnv):
         except Exception as e:
             logger.error("Helm install server failed: %s" % (str(e)))
             logger.error(traceback.format_exc())
-            self.clean_up()
+            self.tear_down()
             return False
 
     def tear_down(self):

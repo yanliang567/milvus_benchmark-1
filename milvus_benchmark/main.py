@@ -46,73 +46,11 @@ def get_image_tag(image_version):
     return "%s-release" % (image_version)
 
 
-def queue_worker(queue):
-    while not queue.empty():
-        q = queue.get()
-        suite = q["suite"]
-        server_host = q["server_host"]
-        server_tag = q["server_tag"]
-        deploy_mode = q["deploy_mode"]
-        image_type = q["image_type"]
-        image_tag = q["image_tag"]
-
-        with open(suite) as f:
-            suite_dict = full_load(f)
-            f.close()
-        logger.debug(suite_dict)
-
-        run_type, run_params = parser.operations_parser(suite_dict)
-        collections = run_params["collections"]
-        env_mode = "helm"
-        helm_path = os.path.join(os.getcwd(), "../milvus-helm-charts/charts/milvus-ha")
-        metric = api.Metric()
-        for collection in collections:
-            # run tests
-            milvus_config = collection["milvus"] if "milvus" in collection else None
-            server_config = collection["server"] if "server" in collection else None
-            logger.debug(milvus_config)
-            logger.debug(server_config)
-            helm_install_params = {
-                "server_name": server_host,
-                "server_tag": server_tag,
-                "server_config": server_config,
-                "milvus_config": milvus_config,
-                "image_tag": image_tag,
-                "image_type": image_type
-            }
-            try:
-                metric.set_run_id()
-                metric.set_mode(env_mode)
-                metric.env = Env()
-                metric.hardware = Hardware()
-                metric.run_params = run_params
-                env = get_env(env_mode, deploy_mode)
-                if not env.start_up(helm_path, helm_install_params):
-                    metric.update_status(status="DEPLOYE_FAILED")
-                else:
-                    metric.update_status(status="DEPLOYE_SUCC")
-            except Exception as e:
-                logger.error(str(e))
-                logger.error(traceback.format_exc())
-                metric.update_status(status="DEPLOYE_FAILED")
-            else:
-                runner = get_runner(run_type, env, metric)
-                if runner.run(run_params):
-                    metric.update_status(status="RUN_SUCC")
-                    api.save(metric)
-                else:
-                    logger.error(str(e))
-                    logger.error(traceback.format_exc())
-            finally:
-                time.sleep(10)
-                env.stop()
-
-
 def shutdown(event):
     scheduler.shutdown(wait=False)
 
 
-def run_suite(suite, env_mode, deploy_mode=None, run_type=None, run_params=None, env_params=None):
+def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=None, helm_path=None, helm_install_params=None):
     metric = api.Metric()
     try:
         metric.set_run_id()
@@ -121,7 +59,10 @@ def run_suite(suite, env_mode, deploy_mode=None, run_type=None, run_params=None,
         metric.hardware = Hardware()
         metric.server = Server(version=SERVER_VERSION, mode=deploy_mode)
         env = get_env(env_mode, deploy_mode)
-        env.start_up(env_params["host"], env_params["port"])
+        if env_mode == "local":
+            env.start_up(env_params["host"], env_params["port"])
+        elif env_mode == "helm":
+            env.start_up(helm_path, helm_install_params)
         metric.update_status(status="DEPLOYE_SUCC")
     except Exception as e:
         logger.error(str(e))
@@ -198,47 +139,48 @@ def main():
             raise Exception("Helm mode with scheduler and other mode are incompatible")
         if not args.image_version:
             raise Exception("Image version not given")
+        env_mode = "helm"
         image_version = args.image_version
         deploy_mode = args.deploy_mode
         with open(args.schedule_conf) as f:
             schedule_config = full_load(f)
             f.close()
-        queues = []
-        # server_names = set()
-        server_names = []
+        helm_path = os.path.join(os.getcwd(), "../../milvus-helm-charts/charts/milvus-ha")
         for item in schedule_config:
             server_host = item["server"] if "server" in item else ""
             server_tag = item["server_tag"] if "server_tag" in item else ""
             suite_params = item["suite_params"]
-            server_names.append(server_host)
-            q = Queue()
             for suite_param in suite_params:
-                suite = "suites/" + suite_param["suite"]
+                suite_file = "suites/" + suite_param["suite"]
+                with open(suite_file) as f:
+                    suite_dict = full_load(f)
+                    f.close()
+                logger.debug(suite_dict)
+                run_type, run_params = parser.operations_parser(suite_dict)
+                collections = run_params["collections"]
                 image_type = suite_param["image_type"]
                 image_tag = get_image_tag(image_version)
-                q.put({
-                    "suite": suite,
-                    "server_host": server_host,
-                    "server_tag": server_tag,
-                    "deploy_mode": deploy_mode,
-                    "image_tag": image_tag,
-                    "image_type": image_type
-                })
-            queues.append(q)
-        logging.error(queues)
-        thread_num = len(server_names)
-        processes = []
-
-        # debug mode
-        queue_worker(queues[0])
-
-        # for i in range(thread_num):
-        #     x = Process(target=queue_worker, args=(queues[i], ))
-        #     processes.append(x)
-        #     x.start()
-        #     time.sleep(10)
-        # for x in processes:
-        #     x.join()
+                for suite in collections:
+                    # run test cases
+                    milvus_config = suite["milvus"] if "milvus" in suite else None
+                    server_config = suite["server"] if "server" in suite else None
+                    logger.debug(milvus_config)
+                    logger.debug(server_config)
+                    helm_install_params = {
+                        "server_name": server_host,
+                        "server_tag": server_tag,
+                        "server_config": server_config,
+                        "milvus_config": milvus_config,
+                        "image_tag": image_tag,
+                        "image_type": image_type
+                    }
+                    kwargs = {
+                        "helm_path": helm_path,
+                        "helm_install_params": helm_install_params
+                    }
+                    job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params], kwargs=kwargs)
+                    logger.info(job)
+                    logger.info(job.id)
 
     elif args.local:
         # for local mode
@@ -261,7 +203,10 @@ def main():
         deploy_mode = None
 
         # run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params)
-        job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params, env_params])
+        kwargs = {
+            "env_params": env_params
+        }
+        job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params], kwargs=kwargs)
         logger.info(job)
         logger.info(job.id)
 
