@@ -37,13 +37,17 @@ class Tasks(TaskSet):
     def flush(self):
         self.client.flush(log=False)
 
-    # @task
-    # def get(self):
-    #     self.client.get()
+    @task
+    def load(self):
+        self.client.load_collection()
 
     # @task
-    # def delete(self):
-    #     self.client.delete([random.randint(1, 1000000)], log=False)
+    # def release_index(self):
+    #     self.client.release_index()
+
+    # @task
+    # def create_index(self):
+    #     self.client.release_index()
 
     def insert(self):
         op = "insert"
