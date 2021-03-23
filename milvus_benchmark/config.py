@@ -13,13 +13,9 @@ SERVER_PORT_DEFAULT = 19530
 HELM_NAMESPACE = "milvus"
 BRANCH = "0331"
 
-DEFAULT_CPUS = 32
+DEFAULT_CPUS = 48
 
 RAW_DATA_DIR = "/test/milvus/raw_data/"
 
-<<<<<<< HEAD
 # nars log
 LOG_PATH = "/test/milvus/benchmark/logs/{}/".format(BRANCH)
-=======
-DEFAULT_CPUS = 48 
->>>>>>> distributed
