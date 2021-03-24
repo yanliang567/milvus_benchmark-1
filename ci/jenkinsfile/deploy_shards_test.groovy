@@ -11,7 +11,7 @@ timeout(time: 12, unit: 'HOURS') {
             print "Install requirements"
             // sh "python3 -m pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
             sh "python3 -m pip install -r requirements.txt"
-            sh "python3 -m pip install git+${TEST_LIB_URL}"
+//             sh "python3 -m pip install git+${TEST_LIB_URL}"
             sh "python3 main.py --image-version=${params.IMAGE_VERSION} --schedule-conf=scheduler/${params.SHARDS_CONFIG_FILE} --deploy-mode=${params.DEPLOY_MODE}"
         }
     } catch (exc) {
