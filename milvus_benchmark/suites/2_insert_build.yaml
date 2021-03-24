@@ -19,4 +19,4 @@ insert_build_performance:
       build_index: true
       index_type: ivf_sq8
       index_param:
-        nlist: 1024
+        nlist: 16384
