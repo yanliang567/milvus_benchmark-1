@@ -16,8 +16,8 @@ import concurrent.futures
 from client import MilvusClient
 import parser
 from runner import Runner
-from milvus_metrics.api import report
-from milvus_metrics.models import Env, Hardware, Server, Metric
+from metrics.api import report
+from metrics.models import Env, Hardware, Server, Metric
 import utils
 
 logger = logging.getLogger("milvus_benchmark.k8s_runner")
