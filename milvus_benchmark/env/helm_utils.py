@@ -176,11 +176,11 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         }]  
     if hostname:
         node_config = {'kubernetes.io/hostname': hostname}
-        cpus = server_config["cpus"]
     else:
         # server tag
         node_config = {'instance-type': server_tag}
-        cpus = int(server_tag.split("c")[0]) 
+    cpus = server_config["cpus"]
+    logger.debug(hostname)
     if cluster is False:
         values_dict['standalone']['nodeSelector'] = node_config
         # TODO: disable
