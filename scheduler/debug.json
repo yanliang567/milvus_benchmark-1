@@ -1,0 +1,20 @@
+[
+    {
+        "server": "eros",
+        "suite_params": [
+            {
+                "suite": "locust_mix.yaml",
+                "image_type": "gpu"
+            }
+        ]
+    },
+    {
+        "server": "apollo",
+        "suite_params": [
+            {
+                "suite": "011_cpu_accuracy_ann_debug.yaml",
+                "image_type": "cpu"
+            }
+        ]
+    }
+]

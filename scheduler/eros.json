@@ -1,0 +1,11 @@
+[
+    {
+        "server": "poseidon",
+        "suite_params": [
+            {
+                "suite": "011_locust_search.yaml",
+                "image_type": "cpu"
+            }
+        ]
+    }
+]

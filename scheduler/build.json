@@ -1,0 +1,11 @@
+[
+    {
+        "server": "idc-sh004",
+        "suite_params": [
+            {
+                "suite": "011_build_debug.yaml",
+                "image_type": "cpu"
+            }
+        ]
+    }
+]

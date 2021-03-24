@@ -1,0 +1,10 @@
+[
+    {
+        "suite_params": [
+            {
+                "suite": "080_insert_performance.yaml",
+                "image_type": "cpu"
+            }
+        ]
+    }
+]
