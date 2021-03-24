@@ -302,7 +302,6 @@ def helm_del_server(name, namespace):
     logger.info(delete_etcd_config_map_cmd)
     if os.system(delete_etcd_config_map_cmd):
         logger.error("Delete configmap %s:%s failed" % (namespace, name))
-        return False
     del_cmd = "helm uninstall -n milvus %s" % name
     logger.info(del_cmd)
     if os.system(del_cmd):
