@@ -10,7 +10,7 @@ pipeline {
         choice choices: ['single', 'shards'], description: 'server deploy mode', name: 'DEPLOY_MODE'
         string defaultValue: '011_data.json', description: 'test suite config yaml', name: 'CONFIG_FILE', trim: true
         string defaultValue: 'shards.json', description: 'shards test suite config yaml', name: 'SHARDS_CONFIG_FILE', trim: true
-        string defaultValue: '09509e53-9125-4f5d-9ce8-42855987ad67', description: 'git credentials', name: 'GIT_USER', trim: true
+        string defaultValue: 'd0928627-efb6-4cfd-8030-9bf635988d85', description: 'git credentials', name: 'GIT_USER', trim: true
     }
 
     environment {
