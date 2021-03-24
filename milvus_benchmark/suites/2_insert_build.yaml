@@ -1,7 +1,7 @@
 insert_build_performance:
   collections:
     -
-      server:
+      milvus:
         db_config.primary_path: /test/milvus/db_data_011/sift_1m_128_128_l2_pq
         cache_config.cpu_cache_capacity: 32
         engine_config.use_blas_threshold: 1100
