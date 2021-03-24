@@ -16,6 +16,7 @@ build_performance:
           - gpu1
       collection_name: sift_10m_128_l2
       ni_per: 50000
+      build_index: true
       index_type: ivf_sq8
       index_param:
         nlist: 1024

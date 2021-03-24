@@ -19,6 +19,7 @@ insert_search_performance:
         cpus: 64
       collection_name: sift_10m_128_l2
       ni_per: 50000
+      build_index: true
       index_type: ivf_flat 
       index_param:
         nlist: 16384
