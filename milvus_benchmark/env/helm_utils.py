@@ -38,7 +38,7 @@ def update_server_config(server_name, server_tag, server_config):
             logger.error(str(e))
         if server_config:
             if "cpus" in server_config.keys():
-                cpus = min(server_config["cpus"], int(cpus))
+                cpus = server_config["cpus"]
         # self.hardware = Hardware(name=self.hostname, cpus=cpus)
     if server_tag:
         cpus = int(server_tag.split("c")[0])
@@ -299,6 +299,7 @@ def helm_del_server(name, namespace):
     # logger.debug("Sleep 600s before uninstall server")
     # time.sleep(600)
     delete_etcd_config_map_cmd = "kubectl delete configmap -n %s %s" % (namespace, name)
+    logger.info(delete_etcd_config_map_cmd)
     if os.system(delete_etcd_config_map_cmd):
         logger.error("Delete configmap %s:%s failed" % (namespace, name))
         return False
