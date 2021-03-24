@@ -214,8 +214,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-        from apscheduler.events import EVENT_JOB_EXECUTED
-        scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED)
+        from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+        scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED|EVENT_JOB_ERROR)
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         logger.error("Received interruption")
