@@ -23,8 +23,8 @@ insert_search_performance:
       index_param:
         nlist: 16384
       run_count: 2
-      top_ks: [1]
-      nqs: [1, 10]
+      top_ks: [1, 10, 100, 1000]
+      nqs: [1, 10, 100, 200, 500, 1000, 1200]
       search_params:
         -
           nprobe: 8
