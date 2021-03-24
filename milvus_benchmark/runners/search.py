@@ -197,6 +197,7 @@ class InsertSearchRunner(BaseRunner):
                             "build_index": build_index,
                             "index_type": index_type,
                             "index_param": index_param,
+                            "metric_type": metric_type,
                             "run_count": run_count,
                             "filter_query": filter_query,
                             "vector_query": vector_query,
