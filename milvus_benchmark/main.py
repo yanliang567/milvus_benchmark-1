@@ -87,16 +87,13 @@ def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=Non
             except Exception as e:
                 err_message = str(e)+"\n"+traceback.format_exc()
                 logger.error(traceback.format_exc())
+            logger.info(result)
             if result:
                 case_metric.update_status(status="RUN_SUCC")
+                case_metric.update_result(result)
             else:
                 case_metric.update_status(status="RUN_FAILED")
                 case_metric.update_message(err_message)
-            logger.info(result)
-            case_metric.update_result(result)
-            logger.debug(case_metric.collection)
-            logger.debug(case_metric.index)
-            logger.debug(case_metric.search)
             logger.debug(case_metric.metrics)
             api.save(case_metric)
     finally:
