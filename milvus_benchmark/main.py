@@ -47,7 +47,10 @@ def get_image_tag(image_version):
 
 
 def shutdown(event):
-    scheduler.shutdown(wait=False)
+    logger.info("Check if there is scheduled jobs in scheduler")
+    if not scheduler.get_jobs():
+        logger.info("No job in scheduler, will shutdown the scheduler")
+        scheduler.shutdown(wait=False)
 
 
 def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=None, helm_path=None, helm_install_params=None):
@@ -77,16 +80,20 @@ def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=Non
         logger.info("Start run case")
         for index, case in enumerate(cases):
             case_metric = case_metrics[index]
-            result = runner.run_case(case_metric, **case)
+            result = None
+            err_message = ""
+            try:
+                result = runner.run_case(case_metric, **case)
+            except Exception as e:
+                err_message = str(e)+"\n"+traceback.format_exc()
+                logger.error(traceback.format_exc())
+            logger.info(result)
             if result:
                 case_metric.update_status(status="RUN_SUCC")
+                case_metric.update_result(result)
             else:
                 case_metric.update_status(status="RUN_FAILED")
-            logger.info(result)
-            case_metric.update_result(result)
-            logger.debug(case_metric.collection)
-            logger.debug(case_metric.index)
-            logger.debug(case_metric.search)
+                case_metric.update_message(err_message)
             logger.debug(case_metric.metrics)
             api.save(case_metric)
     finally:

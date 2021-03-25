@@ -200,12 +200,20 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['standalone']['tolerations'] = perf_tolerations 
             values_dict['minio']['tolerations'] = perf_tolerations 
     else:
+        # TODO:
+        # values_dict['pulsar']["broker"]["configData"]["maxMessageSize"] = "104857600"
+        values_dict['proxynode']['nodeSelector'] = node_config
         values_dict['querynode']['nodeSelector'] = node_config
         values_dict['indexnode']['nodeSelector'] = node_config
+        values_dict['datanode']['nodeSelector'] = node_config
+        values_dict['minio']['nodeSelector'] = node_config
+        values_dict['pulsar']['nodeSelector'] = node_config
         if hostname:
             logger.debug("Add tolerations into cluster server")
+            values_dict['proxynode']['tolerations'] = perf_tolerations
             values_dict['querynode']['tolerations'] = perf_tolerations
             values_dict['indexnode']['tolerations'] = perf_tolerations
+            values_dict['datanode']['tolerations'] = perf_tolerations
             values_dict['minio']['tolerations'] = perf_tolerations
             values_dict['pulsar']['tolerations'] = perf_tolerations
  

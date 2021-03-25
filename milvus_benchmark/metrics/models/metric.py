@@ -17,6 +17,7 @@ class Metric(object):
         self.hardware = Hardware()
         self.env = Env()
         self.status = "INIT"
+        self.err_message = ""
         self.collection = {}
         self.index = {}
         self.search = {}
@@ -42,3 +43,6 @@ class Metric(object):
 
     def update_result(self, result):
         self.metrics["value"].update(result)
+
+    def update_message(self, err_message):
+        self.err_message = err_message
