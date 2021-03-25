@@ -142,4 +142,5 @@ class BaseRunner(object):
             "rps": rps,
             "ni_time": ni_time
         }
+        logger.info(result)
         return result
