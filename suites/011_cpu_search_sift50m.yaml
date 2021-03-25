@@ -24,7 +24,7 @@ search_performance:
 #          nprobe: 8
     -
       server:
-        db_config.primary_path: /test/milvus/db_data_011/sift_50m_4000000_128_l2_ivf_flat_16384
+        db_config.primary_path: /test/milvus/db_data_011/sift_50m_4000000_128_l2_ivf_flat
         cache_config.cpu_cache_capacity: 32GB
         engine_config.use_blas_threshold: 0
         engine_config.gpu_search_threshold: 100
