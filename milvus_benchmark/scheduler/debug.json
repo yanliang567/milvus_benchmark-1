@@ -1,6 +1,6 @@
 [
     {
-        "server": "idc-sh003",
+        "server": "idc-sh005",
         "suite_params": [
             {
                 "suite": "2_insert_search.yaml",
