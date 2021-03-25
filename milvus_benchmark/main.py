@@ -80,7 +80,12 @@ def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=Non
         logger.info("Start run case")
         for index, case in enumerate(cases):
             case_metric = case_metrics[index]
-            result = runner.run_case(case_metric, **case)
+            result = None
+            try:
+                result = runner.run_case(case_metric, **case)
+            except Exception as e:
+                logger.debug(str(e))
+                logger.error(traceback.format_exc())
             if result:
                 case_metric.update_status(status="RUN_SUCC")
             else:
