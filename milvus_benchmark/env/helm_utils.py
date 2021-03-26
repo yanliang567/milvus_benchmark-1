@@ -206,6 +206,8 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         values_dict['indexnode']['nodeSelector'] = node_config
         values_dict['datanode']['nodeSelector'] = node_config
         values_dict['minio']['nodeSelector'] = node_config
+        
+        values_dict['pulsar']["enabled"] = True
         values_dict['pulsar']['proxy']['nodeSelector'] = node_config
         values_dict['pulsar']['broker']['nodeSelector'] = node_config
         # values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config

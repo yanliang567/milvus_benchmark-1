@@ -74,6 +74,8 @@ def get_len_vectors_per_file(data_type, dimension):
         vectors_per_file = SIFT_VECTORS_PER_FILE
     elif data_type in ["binary"]:
         vectors_per_file = BINARY_VECTORS_PER_FILE
+    elif data_type == "local":
+        vectors_per_file = SIFT_VECTORS_PER_FILE
     else:
         raise Exception("data_type: %s not supported" % data_type)
     return vectors_per_file

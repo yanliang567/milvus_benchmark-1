@@ -68,8 +68,54 @@ class BaseRunner(object):
     def update_metric(self, key, value):
         pass
 
-    def insert_random(self, milvus, collection_name, data_type, dimension, size, ni):
-        pass
+    def insert_core(self, milvus, info, start_id, vectors):
+        # start insert vectors
+        end_id = start_id + len(vectors)
+        logger.debug("Start id: %s, end id: %s" % (start_id, end_id))
+        ids = [k for k in range(start_id, end_id)]
+        entities = utils.generate_entities(info, vectors, ids)
+        ni_start_time = time.time()
+        try:
+            _res_ids = milvus.insert(entities, ids=ids)
+        except grpc.RpcError as e:
+            logger.error(str(e))
+            logger.error(traceback.format_exc())
+            raise e
+        # assert ids == res_ids
+        # milvus.flush()
+        ni_end_time = time.time()
+        logger.debug(milvus.count())
+        return ni_end_time-ni_start_time
+
+    def insert_local(self, milvus, collection_name, data_type, dimension, size, ni):
+        total_time = 0.0
+        rps = 0.0
+        ni_time = 0.0
+        nb = utils.get_len_vectors_per_file(data_type, dimension)
+        if size % nb or size % ni or ni > nb:
+            logger.error("Not invalid collection size or ni")
+            return False
+        i = 0
+        src_vectors = utils.generate_vectors(nb, dimension)
+        info = milvus.get_info(collection_name)
+        while i < (size // nb):
+            vectors = []
+            for j in range(nb // ni):
+                vectors = src_vectors[j * ni:(j + 1) * ni]
+                if vectors:
+                    start_id = i * nb + j * ni
+                    ni_time = self.insert_core(milvus, info, start_id, vectors)
+                    total_time = total_time+ni_time
+            i += 1
+        rps = round(size / total_time, 2)
+        ni_time = round(total_time / (size / ni), 2)
+        result = {
+            "total_time": round(total_time, 2),
+            "rps": rps,
+            "ni_time": ni_time
+        }
+        logger.info(result)
+        return result
 
     # TODO: need to improve
     def insert_from_files(self, milvus, collection_name, data_type, dimension, size, ni):
@@ -92,24 +138,9 @@ class BaseRunner(object):
                 for j in range(vectors_per_file // ni):
                     vectors = data[j * ni:(j + 1) * ni].tolist()
                     if vectors:
-                        # start insert vectors
                         start_id = i * vectors_per_file + j * ni
-                        end_id = start_id + len(vectors)
-                        logger.debug("Start id: %s, end id: %s" % (start_id, end_id))
-                        ids = [k for k in range(start_id, end_id)]
-                        entities = utils.generate_entities(info, vectors, ids)
-                        ni_start_time = time.time()
-                        try:
-                            _res_ids = milvus.insert(entities, ids=ids)
-                        except grpc.RpcError as e:
-                            logger.error(str(e))
-                            logger.error(traceback.format_exc())
-                            raise e
-                        # assert ids == res_ids
-                        # milvus.flush()
-                        ni_end_time = time.time()
-                        logger.debug(milvus.count())
-                        total_time = total_time + ni_end_time - ni_start_time
+                        ni_time = self.insert_core(milvus, info, start_id, vectors)
+                        total_time = total_time+ni_time
                 i += 1
             else:
                 vectors.clear()
@@ -120,23 +151,8 @@ class BaseRunner(object):
                     vectors.extend(data.tolist())
                 if vectors:
                     start_id = i * vectors_per_file
-                    end_id = start_id + len(vectors)
-                    logger.info("Start id: %s, end id: %s" % (start_id, end_id))
-                    ids = [k for k in range(start_id, end_id)]
-                    entities = utils.generate_entities(info, vectors, ids)
-                    ni_start_time = time.time()
-                    try:
-                        _res_ids = milvus.insert(entities, ids=ids)
-                    except Exception as e:
-                        logger.error(str(e))
-                        logger.error(traceback.format_exc())
-                        raise e
-
-                    # assert ids == res_ids
-                    # milvus.flush()
-                    ni_end_time = time.time()
-                    logger.debug(milvus.count())
-                    total_time = total_time + ni_end_time - ni_start_time
+                    ni_time = self.insert_core(milvus, info, start_id, vectors)
+                    total_time = total_time+ni_time
                 i += loops
         rps = round(size / total_time, 2)
         ni_time = round(total_time / (size / ni), 2)
