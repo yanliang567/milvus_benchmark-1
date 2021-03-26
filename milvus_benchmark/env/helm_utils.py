@@ -210,8 +210,8 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         values_dict['pulsar']['broker']['nodeSelector'] = node_config
         # values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
         values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
-        values_dict['pulsar']['zookeeper']["replicas"] = 1
-        values_dict['pulsar']['bookkeeper']["replicas"] = 1
+        values_dict['pulsar']['zookeeper']["replicaCount"] = 1
+        values_dict['pulsar']['bookkeeper']["replicaCount"] = 1
         if hostname:
             logger.debug("Add tolerations into cluster server")
             values_dict['proxynode']['tolerations'] = perf_tolerations
