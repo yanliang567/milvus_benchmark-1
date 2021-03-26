@@ -1,0 +1,31 @@
+simple_chaos:
+  collections:
+    -
+      milvus: null
+      before:
+        - 
+          interface_name: create_collection
+          params:
+            name: local_10w_128_l2
+            metric_type: l2
+        - 
+          interface_name: insert
+          params:
+            batch_size: 5000
+      processing:
+        interface_name: flush
+        params: null
+        chaos:
+          kind: PodChaos
+          action: pod-kill
+          param:
+            name: minio
+            cron: ""
+      after:
+        interface_name: flush
+        params: null
+      assertions:
+        - assertion
+          processing: failed_with_exception
+        - assertion
+          after: pass

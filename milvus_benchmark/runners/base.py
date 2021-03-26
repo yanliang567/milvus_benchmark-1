@@ -68,6 +68,9 @@ class BaseRunner(object):
     def update_metric(self, key, value):
         pass
 
+    def insert_random(self, milvus, collection_name, data_type, dimension, size, ni):
+        pass
+
     # TODO: need to improve
     def insert_from_files(self, milvus, collection_name, data_type, dimension, size, ni):
         total_time = 0.0

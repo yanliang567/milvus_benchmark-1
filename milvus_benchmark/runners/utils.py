@@ -153,7 +153,7 @@ def get_default_field_name(data_type=DataType.FLOAT_VECTOR):
 
 def get_vector_type(data_type):
     vector_type = ''
-    if data_type in ["random", "sift", "deep", "glove"]:
+    if data_type in ["random", "sift", "deep", "glove", "local"]:
         vector_type = DataType.FLOAT_VECTOR
     elif data_type in ["binary"]:
         vector_type = DataType.BINARY_VECTOR

@@ -257,7 +257,7 @@ class MilvusClient(object):
         return self._milvus.drop_index(self._collection_name, field_name)
 
     @time_wrapper
-    def query(self, vector_query, filter_query=None, collection_name=None):
+    def query(self, vector_query, filter_query=None, collection_name=None, timeout=300):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         must_params = [vector_query]
         if filter_query:
