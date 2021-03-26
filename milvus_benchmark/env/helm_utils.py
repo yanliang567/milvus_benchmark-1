@@ -206,7 +206,10 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         values_dict['indexnode']['nodeSelector'] = node_config
         values_dict['datanode']['nodeSelector'] = node_config
         values_dict['minio']['nodeSelector'] = node_config
-        values_dict['pulsar']['nodeSelector'] = node_config
+        values_dict['pulsar']['proxy']['nodeSelector'] = node_config
+        values_dict['pulsar']['broker']['nodeSelector'] = node_config
+        values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
+        values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
         if hostname:
             logger.debug("Add tolerations into cluster server")
             values_dict['proxynode']['tolerations'] = perf_tolerations
@@ -214,7 +217,10 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['indexnode']['tolerations'] = perf_tolerations
             values_dict['datanode']['tolerations'] = perf_tolerations
             values_dict['minio']['tolerations'] = perf_tolerations
-            values_dict['pulsar']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['proxy']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
