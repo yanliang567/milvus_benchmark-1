@@ -265,7 +265,7 @@ class MilvusClient(object):
         query = {
             "bool": {"must": must_params}
         }
-        result = self._milvus.search(tmp_collection_name, query)
+        result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
         return result
 
     @time_wrapper
@@ -288,7 +288,7 @@ class MilvusClient(object):
         logger.debug("End warm up query")
 
     @time_wrapper
-    def load_and_query(self, vector_query, filter_query=None, collection_name=None):
+    def load_and_query(self, vector_query, filter_query=None, collection_name=None, timeout=300):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         must_params = [vector_query]
         if filter_query:
@@ -297,7 +297,7 @@ class MilvusClient(object):
             "bool": {"must": must_params}
         }
         self.load_collection(tmp_collection_name)
-        result = self._milvus.search(tmp_collection_name, query)
+        result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
         return result
 
     def get_ids(self, result):
