@@ -13,6 +13,12 @@ simple_chaos:
           params:
             batch_size: 5000
             collection_size: 100000
+        - interface_name: create_index
+          params:
+            metric_type: l2
+            index_type: ivf_flat
+            index_param:
+              nlist: 16384
       processing:
         interface_name: flush
         params: null

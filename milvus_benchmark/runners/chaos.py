@@ -30,8 +30,11 @@ class SimpleChaosRunner(BaseRunner):
             collection_size = interface_params["collection_size"]
             self.insert_local(self.milvus, self.milvus.collection_name, self.data_type, self.dimension, collection_size, batch_size)
         elif interface_name == "create_index":
-            # TODO: create index
-            pass
+            metric_type = interface_params["metric_type"]
+            index_type = interface_params["index_type"]
+            index_param = interface_params["index_param"]
+            field_name = runner_utils.get_default_field_name(vector_type)
+            self.milvus.create_index(field_name, index_type, metric_type, index_param=index_param)
         elif interface_name == "flush":
             self.milvus.flush()
 
