@@ -3,22 +3,11 @@ import pdb
 import copy
 import logging
 from milvus_benchmark import parser
-from milvus_benchmark.runners import utils
+from milvus_benchmark import utils
+from milvus_benchmark.runners import utils as runner_utils
 from milvus_benchmark.runners.base import BaseRunner
 
 logger = logging.getLogger("milvus_benchmark.runners.chaos")
-
-
-def run_step(milvus, interface_name, interface_params):
-    if interface_name == "create":
-        collection_name = interface_params["name"]
-        (data_type, _, dimension, _) = parser.collection_parser(collection_name)
-        milvus.set_collection(collection_name)
-        vector_type = utils.get_vector_type(data_type)
-        milvus.create_collection(dimension, data_type=vector_type)
-    else:
-        func = getattr(milvus, interface_name)
-        func(**interface_params)
 
 
 class SimpleChaosRunner(BaseRunner):
@@ -27,6 +16,24 @@ class SimpleChaosRunner(BaseRunner):
 
     def __init__(self, env, metric):
         super(SimpleChaosRunner, self).__init__(env, metric)
+
+    def run_step(self, interface_name, interface_params):
+        if interface_name == "create_collection":
+            collection_name = utils.get_unique_name("chaos")
+            self.data_type = interface_params["data_type"]
+            self.dimension = interface_params["dimension"]
+            self.milvus.set_collection(collection_name)
+            vector_type = runner_utils.get_vector_type(self.data_type)
+            self.milvus.create_collection(self.dimension, data_type=vector_type)
+        elif interface_name == "insert":
+            batch_size = interface_params["batch_size"]
+            collection_size = interface_params["collection_size"]
+            self.insert_local(self.milvus, self.milvus.collection_name, self.data_type, self.dimension, collection_size, batch_size)
+        elif interface_name == "create_index":
+            # TODO: create index
+            pass
+        elif interface_name == "flush":
+            self.milvus.flush()
 
     def extract_cases(self, collection):
         before_steps = collection["before"]
@@ -50,10 +57,9 @@ class SimpleChaosRunner(BaseRunner):
         for step in steps:
             interface_name = step["interface_name"]
             params = step["params"]
-            run_step(self.milvus, interface_name, params)
+            self.run_step(interface_name, params)
 
     def run_case(self, case_metric, **case_param):
         processing = case_param["processing"]
         assertions = case_param["assertions"]
-        logger.debug(processing)
-        logger.debug(assertions)
+        pass

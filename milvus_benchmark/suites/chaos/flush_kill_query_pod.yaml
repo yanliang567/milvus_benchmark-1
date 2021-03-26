@@ -6,12 +6,13 @@ simple_chaos:
         - 
           interface_name: create_collection
           params:
-            name: local_10w_128_l2
-            metric_type: l2
+            data_type: local
+            dimension: 128
         - 
           interface_name: insert
           params:
             batch_size: 5000
+            collection_size: 100000
       processing:
         interface_name: flush
         params: null

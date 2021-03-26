@@ -102,6 +102,10 @@ class MilvusClient(object):
                 logger.error(item[0].distance)
                 raise Exception("Distance wrong")
 
+    @property
+    def collection_name(self):
+        return self._collection_name
+
     # only support the given field name
     def create_collection(self, dimension, data_type=DataType.FLOAT_VECTOR, auto_id=False,
                           collection_name=None, other_fields=None):
@@ -257,7 +261,7 @@ class MilvusClient(object):
         return self._milvus.drop_index(self._collection_name, field_name)
 
     @time_wrapper
-    def query(self, vector_query, filter_query=None, collection_name=None, timeout=300):
+    def query(self, vector_query, filter_query=None, collection_name=None, timeout=120):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         must_params = [vector_query]
         if filter_query:
@@ -288,7 +292,7 @@ class MilvusClient(object):
         logger.debug("End warm up query")
 
     @time_wrapper
-    def load_and_query(self, vector_query, filter_query=None, collection_name=None, timeout=300):
+    def load_and_query(self, vector_query, filter_query=None, collection_name=None, timeout=120):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         must_params = [vector_query]
         if filter_query:
