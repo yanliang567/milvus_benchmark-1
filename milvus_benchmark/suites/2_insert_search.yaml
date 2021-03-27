@@ -22,7 +22,7 @@ insert_search_performance:
       build_index: true
       index_type: ivf_flat 
       index_param:
-        nlist: 1024
+        nlist: 16384
       run_count: 2
       top_ks: [1, 10, 100, 1000]
       nqs: [1, 10, 100, 200, 500]
