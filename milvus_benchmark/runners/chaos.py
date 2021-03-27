@@ -2,10 +2,13 @@ import time
 import pdb
 import copy
 import logging
+from operator import methodcaller
 from milvus_benchmark import parser
 from milvus_benchmark import utils
 from milvus_benchmark.runners import utils as runner_utils
 from milvus_benchmark.runners.base import BaseRunner
+from milvus_benchmark.runners.chaos_opt import ChaosOpt
+from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.runners.chaos")
 
@@ -65,4 +68,30 @@ class SimpleChaosRunner(BaseRunner):
     def run_case(self, case_metric, **case_param):
         processing = case_param["processing"]
         assertions = case_param["assertions"]
+        chaos = processing["chaos"]
         pass
+        kind = chaos["kind"]
+        metadata_name = config.NAMESPACE+kind
+        func = processing["interface_name"]
+        params = processing["params"]
+        chaos_opt = ChaosOpt(metadata_name=metadata_name, kind=kind)
+        if len(chaos_opt.list_chaos_object()["items"]) != 0:
+            chaos_opt.delete_chaos_object()
+        # TODO update pod name
+        spec_params = chaos["spec"]
+        chaos_opt.create_chaos_object(spec_params)
+        # TODO execute different fun
+        future = methodcaller(func, params)(self.milvus)
+        # future = self.milvus.flush(_async=True)
+        try:
+            status = future.result()
+            logging.getLogger().info(status)
+            assert not status.OK()
+        except Exception as e:
+            logging.getLogger().error(str(e))
+            assert True
+        finally:
+            chaos_opt.delete_chaos_object()
+            chaos_opt.list_chaos_object()
+            status, count = self.milvus.count()
+            logging.getLogger().info(count)

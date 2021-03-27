@@ -19,3 +19,5 @@ RAW_DATA_DIR = "/test/milvus/raw_data/"
 
 # nars log
 LOG_PATH = "/test/milvus/benchmark/logs/{}/".format(BRANCH)
+
+NAMESPACE = "milvus"
