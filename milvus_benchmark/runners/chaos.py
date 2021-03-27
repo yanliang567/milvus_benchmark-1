@@ -7,7 +7,7 @@ from milvus_benchmark import parser
 from milvus_benchmark import utils
 from milvus_benchmark.runners import utils as runner_utils
 from milvus_benchmark.runners.base import BaseRunner
-from runners.chaos_opt import ChaosOpt
+from milvus_benchmark.runners.chaos_opt import ChaosOpt
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.runners.chaos")

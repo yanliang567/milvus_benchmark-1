@@ -41,6 +41,9 @@ locust_random_performance:
             weight: 20
             params:
               ni_per: 1
+          -
+            type: load
+            weight: 2
         connection_num: 1
         clients_num: 20
         hatch_rate: 2
