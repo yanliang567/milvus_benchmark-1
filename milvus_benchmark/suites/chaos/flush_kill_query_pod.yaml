@@ -24,10 +24,16 @@ simple_chaos:
         params: null
         chaos:
           kind: PodChaos
-          action: pod-kill
-          param:
-            name: minio
-            cron: ""
+          spec:
+            action: pod-kill
+            mode: one
+            selector:
+              namespaces:
+                - milvus
+              labelSelectors:
+                "app.kubernetes.io/instance": etcd
+            scheduler:
+              cron: "@every 20s"
       after:
         interface_name: flush
         params: null
