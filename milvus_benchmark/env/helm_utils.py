@@ -185,6 +185,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
     logger.debug(hostname)
     if cluster is False:
         values_dict['standalone']['nodeSelector'] = node_config
+        values_dict['minio']['nodeSelector'] = node_config
         # TODO: disable
         # set limit/request cpus in resources
         values_dict['standalone']['resources'] = {
@@ -214,7 +215,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         values_dict['pulsar']['autoRecovery']['nodeSelector'] = node_config
         values_dict['pulsar']['proxy']['nodeSelector'] = node_config
         values_dict['pulsar']['broker']['nodeSelector'] = node_config
-        # values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
+        values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
         values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
         if hostname:
             logger.debug("Add tolerations into cluster server")
