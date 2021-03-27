@@ -211,6 +211,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         values_dict['minio']['nodeSelector'] = node_config
         
         values_dict['pulsar']["enabled"] = True
+        values_dict['pulsar']['autoRecovery']['nodeSelector'] = node_config
         values_dict['pulsar']['proxy']['nodeSelector'] = node_config
         values_dict['pulsar']['broker']['nodeSelector'] = node_config
         # values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
@@ -222,6 +223,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['indexnode']['tolerations'] = perf_tolerations
             values_dict['datanode']['tolerations'] = perf_tolerations
             values_dict['minio']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['autoRecovery']['tolerations'] = perf_tolerations
             values_dict['pulsar']['proxy']['tolerations'] = perf_tolerations
             values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
             values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
