@@ -41,6 +41,10 @@ class Tasks(TaskSet):
     def load(self):
         self.client.load_collection()
 
+    @task
+    def release(self):
+        self.client.release_collection()
+
     # @task
     # def release_index(self):
     #     self.client.release_index()
