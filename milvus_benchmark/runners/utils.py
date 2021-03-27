@@ -264,7 +264,7 @@ def normalize(metric_type, X):
 
 def create_chaos_config(plural, metadata_name, extra_spec_params, group='chaos-mesh.org', version='v1alpha1',
                         namespace="milvus",
-                        file_path=default_yaml):
+                        file_path=None):
     """
     modify default_config.yaml to create specific chaos-mesh yaml
     :param plural:
