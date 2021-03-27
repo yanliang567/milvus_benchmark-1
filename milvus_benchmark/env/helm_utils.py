@@ -203,8 +203,8 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['standalone']['tolerations'] = perf_tolerations 
             values_dict['minio']['tolerations'] = perf_tolerations 
     else:
-        values_dict['pulsar']["broker"]["configData"].update({"maxMessageSize": "52428800", "PULSAR_MEM": BOOKKEEPER_PULSAR_MEM})
-        values_dict['pulsar']["bookkeeper"]["configData"].update({"nettyMaxFrameSizeBytes": "52428800", "PULSAR_MEM": BROKER_PULSAR_MEM})
+        # values_dict['pulsar']["broker"]["configData"].update({"maxMessageSize": "52428800", "PULSAR_MEM": BOOKKEEPER_PULSAR_MEM})
+        # values_dict['pulsar']["bookkeeper"]["configData"].update({"nettyMaxFrameSizeBytes": "52428800", "PULSAR_MEM": BROKER_PULSAR_MEM})
         values_dict['proxynode']['nodeSelector'] = node_config
         values_dict['querynode']['nodeSelector'] = node_config
         values_dict['indexnode']['nodeSelector'] = node_config
