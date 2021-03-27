@@ -25,7 +25,7 @@ insert_search_performance:
         nlist: 1024
       run_count: 2
       top_ks: [1, 10, 100, 1000]
-      nqs: [1, 10, 100, 200, 500]
+      nqs: [1, 10, 100, 200, 500, 1000]
       search_params:
         -
           nprobe: 8
