@@ -9,6 +9,8 @@ from milvus_benchmark import utils
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.env.helm_utils")
+BOOKKEEPER_PULSAR_MEM = '\"-Xms512m -Xmx1024m -XX:MaxDirectMemorySize=1024m -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintHeapAtGC -verbosegc -XX:G1LogLevel=finest\"'
+BROKER_PULSAR_MEM = '\"-Xms512m -Xmx1024m -XX:MaxDirectMemorySize=1024m -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem\"'
 
 
 def get_host_cpus(hostname):
@@ -183,6 +185,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
     logger.debug(hostname)
     if cluster is False:
         values_dict['standalone']['nodeSelector'] = node_config
+        values_dict['minio']['nodeSelector'] = node_config
         # TODO: disable
         # set limit/request cpus in resources
         values_dict['standalone']['resources'] = {
@@ -200,7 +203,8 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['standalone']['tolerations'] = perf_tolerations 
             values_dict['minio']['tolerations'] = perf_tolerations 
     else:
-        values_dict['pulsar']["broker"]["configData"].update({"maxMessageSize": "26214400"})
+        # values_dict['pulsar']["broker"]["configData"].update({"maxMessageSize": "52428800", "PULSAR_MEM": BOOKKEEPER_PULSAR_MEM})
+        # values_dict['pulsar']["bookkeeper"]["configData"].update({"nettyMaxFrameSizeBytes": "52428800", "PULSAR_MEM": BROKER_PULSAR_MEM})
         values_dict['proxynode']['nodeSelector'] = node_config
         values_dict['querynode']['nodeSelector'] = node_config
         values_dict['indexnode']['nodeSelector'] = node_config
@@ -208,8 +212,9 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         values_dict['minio']['nodeSelector'] = node_config
         
         values_dict['pulsar']["enabled"] = True
+        values_dict['pulsar']['autoRecovery']['nodeSelector'] = node_config
         values_dict['pulsar']['proxy']['nodeSelector'] = node_config
-        values_dict['pulsar']['broker']['nodeSelector'] = node_config
+        # values_dict['pulsar']['broker']['nodeSelector'] = node_config
         # values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
         values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
         if hostname:
@@ -219,6 +224,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['indexnode']['tolerations'] = perf_tolerations
             values_dict['datanode']['tolerations'] = perf_tolerations
             values_dict['minio']['tolerations'] = perf_tolerations
+            values_dict['pulsar']['autoRecovery']['tolerations'] = perf_tolerations
             values_dict['pulsar']['proxy']['tolerations'] = perf_tolerations
             values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
             values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
