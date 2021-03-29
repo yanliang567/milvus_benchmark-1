@@ -28,7 +28,8 @@ class AccuracyRunner(BaseRunner):
         collection_info = {
             "dimension": dimension,
             "metric_type": metric_type,
-            "dataset_name": collection_name
+            "dataset_name": collection_name,
+            "collection_size": collection_size
         }
         index_info = self.milvus.describe_index(index_field_name, collection_name)
         filters = collection["filters"] if "filters" in collection else []

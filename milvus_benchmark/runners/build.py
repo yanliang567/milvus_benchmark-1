@@ -25,6 +25,7 @@ class BuildRunner(BaseRunner):
             "dimension": dimension,
             "metric_type": metric_type,
             "dataset_name": collection_name,
+            "collection_size": collection_size,
             "other_fields": other_fields,
             "ni_per": ni_per
         }

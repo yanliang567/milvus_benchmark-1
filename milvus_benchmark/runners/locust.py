@@ -66,6 +66,7 @@ class LocustInsertRunner(LocustRunner):
             "dimension": dimension,
             "metric_type": metric_type,
             "dataset_name": collection_name,
+            "collection_size": collection_size,
             "other_fields": other_fields,
             "ni_per": ni_per
         }
@@ -166,6 +167,7 @@ class LocustSearchRunner(LocustRunner):
             "dimension": dimension,
             "metric_type": metric_type,
             "dataset_name": collection_name,
+            "collection_size": collection_size,
             "other_fields": other_fields,
             "ni_per": ni_per
         }
@@ -291,6 +293,7 @@ class LocustRandomRunner(LocustRunner):
             "dimension": dimension,
             "metric_type": metric_type,
             "dataset_name": collection_name,
+            "collection_size": collection_size,
             "other_fields": other_fields,
             "ni_per": ni_per
         }

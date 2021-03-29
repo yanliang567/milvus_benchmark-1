@@ -19,7 +19,7 @@ class SearchRunner(BaseRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
-        (data_type, _collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
+        (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         run_count = collection["run_count"]
         top_ks = collection["top_ks"]
         nqs = collection["nqs"]
@@ -33,6 +33,7 @@ class SearchRunner(BaseRunner):
             "dimension": dimension,
             "metric_type": metric_type,
             "dataset_name": collection_name,
+            "collection_size": collection_size,
             "fields": fields
         }
         # TODO: need to get index_info
