@@ -78,10 +78,11 @@ class SimpleChaosRunner(BaseRunner):
         if len(chaos_opt.list_chaos_object()["items"]) != 0:
             chaos_opt.delete_chaos_object()
         # TODO update pod name
+        host = self.hostname
         spec_params = chaos["spec"]
         chaos_opt.create_chaos_object(spec_params)
-        # TODO execute different fun
-        future = methodcaller(func, params)(self.milvus)
+        # the key in params have to equal to key in func
+        future = methodcaller(func, **params)(self.milvus)
         # future = self.milvus.flush(_async=True)
         try:
             status = future.result()
