@@ -69,18 +69,16 @@ def retry(times):
             attempt = 0
             while attempt < times:
                 try:
-                    print("retry {} times".format(attempt+1))
                     result = func(*args, **kwargs)
                     if result:
                         break
                     else:
-                        logger.error("Retry failed")
                         raise Exception("Result false")
                 except Exception as e:
                     logger.info(str(e))
                     time.sleep(3)
                     attempt += 1
-            return func(*args, **kwargs)
+            return result
         return newfn
     return wrapper
 
