@@ -17,8 +17,8 @@ locust_search_performance:
         wal_enable: true
       collection_name: sift_1m_2000000_128_l2_2
       ni_per: 50000
-      build_index: false
-      index_type: ivf_flat
+      build_index: true
+      index_type: ivf_sq8
       index_param:
         nlist: 1024
       task: 
@@ -26,7 +26,7 @@ locust_search_performance:
         connection_num: 1
         clients_num: 100
         hatch_rate: 2
-        during_time: 10m
+        during_time: 600
         params:
           top_k: 10
           nq: 1
