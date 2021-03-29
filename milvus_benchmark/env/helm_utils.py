@@ -169,7 +169,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
     # else:
     #     values_dict["mysql"]["enabled"] = False
     # # update values.yaml with the given host
-
+    node_config = None
     perf_tolerations = [{
             "key": "worker",
             "operator": "Equal",
@@ -178,27 +178,27 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         }]  
     if hostname:
         node_config = {'kubernetes.io/hostname': hostname}
-    else:
+    elif server_tag:
         # server tag
         node_config = {'instance-type': server_tag}
     cpus = server_config["cpus"]
     logger.debug(hostname)
     if cluster is False:
-        values_dict['standalone']['nodeSelector'] = node_config
-        values_dict['minio']['nodeSelector'] = node_config
-        # TODO: disable
-        # set limit/request cpus in resources
-        values_dict['standalone']['resources'] = {
-            "limits": {
-                # "cpu": str(int(cpus)) + ".0"
-                "cpu": str(int(cpus)) + ".0"
-            },
-            "requests": {
-                # "cpu": str(int(cpus) // 2) + ".0"
-                "cpu": "4.0"
+        if node_config:
+            values_dict['standalone']['nodeSelector'] = node_config
+            values_dict['minio']['nodeSelector'] = node_config
+            # TODO: disable
+            # set limit/request cpus in resources
+            values_dict['standalone']['resources'] = {
+                "limits": {
+                    # "cpu": str(int(cpus)) + ".0"
+                    "cpu": str(int(cpus)) + ".0"
+                },
+                "requests": {
+                    # "cpu": str(int(cpus) // 2) + ".0"
+                    "cpu": "4.0"
+                }
             }
-        }
-        if hostname:
             logger.debug("Add tolerations into standalone server")
             values_dict['standalone']['tolerations'] = perf_tolerations 
             values_dict['minio']['tolerations'] = perf_tolerations 
