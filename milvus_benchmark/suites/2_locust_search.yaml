@@ -25,7 +25,7 @@ locust_search_performance:
         connection_num: 1
         clients_num: 100
         hatch_rate: 2
-        during_time: 300
+        during_time: 600
         types:
           -
             type: query
