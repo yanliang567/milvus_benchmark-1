@@ -217,7 +217,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         # values_dict['pulsar']['broker']['nodeSelector'] = node_config
         # values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
         # values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
-        values_dict['pulsarStandalone'] = node_config
+        values_dict['pulsarStandalone']['nodeSelector'] = node_config
         if hostname:
             logger.debug("Add tolerations into cluster server")
             values_dict['proxynode']['tolerations'] = perf_tolerations
