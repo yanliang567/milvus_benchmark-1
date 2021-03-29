@@ -22,9 +22,9 @@ locust_insert_performance:
         nlist: 1024
       task: 
         connection_num: 1
-        clients_num: 50
-        hatch_rate: 10
-        during_time: 30
+        clients_num: 100
+        hatch_rate: 2 
+        during_time: 600
         types:
           -
             type: insert
