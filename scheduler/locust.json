@@ -1,9 +1,9 @@
 [
     {
-        "server": "idc-sh004",
+        "server": "idc-sh005",
         "suite_params": [
             {
-                "suite": "011_locust_search.yaml",
+                "suite": "011_locust_search_debug.yaml",
                 "image_type": "cpu"
             }
         ]
