@@ -200,8 +200,9 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
                 }
             }
             logger.debug("Add tolerations into standalone server")
-            values_dict['standalone']['tolerations'] = perf_tolerations 
-            values_dict['minio']['tolerations'] = perf_tolerations 
+            values_dict['standalone']['tolerations'] = perf_tolerations
+            values_dict['minio']['tolerations'] = perf_tolerations
+            values_dict['etcd']['tolerations'] = perf_tolerations
     else:
         # values_dict['pulsar']["broker"]["configData"].update({"maxMessageSize": "52428800", "PULSAR_MEM": BOOKKEEPER_PULSAR_MEM})
         # values_dict['pulsar']["bookkeeper"]["configData"].update({"nettyMaxFrameSizeBytes": "52428800", "PULSAR_MEM": BROKER_PULSAR_MEM})
@@ -224,6 +225,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             values_dict['querynode']['tolerations'] = perf_tolerations
             values_dict['indexnode']['tolerations'] = perf_tolerations
             values_dict['datanode']['tolerations'] = perf_tolerations
+            values_dict['etcd']['tolerations'] = perf_tolerations
             values_dict['minio']['tolerations'] = perf_tolerations
             values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
             # values_dict['pulsar']['autoRecovery']['tolerations'] = perf_tolerations
