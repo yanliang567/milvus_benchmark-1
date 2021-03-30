@@ -1,10 +1,10 @@
 [
     {
-        "server_tag": "16c32m1g",
+        "server": "idc-sh003",
         "suite_params": [
             {
-                "suite": "080_gpu_search_debug.yaml",
-                "image_type": "gpu"
+                "suite": "2_insert_search_sift10m_1024.yaml",
+                "image_type": "cpu"
             }
         ]
     }
