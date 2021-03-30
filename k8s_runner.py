@@ -472,6 +472,7 @@ class QueryTask(User):
             dimension, 
             connection_type, 
             task_type, 
+            task_params["nb"],
             task_params["nb"])
             with open(task_file_script, 'w+') as fd:
                 fd.write(code_str)

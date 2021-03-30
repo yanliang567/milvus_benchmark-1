@@ -22,7 +22,7 @@ locust_insert_performance:
       index_param:
         nlist: 1024
       task: 
-        type: query 
+        type: insert
         connection_num: 1
         clients_num: 100
         hatch_rate: 2
