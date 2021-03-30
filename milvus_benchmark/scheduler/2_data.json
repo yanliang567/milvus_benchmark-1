@@ -1,5 +1,6 @@
 [
     {
+        "server": "idc-sh002",
         "suite_params": [
             {
                 "suite": "2_locust_search.yaml",
@@ -8,10 +9,9 @@
         ]
     },
     {
-        "server": "idc-sh002",
         "suite_params": [
             {
-                "suite": "2_cpu_accuracy.yaml",
+                "suite": "2_cpu_ann_accuracy.yaml",
                 "image_type": "cpu"
             }
         ]
@@ -20,7 +20,7 @@
         "server": "idc-sh004",
         "suite_params": [
             {
-                "suite": "2_cpu_build.yaml",
+                "suite": "2_locust_insert.yaml",
                 "image_type": "cpu"
             }
         ]

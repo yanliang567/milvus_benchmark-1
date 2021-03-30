@@ -18,10 +18,10 @@ ann_accuracy:
       index_types: ['ivf_flat']
       index_params:
         nlist: [1024]
-      top_ks: [5]
-      nqs: [10]
+      top_ks: [10]
+      nqs: [10000]
       search_params:
-        nprobe: [8, 16]
+        nprobe: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 
     # -
     #   milvus:

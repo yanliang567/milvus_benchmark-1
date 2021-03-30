@@ -122,6 +122,7 @@ class InsertSearchRunner(BaseRunner):
 
     def __init__(self, env, metric):
         super(InsertSearchRunner, self).__init__(env, metric)
+        self.build_time = None
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
@@ -249,6 +250,7 @@ class InsertSearchRunner(BaseRunner):
             self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"], index_param=case_param["index_param"])
             build_time = round(time.time()-start_time, 2)
         logger.debug({"flush_time": flush_time, "build_time": build_time})
+        self.build_time = build_time
         logger.info(self.milvus.count())
         logger.info("Start load collection")
         load_start_time = time.time() 
@@ -270,5 +272,5 @@ class InsertSearchRunner(BaseRunner):
                 min_query_time = round(interval_time, 2)
         avg_query_time = round(total_query_time/run_count, 2)
         logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
-        tmp_result = {"search_time": min_query_time, "avc_search_time": avg_query_time}
+        tmp_result = {"search_time": min_query_time, "avc_search_time": avg_query_time, "build_time": self.build_time}
         return tmp_result
