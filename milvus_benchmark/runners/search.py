@@ -123,6 +123,7 @@ class InsertSearchRunner(BaseRunner):
     def __init__(self, env, metric):
         super(InsertSearchRunner, self).__init__(env, metric)
         self.build_time = None
+        self.insert_result = None
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
@@ -238,7 +239,8 @@ class InsertSearchRunner(BaseRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
-        self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
+        insert_result = self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
+        self.insert_result = insert_result
         build_time = 0.0
         start_time = time.time()
         self.milvus.flush()
@@ -272,5 +274,5 @@ class InsertSearchRunner(BaseRunner):
                 min_query_time = round(interval_time, 2)
         avg_query_time = round(total_query_time/run_count, 2)
         logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
-        tmp_result = {"search_time": min_query_time, "avc_search_time": avg_query_time, "build_time": self.build_time}
+        tmp_result = {"insert": self.insert_result, "build_time": self.build_time, "search_time": min_query_time, "avc_search_time": avg_query_time}
         return tmp_result
