@@ -3,7 +3,7 @@
         "server": "idc-sh005",
         "suite_params": [
             {
-                "suite": "011_locust_search_debug.yaml",
+                "suite": "011_locust_insert.yaml",
                 "image_type": "cpu"
             }
         ]
