@@ -464,7 +464,7 @@ class QueryTask(User):
 
     @task()
     def %s(self):
-        insert_ids = random.sample(list(range(100000)), %s)
+        insert_ids = [random.randint(1, 10000000) for _ in range(%s)]
         insert_vectors = [[random.random() for _ in range(dim)] for _ in range(%s)]
         insert_vectors = utils.normalize("l2", insert_vectors)
         entities = generate_entities(insert_vectors, insert_ids)
