@@ -444,6 +444,7 @@ import random
 from locust import User, task, between
 from locust_task import MilvusTask
 from client import MilvusClient
+import utils
 
 host = '%s'
 port = %s
@@ -451,6 +452,8 @@ collection_name = '%s'
 dim = %s
 m = MilvusClient(host=host, port=port, collection_name=collection_name)
 
+def generate_entities(vectors, ids):
+    return m.generate_entities(vectors, ids, collection_name)
 
 class QueryTask(User):
     wait_time = between(0.001, 0.002)

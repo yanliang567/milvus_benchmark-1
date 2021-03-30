@@ -10,6 +10,7 @@ from multiprocessing import Process
 import numpy as np
 import concurrent.futures
 from queue import Queue
+from milvus import  Milvus
 
 from milvus import DataType
 
@@ -287,6 +288,107 @@ class QueryTask(User):
             logger.info(metric)
             # clean up temp files
             os.system("rm -rf %s*" % task_file)
+
+        elif run_type == "locust_insert_performance":
+            (data_type, collection_size, segment_row_limit, dimension, metric_type) = parser.collection_parser(
+                collection_name)
+            ni_per = collection["ni_per"]
+            build_index = collection["build_index"]
+            if milvus_instance.exists_collection():
+                milvus_instance.drop()
+                time.sleep(10)
+            index_info = {}
+            search_params = {}
+            vector_type = self.get_vector_type(data_type)
+            index_field_name = utils.get_default_field_name(vector_type)
+            milvus_instance.create_collection(dimension, segment_row_limit, data_type=vector_type, other_fields=None)
+            if build_index is True:
+                index_type = collection["index_type"]
+                index_param = collection["index_param"]
+                index_info = {
+                    "index_type": index_type,
+                    "index_param": index_param
+                }
+                milvus_instance.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+                logger.debug(milvus_instance.describe_index())
+            real_metric_type = utils.metric_type_trans(metric_type)
+            ### spawn locust requests
+            task = collection["task"]
+            # . generate task code
+            task_file = utils.get_unique_name()
+            task_file_script = task_file + '.py'
+            task_file_csv = task_file + '_stats.csv'
+            task_type = task["type"]
+            connection_type = "single"
+            connection_num = task["connection_num"]
+            if connection_num > 1:
+                connection_tupe = "multi"
+            clients_num = task["clients_num"]
+            hatch_rate = task["hatch_rate"]
+            during_time = task["during_time"]
+            task_params = task["params"]
+            code_str = """
+import random
+from locust import User, task, between
+from locust_task import MilvusTask
+from client import MilvusClient
+import utils
+
+host = '%s'
+port = %s
+collection_name = '%s'
+dim = %s
+m = MilvusClient(host=host, port=port, collection_name=collection_name)
+
+def generate_entities(vectors, ids):
+    return m.generate_entities(vectors, ids, collection_name)
+    
+class QueryTask(User):
+    wait_time = between(0.001, 0.002)
+    if '%s' == "single":
+        client = MilvusTask(m=m)
+    else:
+        client = MilvusTask(connection_type='multi', host=host, port=port, collection_name=collection_name)
+
+    @task()
+    def %s(self):
+        insert_ids = random.sample(list(range(100000)), %s)
+        insert_vectors = [[random.random() for _ in range(dim)] for _ in range(%s)]
+        insert_vectors = utils.normalize("l2", insert_vectors)
+        entities = generate_entities(insert_vectors, insert_ids)
+        self.client.insert(entities,ids=insert_ids, collection_name=collection_name)""" % (
+                self.host,
+                self.port,
+                collection_name,
+                dimension,
+                connection_type,
+                task_type,
+                task_params["nb"],
+                task_params["nb"])
+            with open(task_file_script, 'w+') as fd:
+                fd.write(code_str)
+            locust_cmd = "locust -f %s --headless --csv=%s -u %d -r %d -t %s --logfile /dev/null" % (
+                task_file_script,
+                task_file,
+                clients_num,
+                hatch_rate,
+                during_time)
+            logger.info(locust_cmd)
+            try:
+                os.system(locust_cmd)
+            except Exception as e:
+                logger.error(str(e))
+                return
+            # . retrieve and collect test statistics
+            locust_stats = None
+            with open(task_file_csv, newline='') as fd:
+                dr = csv.DictReader(fd)
+                for row in dr:
+                    if row["Name"] != "Aggregated":
+                        continue
+                    locust_stats = row
+            logger.info(locust_stats)
+            # clean up temp files
 
         elif run_type == "search_ids_stability":
             (data_type, collection_size, segment_row_limit, dimension, metric_type) = parser.collection_parser(collection_name)
