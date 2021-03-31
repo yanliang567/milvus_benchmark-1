@@ -56,10 +56,12 @@ def shutdown(event):
 def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=None, helm_path=None, helm_install_params=None):
     metric = api.Metric()
     try:
+        server_name = helm_install_params["server_name"] if "server_name" in helm_install_params else None
+        server_tag = helm_install_params["server_tag"] if "server_tag" in helm_install_params else None
         metric.set_run_id()
         metric.set_mode(env_mode)
         metric.env = Env()
-        metric.hardware = Hardware()
+        metric.hardware = Hardware(server_name) if server_name else Hardware(server_tag)
         metric.server = Server(version=SERVER_VERSION, mode=deploy_mode)
         env = get_env(env_mode, deploy_mode)
         if env_mode == "local":

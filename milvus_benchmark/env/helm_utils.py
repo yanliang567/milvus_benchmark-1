@@ -187,6 +187,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         if node_config:
             values_dict['standalone']['nodeSelector'] = node_config
             values_dict['minio']['nodeSelector'] = node_config
+            values_dict['etcd']['nodeSelector'] = node_config
             # TODO: disable
             # set limit/request cpus in resources
             values_dict['standalone']['resources'] = {
