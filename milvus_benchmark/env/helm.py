@@ -9,7 +9,7 @@ from milvus_benchmark.env.base import BaseEnv
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.env.helm")
-
+TIMEOUT = 5
 
 class HelmEnv(BaseEnv):
     """helm env class wrapper"""
@@ -35,11 +35,19 @@ class HelmEnv(BaseEnv):
         values_file_path = helm_path + "/values.yaml"
         if not os.path.exists(values_file_path):
             raise Exception("File {} not existed".format(values_file_path))
+        lock_file_path = helm_path + "/values.yaml.lock"
+        start_time = time.time()
+        while os.path.exists(lock_file_path) and time.time() < start_time+TIMEOUT:
+            logger.debug("Waiting for the lock file to release")
+            time.sleep(1)
+        if not os.path.exists(lock_file_path):
+            # generate lock file
+            open(lock_file_path, 'a').close()
         try:
-            # debug
             if milvus_config:
                 helm_utils.update_values(values_file_path, self.deploy_mode, server_name, server_tag, milvus_config, server_config)
-                logger.debug("Config file has been updated")
+                logger.debug("Config file has been updated, remove the lock file")
+            os.system("rm -rf %s" % values_file_path)
             logger.debug("Start install server")
             hostname = helm_utils.helm_install_server(helm_path,self.deploy_mode, image_tag, image_type, self.name,
                                                        self._name_space)
@@ -51,6 +59,7 @@ class HelmEnv(BaseEnv):
                 self.set_hostname(hostname)
                 return hostname
         except Exception as e:
+            os.system("rm -rf %s" % values_file_path)
             logger.error("Helm install server failed: %s" % (str(e)))
             logger.error(traceback.format_exc())
             self.tear_down()
