@@ -64,41 +64,45 @@ def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=Non
         metric.hardware = Hardware(server_name) if server_name else Hardware(server_tag)
         metric.server = Server(version=SERVER_VERSION, mode=deploy_mode)
         env = get_env(env_mode, deploy_mode)
+        start_status = False
         if env_mode == "local":
-            env.start_up(env_params["host"], env_params["port"])
+            start_status = env.start_up(env_params["host"], env_params["port"])
         elif env_mode == "helm":
-            env.start_up(helm_path, helm_install_params)
-        metric.update_status(status="DEPLOYE_SUCC")
+            start_status = env.start_up(helm_path, helm_install_params)
+        if start_status:
+            metric.update_status(status="DEPLOYE_SUCC")
+            logger.debug("Get runner")
+            runner = get_runner(run_type, env, metric)
+            cases, case_metrics = runner.extract_cases(suite)
+            # TODO: only run when the as_group is equal to True
+            logger.info("Prepare to run cases")
+            runner.prepare(**cases[0])
+            logger.info("Start run case")
+            for index, case in enumerate(cases):
+                case_metric = case_metrics[index]
+                result = None
+                err_message = ""
+                try:
+                    result = runner.run_case(case_metric, **case)
+                except Exception as e:
+                    err_message = str(e)+"\n"+traceback.format_exc()
+                    logger.error(traceback.format_exc())
+                logger.info(result)
+                if result:
+                    case_metric.update_status(status="RUN_SUCC")
+                    case_metric.update_result(result)
+                else:
+                    case_metric.update_status(status="RUN_FAILED")
+                    case_metric.update_message(err_message)
+                logger.debug(case_metric.metrics)
+                api.save(case_metric)
+        else:
+            logger.info("Deploy failed on server, name: {}, tag: {}".format(server_name, server_tag))
+            metric.update_status(status="DEPLOYE_FAILED")
     except Exception as e:
         logger.error(str(e))
         logger.error(traceback.format_exc())
         metric.update_status(status="DEPLOYE_FAILED")
-    else:
-        logger.debug("Get runner")
-        runner = get_runner(run_type, env, metric)
-        cases, case_metrics = runner.extract_cases(suite)
-        # TODO: only run when the as_group is equal to True
-        logger.info("Prepare to run cases")
-        runner.prepare(**cases[0])
-        logger.info("Start run case")
-        for index, case in enumerate(cases):
-            case_metric = case_metrics[index]
-            result = None
-            err_message = ""
-            try:
-                result = runner.run_case(case_metric, **case)
-            except Exception as e:
-                err_message = str(e)+"\n"+traceback.format_exc()
-                logger.error(traceback.format_exc())
-            logger.info(result)
-            if result:
-                case_metric.update_status(status="RUN_SUCC")
-                case_metric.update_result(result)
-            else:
-                case_metric.update_status(status="RUN_FAILED")
-                case_metric.update_message(err_message)
-            logger.debug(case_metric.metrics)
-            api.save(case_metric)
     finally:
         # api.save(metric)
         # time.sleep(10)
