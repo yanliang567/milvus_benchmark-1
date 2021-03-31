@@ -117,10 +117,6 @@ def main():
         metavar='FILE',
         default='',
         help="load test schedule from FILE")
-    arg_parser.add_argument(
-        "--deploy-mode",
-        default='',
-        help="single or cluster")
 
     # local mode
     arg_parser.add_argument(
@@ -150,7 +146,6 @@ def main():
             raise Exception("Image version not given")
         env_mode = "helm"
         image_version = args.image_version
-        deploy_mode = args.deploy_mode
         with open(args.schedule_conf) as f:
             schedule_config = full_load(f)
             f.close()
@@ -158,6 +153,7 @@ def main():
         for item in schedule_config:
             server_host = item["server"] if "server" in item else ""
             server_tag = item["server_tag"] if "server_tag" in item else ""
+            deploy_mode = item["deploy_mode"] if "deploy_mode" in item else config.DEFAULT_DEPLOY_MODE
             suite_params = item["suite_params"]
             for suite_param in suite_params:
                 suite_file = "suites/" + suite_param["suite"]
