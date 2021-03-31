@@ -229,7 +229,6 @@ def get_recall_value(true_ids, result_ids):
     """
     sum_radio = 0.0
     for index, item in enumerate(result_ids):
-        pdb.set_trace()
         # tmp = set(item).intersection(set(flat_id_list[index]))
         tmp = set(true_ids[index]).intersection(set(item))
         sum_radio = sum_radio + len(tmp) / len(item)
