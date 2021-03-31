@@ -53,11 +53,12 @@ def update_server_config(server_name, server_tag, server_config):
     return server_config
 
 
-# update values.yaml
+"""
+description: update values.yaml
+return: no return
+"""
 def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, server_config=None):
-    if not os.path.isfile(file_path):
-        raise Exception('File: %s not found' % file_path)
-    # 　bak values.yaml
+    # bak values.yaml
     file_name = os.path.basename(file_path)
     bak_file_name = file_name + ".bak"
     file_parent_path = os.path.dirname(file_path)
@@ -69,7 +70,6 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
     with open(file_path) as f:
         values_dict = full_load(f)
         f.close()
-   
     cluster = False
     if deploy_mode == "cluster":
         cluster = True
