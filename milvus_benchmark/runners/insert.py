@@ -107,7 +107,7 @@ class InsertRunner(BaseRunner):
         index_field_name = case_param["index_field_name"]
         build_index = case_param["build_index"]
 
-        tmp_result = self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
+        tmp_result = self.insert(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         flush_time = 0.0
         build_time = 0.0
         if case_param["flush_after_insert"] is True:

@@ -248,7 +248,7 @@ class LocustSearchRunner(LocustRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
-        self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
+        self.insert(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         build_time = 0.0
         start_time = time.time()
         self.milvus.flush()
@@ -373,7 +373,7 @@ class LocustRandomRunner(LocustRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
-        self.insert_from_files(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
+        self.insert(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         build_time = 0.0
         start_time = time.time()
         self.milvus.flush()
