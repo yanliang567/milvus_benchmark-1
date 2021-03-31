@@ -249,11 +249,13 @@ class MilvusClient(object):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         info = self._milvus.describe_index(tmp_collection_name, field_name)
         logger.info(info)
-        index_info = {"index_type": info["index_type"], "metric_type": info["metric_type"], "index_param": info["params"]}
-        # transfer index type name
-        for k, v in INDEX_MAP.items():
-            if index_info['index_type'] == v:
-                index_info['index_type'] = k
+        index_info = {"index_type": "flat", "metric_type": None, "index_param": None}
+        if info:
+            index_info = {"index_type": info["index_type"], "metric_type": info["metric_type"], "index_param": info["params"]}
+            # transfer index type name
+            for k, v in INDEX_MAP.items():
+                if index_info['index_type'] == v:
+                    index_info['index_type'] = k
         return index_info
 
     def drop_index(self, field_name):

@@ -233,9 +233,9 @@ class AccAccuracyRunner(AccuracyRunner):
         logger.info("Table: %s, row count: %d" % (collection_name, res_count))
         if res_count != len(insert_vectors):
             raise Exception("Table row count is not equal to insert vectors")
-        # if self.milvus.describe_index(index_field_name):
-        #     self.milvus.drop_index(index_field_name)
-        #     logger.info("Re-create index: %s" % collection_name)
+        if self.milvus.describe_index(index_field_name):
+            self.milvus.drop_index(index_field_name)
+            logger.info("Re-create index: %s" % collection_name)
         self.milvus.create_index(index_field_name, index_type, metric_type, index_param=index_param)
         logger.info(self.milvus.describe_index(index_field_name))
         logger.info("Start load collection: %s" % collection_name)
