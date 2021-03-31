@@ -3,26 +3,24 @@ from utils import *
 from pprint import pprint
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
+from milvus_benchmark import config as cf
 
 config.load_kube_config()
-
 api_instance = client.CustomObjectsApi()
 
 
 class ChaosOpt(object):
-    def __init__(self, metadata_name, kind, group='chaos-mesh.org', version='v1alpha1', namespace='milvus'):
+    def __init__(self, kind, group=cf.DEFAULT_GROUP, version=cf.DEFAULT_VERSION, namespace=cf.NAMESPACE):
         self.group = group
         self.version = version
         self.namespace = namespace
         self.plural = kind.lower()
-        self.metadata_name = metadata_name
 
-    def get_metadata_name(self):
-        return self.metadata_name
+    # def get_metadata_name(self):
+    #     return self.metadata_name
 
-    def create_chaos_object(self, spec_params):
-        body = create_chaos_config(self.plural, self.metadata_name, spec_params)
-        pprint(body)
+    def create_chaos_object(self, body):
+        # body = create_chaos_config(self.plural, self.metadata_name, spec_params)
         logging.getLogger().info(body)
         pretty = 'true'
         try:
@@ -34,10 +32,8 @@ class ChaosOpt(object):
             logging.error("Exception when calling CustomObjectsApi->create_namespaced_custom_object: %s\n" % e)
             raise Exception(str(e))
 
-    def delete_chaos_object(self, metadata_name=None):
+    def delete_chaos_object(self, metadata_name):
         try:
-            if metadata_name is None:
-                metadata_name = self.metadata_name
             data = api_instance.delete_namespaced_custom_object(self.group, self.version, self.namespace, self.plural, metadata_name)
             pprint(data)
             logging.getLogger().info(data)

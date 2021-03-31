@@ -259,38 +259,3 @@ def normalize(metric_type, X):
             tmp.append(new_vector)
         X = tmp
     return X
-
-
-def create_chaos_config(plural, metadata_name, extra_spec_params, group='chaos-mesh.org', version='v1alpha1',
-                        namespace="milvus",
-                        file_path=None):
-    """
-    modify default_config.yaml to create specific chaos-mesh yaml
-    :param plural:
-    :param metadata_name:
-    :param extra_spec_params: default spec params: action, mode=one, scheduler,selector.
-        You should consider this param according to default_config.yaml's spec.
-        >>> extra_spec_params = {"action": "pod-kill", "loss":{"loss": "25", "correlation": "25"}}
-    :param group:
-    :param version:
-    :param namespace:
-    :param file_path:
-    :return:
-    """
-    # pdb.set_trace()
-    logging.getLogger().info(file_path)
-    if not os.path.isfile(file_path):
-        raise Exception('File: %s not found' % file_path)
-    with open(file_path, 'r') as f:
-        config_dict = yaml.full_load(f)
-        f.close()
-    config_dict["apiVersion"] = group + "/" + version
-    config_dict["kind"] = plural
-    config_dict["metadata"]["name"] = metadata_name
-    config_dict["metadata"]["namespace"] = namespace
-    config_dict["spec"].update(extra_spec_params)
-    print(type(config_dict))
-    # with open(file_path, 'w') as f:
-    #    f.write(yaml.dump(config_dict))
-    #    f.close()
-    return config_dict

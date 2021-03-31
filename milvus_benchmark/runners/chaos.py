@@ -1,16 +1,19 @@
-import time
-import pdb
 import copy
 import logging
 from operator import methodcaller
-from milvus_benchmark import parser
 from milvus_benchmark import utils
 from milvus_benchmark.runners import utils as runner_utils
 from milvus_benchmark.runners.base import BaseRunner
-from milvus_benchmark.runners.chaos_opt import ChaosOpt
+from chaos.chaos_opt import ChaosOpt
 from milvus_benchmark import config
+from milvus_benchmark.chaos.chaos_mesh import PodChaos, NetworkChaos
 
 logger = logging.getLogger("milvus_benchmark.runners.chaos")
+
+kind_chaos_mapping = {
+    "PodChaos": PodChaos,
+    "NetworkChaos": NetworkChaos
+}
 
 
 class SimpleChaosRunner(BaseRunner):
@@ -31,7 +34,8 @@ class SimpleChaosRunner(BaseRunner):
         elif interface_name == "insert":
             batch_size = interface_params["batch_size"]
             collection_size = interface_params["collection_size"]
-            self.insert_local(self.milvus, self.milvus.collection_name, self.data_type, self.dimension, collection_size, batch_size)
+            self.insert_local(self.milvus, self.milvus.collection_name, self.data_type, self.dimension, collection_size,
+                              batch_size)
         elif interface_name == "create_index":
             metric_type = interface_params["metric_type"]
             index_type = interface_params["index_type"]
@@ -68,19 +72,23 @@ class SimpleChaosRunner(BaseRunner):
     def run_case(self, case_metric, **case_param):
         processing = case_param["processing"]
         assertions = case_param["assertions"]
-        chaos = processing["chaos"]
-        pass
-        kind = chaos["kind"]
-        metadata_name = config.NAMESPACE+kind
+        user_chaos = processing["chaos"]
+        kind = user_chaos["kind"]
+        metadata = user_chaos["metadata"]
+        spec = user_chaos["spec"]
+        # load yaml from default template to generate stand chaos dict
+        chaos_mesh = kind_chaos_mapping[user_chaos.get("kind")](config.DEFAULT_API_VERSION, kind, metadata, spec)
+        experiment_params = chaos_mesh.gen_experiment_params()
+        # TODO update selector real name
+        host = self.hostname
+        # metadata_name = config.NAMESPACE + kind
         func = processing["interface_name"]
         params = processing["params"]
-        chaos_opt = ChaosOpt(metadata_name=metadata_name, kind=kind)
+        chaos_opt = ChaosOpt(chaos_mesh.kind)
         if len(chaos_opt.list_chaos_object()["items"]) != 0:
-            chaos_opt.delete_chaos_object()
-        # TODO update pod name
-        host = self.hostname
-        spec_params = chaos["spec"]
-        chaos_opt.create_chaos_object(spec_params)
+            chaos_opt.delete_chaos_object(chaos_mesh.get_metadata_mame())
+        # run experiment with chaos
+        chaos_opt.create_chaos_object(experiment_params)
         # the key in params have to equal to key in func
         future = methodcaller(func, **params)(self.milvus)
         # future = self.milvus.flush(_async=True)

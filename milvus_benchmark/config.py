@@ -20,6 +20,9 @@ RAW_DATA_DIR = "/test/milvus/raw_data/"
 # nars log
 LOG_PATH = "/test/milvus/benchmark/logs/{}/".format(BRANCH)
 
-NAMESPACE = "milvus"
-
 DEFAULT_DEPLOY_MODE = "single"
+
+NAMESPACE = "milvus"
+DEFAULT_API_VERSION = 'chaos-mesh.org/v1alpha1'
+DEFAULT_GROUP = 'chaos-mesh.org'
+DEFAULT_VERSION = 'v1alpha1'
