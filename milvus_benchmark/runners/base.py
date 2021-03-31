@@ -100,7 +100,6 @@ class BaseRunner(object):
         info = milvus.get_info(collection_name)
         if data_type == "local" or not data_type:
             # insert local
-            src_vectors = utils.generate_vectors(vectors_per_file, dimension)
             info = milvus.get_info(collection_name)
             while i < (size // vectors_per_file):
                 vectors = []
