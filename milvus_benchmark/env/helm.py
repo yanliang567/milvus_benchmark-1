@@ -47,22 +47,20 @@ class HelmEnv(BaseEnv):
             if milvus_config:
                 helm_utils.update_values(values_file_path, self.deploy_mode, server_name, server_tag, milvus_config, server_config)
                 logger.debug("Config file has been updated, remove the lock file")
-            os.system("rm -rf %s" % values_file_path)
+            os.system("rm -rf %s" % lock_file_path)
             logger.debug("Start install server")
-            hostname = helm_utils.helm_install_server(helm_path,self.deploy_mode, image_tag, image_type, self.name,
+            hostname = helm_utils.helm_install_server(helm_path, self.deploy_mode, image_tag, image_type, self.name,
                                                        self._name_space)
             if not hostname:
                 logger.error("Helm install server failed")
-                self.tear_down()
                 return False
             else:
                 self.set_hostname(hostname)
                 return hostname
         except Exception as e:
-            os.system("rm -rf %s" % values_file_path)
+            os.system("rm -rf %s" % lock_file_path)
             logger.error("Helm install server failed: %s" % (str(e)))
             logger.error(traceback.format_exc())
-            self.tear_down()
             return False
 
     def tear_down(self):
