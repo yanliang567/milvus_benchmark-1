@@ -74,6 +74,7 @@ def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=Non
         logger.error(traceback.format_exc())
         metric.update_status(status="DEPLOYE_FAILED")
     else:
+        logger.debug("Get runner")
         runner = get_runner(run_type, env, metric)
         cases, case_metrics = runner.extract_cases(suite)
         # TODO: only run when the as_group is equal to True
