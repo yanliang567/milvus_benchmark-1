@@ -87,38 +87,8 @@ class BaseRunner(object):
         logger.debug(milvus.count())
         return ni_end_time-ni_start_time
 
-    def insert_local(self, milvus, collection_name, data_type, dimension, size, ni):
-        total_time = 0.0
-        rps = 0.0
-        ni_time = 0.0
-        nb = utils.get_len_vectors_per_file(data_type, dimension)
-        if size % nb or size % ni or ni > nb:
-            logger.error("Not invalid collection size or ni")
-            return False
-        i = 0
-        src_vectors = utils.generate_vectors(nb, dimension)
-        info = milvus.get_info(collection_name)
-        while i < (size // nb):
-            vectors = []
-            for j in range(nb // ni):
-                vectors = src_vectors[j * ni:(j + 1) * ni]
-                if vectors:
-                    start_id = i * nb + j * ni
-                    ni_time = self.insert_core(milvus, info, start_id, vectors)
-                    total_time = total_time+ni_time
-            i += 1
-        rps = round(size / total_time, 2)
-        ni_time = round(total_time / (size / ni), 2)
-        result = {
-            "total_time": round(total_time, 2),
-            "rps": rps,
-            "ni_time": ni_time
-        }
-        logger.info(result)
-        return result
-
     # TODO: need to improve
-    def insert_from_files(self, milvus, collection_name, data_type, dimension, size, ni):
+    def insert(self, milvus, collection_name, data_type, dimension, size, ni):
         total_time = 0.0
         rps = 0.0
         ni_time = 0.0
@@ -128,32 +98,48 @@ class BaseRunner(object):
             return False
         i = 0
         info = milvus.get_info(collection_name)
-        while i < (size // vectors_per_file):
-            vectors = []
-            if vectors_per_file >= ni:
-                file_name = utils.gen_file_name(i, dimension, data_type)
-                # logger.info("Load npy file: %s start" % file_name)
-                data = np.load(file_name)
-                # logger.info("Load npy file: %s end" % file_name)
+        if data_type == "local" or not data_type:
+            # insert local
+            src_vectors = utils.generate_vectors(vectors_per_file, dimension)
+            info = milvus.get_info(collection_name)
+            while i < (size // vectors_per_file):
+                vectors = []
                 for j in range(vectors_per_file // ni):
-                    vectors = data[j * ni:(j + 1) * ni].tolist()
+                    # vectors = src_vectors[j * ni:(j + 1) * ni]
+                    vectors = utils.generate_vectors(ni, dimension)
                     if vectors:
                         start_id = i * vectors_per_file + j * ni
                         ni_time = self.insert_core(milvus, info, start_id, vectors)
                         total_time = total_time+ni_time
                 i += 1
-            else:
-                vectors.clear()
-                loops = ni // vectors_per_file
-                for j in range(loops):
-                    file_name = utils.gen_file_name(loops * i + j, dimension, data_type)
+        else:
+            # insert from file
+            while i < (size // vectors_per_file):
+                vectors = []
+                if vectors_per_file >= ni:
+                    file_name = utils.gen_file_name(i, dimension, data_type)
+                    # logger.info("Load npy file: %s start" % file_name)
                     data = np.load(file_name)
-                    vectors.extend(data.tolist())
-                if vectors:
-                    start_id = i * vectors_per_file
-                    ni_time = self.insert_core(milvus, info, start_id, vectors)
-                    total_time = total_time+ni_time
-                i += loops
+                    # logger.info("Load npy file: %s end" % file_name)
+                    for j in range(vectors_per_file // ni):
+                        vectors = data[j * ni:(j + 1) * ni].tolist()
+                        if vectors:
+                            start_id = i * vectors_per_file + j * ni
+                            ni_time = self.insert_core(milvus, info, start_id, vectors)
+                            total_time = total_time+ni_time
+                    i += 1
+                else:
+                    vectors.clear()
+                    loops = ni // vectors_per_file
+                    for j in range(loops):
+                        file_name = utils.gen_file_name(loops * i + j, dimension, data_type)
+                        data = np.load(file_name)
+                        vectors.extend(data.tolist())
+                    if vectors:
+                        start_id = i * vectors_per_file
+                        ni_time = self.insert_core(milvus, info, start_id, vectors)
+                        total_time = total_time+ni_time
+                    i += loops
         rps = round(size / total_time, 2)
         ni_time = round(total_time / (size / ni), 2)
         result = {
