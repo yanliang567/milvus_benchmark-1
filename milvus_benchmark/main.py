@@ -53,7 +53,7 @@ def shutdown(event):
         scheduler.shutdown(wait=False)
 
 
-def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=None, helm_path=None, helm_install_params=None):
+def run_suite(suite, env_mode, deploy_mode, run_type, env_params=None, helm_path=None, helm_install_params=None):
     metric = api.Metric()
     try:
         server_name = helm_install_params["server_name"] if "server_name" in helm_install_params else None
@@ -188,7 +188,7 @@ def main():
                         "helm_path": helm_path,
                         "helm_install_params": helm_install_params
                     }
-                    job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params], kwargs=kwargs)
+                    job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type], kwargs=kwargs)
                     logger.info(job)
                     logger.info(job.id)
 
@@ -216,7 +216,7 @@ def main():
         kwargs = {
             "env_params": env_params
         }
-        job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type, run_params], kwargs=kwargs)
+        job = scheduler.add_job(run_suite, args=[suite, env_mode, deploy_mode, run_type], kwargs=kwargs)
         logger.info(job)
         logger.info(job.id)
 
