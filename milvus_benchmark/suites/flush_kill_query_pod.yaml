@@ -24,20 +24,17 @@ simple_chaos:
         params: null
         chaos:
           kind: PodChaos
-          metadata:
-            name: my-pod-kill
           spec:
             action: pod-kill
             selector:
-              labelSelectors:
-                "app.kubernetes.io/instance": etcd
-              scheduler:
-                cron: "@every 20s"
+              "app.kubernetes.io/instance": etcd
+            scheduler:
+              cron: "@every 20s"
       after:
         interface_name: flush
         params: null
       assertions:
-        - assertion
+        -
           processing: failed_with_exception
-        - assertion
+        -
           after: pass

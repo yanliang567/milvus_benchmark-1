@@ -5,8 +5,8 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 from milvus_benchmark import config as cf
 
-config.load_kube_config()
-api_instance = client.CustomObjectsApi()
+config.load_kube_config(config_file='/home/zong/.kube/config')
+api_instance = client.CustomObjectsApi
 
 
 class ChaosOpt(object):
@@ -34,7 +34,8 @@ class ChaosOpt(object):
 
     def delete_chaos_object(self, metadata_name):
         try:
-            data = api_instance.delete_namespaced_custom_object(self.group, self.version, self.namespace, self.plural, metadata_name)
+            data = api_instance.delete_namespaced_custom_object(self.group, self.version, self.namespace, self.plural,
+                                                                metadata_name)
             pprint(data)
             logging.getLogger().info(data)
         except ApiException as e:
@@ -43,7 +44,8 @@ class ChaosOpt(object):
 
     def list_chaos_object(self):
         try:
-            data = api_instance.list_namespaced_custom_object(self.group, self.version, self.namespace, plural=self.plural)
+            data = api_instance.list_namespaced_custom_object(self.group, self.version, self.namespace,
+                                                              plural=self.plural)
             pprint(data)
             logging.getLogger().info(data)
         except ApiException as e:

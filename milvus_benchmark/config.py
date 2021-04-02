@@ -1,5 +1,5 @@
-# MONGO_SERVER = 'mongodb://192.168.1.234:27017/'
-MONGO_SERVER = 'mongodb://mongodb.test:27017/'
+MONGO_SERVER = 'mongodb://192.168.1.234:27017/'
+# MONGO_SERVER = 'mongodb://mongodb.test:27017/'
 
 SCHEDULER_DB = "scheduler"
 JOB_COLLECTION = "jobs"
@@ -11,7 +11,7 @@ SERVER_HOST_DEFAULT = "127.0.0.1"
 SERVER_PORT_DEFAULT = 19530
 
 HELM_NAMESPACE = "milvus"
-BRANCH = "0331"
+BRANCH = "distributed"
 
 DEFAULT_CPUS = 48
 

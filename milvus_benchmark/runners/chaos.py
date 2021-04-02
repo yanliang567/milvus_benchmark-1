@@ -74,14 +74,12 @@ class SimpleChaosRunner(BaseRunner):
         assertions = case_param["assertions"]
         user_chaos = processing["chaos"]
         kind = user_chaos["kind"]
-        metadata = user_chaos["metadata"]
         spec = user_chaos["spec"]
+        metadata_name = config.NAMESPACE + "_" + kind
+        metadata = {"name": metadata_name}
         # load yaml from default template to generate stand chaos dict
         chaos_mesh = kind_chaos_mapping[user_chaos.get("kind")](config.DEFAULT_API_VERSION, kind, metadata, spec)
         experiment_params = chaos_mesh.gen_experiment_params()
-        # TODO update selector real name
-        host = self.hostname
-        # metadata_name = config.NAMESPACE + kind
         func = processing["interface_name"]
         params = processing["params"]
         chaos_opt = ChaosOpt(chaos_mesh.kind)
