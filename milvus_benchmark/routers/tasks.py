@@ -1,8 +1,8 @@
 import logging
 import uuid
-from fastapi import APIRouter, HTTPException, WebSocket
 from typing import Optional
 from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, WebSocket
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 from milvus_benchmark import redis_conn
