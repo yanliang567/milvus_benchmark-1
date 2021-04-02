@@ -12,4 +12,10 @@ class LocalEnv(BaseEnv):
         super(LocalEnv, self).__init__(deploy_mode)
 
     def start_up(self, hostname, port):
-        self.set_hostname(hostname)
+        res = True
+        try:
+            self.set_hostname(hostname)
+        except Exception as e:
+            logger.error(str(e))
+        res = False
+        return res
