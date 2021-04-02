@@ -1,7 +1,5 @@
-import logging
-from typing import Optional
-from fastapi import FastAPI
-from milvus_benchmark.routers import tasks
+from redis import StrictRedis, ConnectionPool
+from . import config
 
-app = FastAPI()
-app.include_router(tasks.router)
+pool = ConnectionPool(host=config.REDIS_HOST, port=config.REDIS_PORT, db=config.REDIS_DB)
+redis_conn = StrictRedis(connection_pool=pool)

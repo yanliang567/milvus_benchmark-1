@@ -11,6 +11,7 @@ from milvus_benchmark import config
 logger = logging.getLogger("milvus_benchmark.env.helm")
 TIMEOUT = 5
 
+
 class HelmEnv(BaseEnv):
     """helm env class wrapper"""
     env_mode = "helm"
@@ -19,13 +20,14 @@ class HelmEnv(BaseEnv):
         super(HelmEnv, self).__init__(deploy_mode)
         self._name_space = config.HELM_NAMESPACE
 
-    def start_up(self, helm_path, helm_install_params):
+    def start_up(self, helm_install_params):
         if "namespace" in helm_install_params:
             self._name_space = helm_install_params["namespace"]
-        server_name = helm_install_params["server_name"]
+        helm_path = config.HELM_PATH
+        server_name = helm_install_params["server_name"] if "server_name" in helm_install_params else None
         server_tag = helm_install_params["server_tag"] if "server_tag" in helm_install_params else None
         server_config = helm_install_params["server_config"] if "server_config" in helm_install_params else None
-        milvus_config = helm_install_params["milvus_config"]
+        milvus_config = helm_install_params["milvus_config"] if "milvus_config" in helm_install_params else None
         image_tag = helm_install_params["image_tag"]
         image_type = helm_install_params["image_type"]
 

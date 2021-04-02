@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import yaml
 import config
+from milvus_benchmark import redis_conn
 
 cur_path = os.path.abspath(os.path.dirname(__file__))
 LOG_CONFIG_PATH = cur_path + "/logging.yaml"
@@ -13,7 +14,6 @@ def setup_logging(config_path=LOG_CONFIG_PATH, default_level=logging.INFO):
     """
     Setup logging configuration
     """
-    print(FILE_NAME)
     try:
         with open(config_path, 'rt') as f:
             log_config = yaml.safe_load(f.read())
@@ -21,4 +21,16 @@ def setup_logging(config_path=LOG_CONFIG_PATH, default_level=logging.INFO):
         logging.config.dictConfig(log_config)
     except Exception:
         raise
-        logging.error('Failed to open file', exc_info=True)
+
+
+class RedisLoggingHandler(logging.Handler):
+    def __init__(self, *args, **kwargs):
+        self.key = kwargs.get("key")
+        super(RedisLoggingHandler, self).__init__()
+
+    def emit(self, record):
+        record = datetime.now().strftime("%Y-%m-%d %H:%M:%S")+" - "+str(self.format(record))
+        redis_conn.rpush(self.key, record)
+        redis_conn.expire(self.key, config.REDIS_LOG_EXPIRE_TIME)
+
+
