@@ -10,6 +10,6 @@ def list_pod_for_namespace(label_selector="app.kubernetes.io/instance=zong-singl
     pods = []
     # label_selector = 'release=zong-single'
     for i in ret.items:
-        pods.append({"name": i.metadata.name})
+        pods.append(i.metadata.name)
         # print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
     return pods

@@ -1,5 +1,6 @@
 import copy
 import logging
+import pdb
 from operator import methodcaller
 from milvus_benchmark import utils
 from milvus_benchmark.runners import utils as runner_utils
@@ -34,12 +35,13 @@ class SimpleChaosRunner(BaseRunner):
         elif interface_name == "insert":
             batch_size = interface_params["batch_size"]
             collection_size = interface_params["collection_size"]
-            self.insert_local(self.milvus, self.milvus.collection_name, self.data_type, self.dimension, collection_size,
-                              batch_size)
+            self.insert(self.milvus, self.milvus.collection_name, self.data_type, self.dimension, collection_size,
+                        batch_size)
         elif interface_name == "create_index":
             metric_type = interface_params["metric_type"]
             index_type = interface_params["index_type"]
             index_param = interface_params["index_param"]
+            vector_type = runner_utils.get_vector_type(self.data_type)
             field_name = runner_utils.get_default_field_name(vector_type)
             self.milvus.create_index(field_name, index_type, metric_type, index_param=index_param)
         elif interface_name == "flush":
@@ -74,14 +76,16 @@ class SimpleChaosRunner(BaseRunner):
         assertions = case_param["assertions"]
         user_chaos = processing["chaos"]
         kind = user_chaos["kind"]
+        logger.debug(kind)
         spec = user_chaos["spec"]
-        metadata_name = config.NAMESPACE + "_" + kind
+        metadata_name = config.NAMESPACE + "-" + kind.lower()
         metadata = {"name": metadata_name}
         # load yaml from default template to generate stand chaos dict
-        chaos_mesh = kind_chaos_mapping[user_chaos.get("kind")](config.DEFAULT_API_VERSION, kind, metadata, spec)
-        experiment_params = chaos_mesh.gen_experiment_params()
+        chaos_mesh = kind_chaos_mapping[kind](config.DEFAULT_API_VERSION, kind, metadata, spec)
+        experiment_params = chaos_mesh.gen_experiment_config()
         func = processing["interface_name"]
         params = processing["params"]
+        logger.debug(chaos_mesh.kind)
         chaos_opt = ChaosOpt(chaos_mesh.kind)
         if len(chaos_opt.list_chaos_object()["items"]) != 0:
             chaos_opt.delete_chaos_object(chaos_mesh.get_metadata_mame())
@@ -101,4 +105,4 @@ class SimpleChaosRunner(BaseRunner):
             chaos_opt.delete_chaos_object()
             chaos_opt.list_chaos_object()
             status, count = self.milvus.count()
-            logging.getLogger().info(count)
+            logger.info(count)

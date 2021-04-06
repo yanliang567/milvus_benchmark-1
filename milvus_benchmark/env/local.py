@@ -17,5 +17,5 @@ class LocalEnv(BaseEnv):
             self.set_hostname(hostname)
         except Exception as e:
             logger.error(str(e))
-        res = False
+            res = False
         return res

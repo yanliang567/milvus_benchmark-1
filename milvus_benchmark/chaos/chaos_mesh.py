@@ -1,4 +1,5 @@
 import logging
+import os
 from yaml import full_load
 from milvus_benchmark.chaos import utils
 
@@ -6,10 +7,12 @@ logger = logging.getLogger("milvus_benchmark.chaos.base")
 
 
 class BaseChaos(object):
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+
     def __init__(self, api_version, kind, metadata, spec):
-        self.api_version = api_version,
-        self.kind = kind,
-        self.metadata = metadata,
+        self.api_version = api_version
+        self.kind = kind
+        self.metadata = metadata
         self.spec = spec
 
     def gen_experiment_config(self):
@@ -38,11 +41,12 @@ class BaseChaos(object):
         # pods = utils.list_pod_for_namespace(label_selector[0] + "=" + label_selector_value)
         pods = utils.list_pod_for_namespace()
         real_label_selector_value = list(map(lambda pod: pod, filter(lambda pod: label_selector_value in pod, pods)))[0]
-        self.spec["selector"]["selector"]["selector"].updata({label_selector[0]: real_label_selector_value})
+        print(real_label_selector_value)
+        self.spec["selector"]["labelSelectors"].update({label_selector[0]: real_label_selector_value})
 
 
 class PodChaos(BaseChaos):
-    default_yaml = './template/PodChaos.yaml'
+    default_yaml = BaseChaos.cur_path + '/template/PodChaos.yaml'
 
     def __init__(self, api_version, kind, metadata, spec):
         super(PodChaos, self).__init__(api_version, kind, metadata, spec)
@@ -55,7 +59,7 @@ class PodChaos(BaseChaos):
         experiment_config = default_config
         experiment_config.update({"apiVersion": self.api_version})
         experiment_config.update({"kind": self.kind})
-        experiment_config["metadata"].update({"name": self.metadata})
+        experiment_config["metadata"].update(self.metadata)
         experiment_config["spec"].update(self.spec)
         return experiment_config
 

@@ -136,7 +136,7 @@ def run_suite(suite, env_mode, env_params):
             metric.update_status(status="DEPLOYE_SUCC")
             logger.debug("Get runner")
             runner = get_runner(run_type, env, metric)
-            cases, case_metrics = runner.extract_cases(suite)
+            cases, case_metrics = runner.extract_cases(suite["run_params"])
             # TODO: only run when the as_group is equal to True
             logger.info("Prepare to run cases")
             runner.prepare(**cases[0])
