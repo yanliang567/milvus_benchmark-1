@@ -16,7 +16,7 @@ jobstores = {
 }
 
 executors = {
-    'default': ProcessPoolExecutor()
+    'default': ProcessPoolExecutor(max_workers=10)
 }
 
 job_defaults = {

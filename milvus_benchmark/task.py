@@ -31,6 +31,7 @@ def run_suite(job_id, suite, env_mode, env_params=None):
         metric.server = Server(version=config.SERVER_VERSION, mode=deploy_mode)
         logger.info(env_params)
         run_type = suite["run_type"]
+        run_params = suite["run_params"]
         if env_mode == "local":
             metric.hardware = Hardware("")
             start_status = env.start_up(env_params["host"], env_params["port"])
@@ -47,7 +48,8 @@ def run_suite(job_id, suite, env_mode, env_params=None):
             metric.update_status(status="DEPLOYE_SUCC")
             logger.debug("Get runner")
             runner = get_runner(run_type, env, metric)
-            cases, case_metrics = runner.extract_cases(suite)
+            logger.debug(run_params)
+            cases, case_metrics = runner.extract_cases(run_params)
             # TODO: only run when the as_group is equal to True
             logger.info("Prepare to run cases")
             runner.prepare(**cases[0])

@@ -18,6 +18,7 @@ class InsertRunner(BaseRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
+        logger.debug(collection_name)
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"] if "build_index" in collection else False

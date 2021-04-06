@@ -15,3 +15,4 @@ pymongo==3.10.0
 apscheduler==3.7.0
 fastapi==0.63.0
 uvicorn==0.13.4
+pymodm==0.4.3

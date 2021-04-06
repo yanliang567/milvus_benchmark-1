@@ -1,4 +1,5 @@
 import logging
+import traceback
 from fastapi import APIRouter
 from milvus_benchmark.scheduler import scheduler
 
@@ -19,6 +20,12 @@ def get_scheduler_status():
 
 @router.post("/restart")
 def restart_scheduler():
-    if scheduler.running:
-        scheduler.shutdown()
-    scheduler.start()
+    msg = "restart scheduler success"
+    try:
+        if scheduler.running:
+            scheduler.shutdown()
+        scheduler.start()
+    except Exception as e:
+        msg = str(e)
+        logger.error(traceback.format_exc())
+    return msg

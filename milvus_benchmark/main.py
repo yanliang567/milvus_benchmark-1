@@ -17,18 +17,18 @@ app.include_router(tasks.router)
 app.include_router(scheduler_router.router)
 
 
-@app.on_event("startup")
-def init():
-    # init scheduler
-    if not scheduler.running:
-        scheduler.start()
+# @app.on_event("startup")
+# def init():
+#     # init scheduler
+#     if not scheduler.running:
+#         scheduler.start()
 
 
-@app.on_event("shutdown")
-def tern_down():
-    # shutdown scheduler
-    if scheduler.running:
-        scheduler.shutdown(wait=False)
+# @app.on_event("shutdown")
+# def tern_down():
+#     # shutdown scheduler
+#     if scheduler.running:
+#         scheduler.shutdown(wait=False)
 
 
 @app.get("/")
@@ -38,6 +38,9 @@ async def root():
 
 if __name__ == "__main__":
     try:
+        logger.debug(scheduler.running)
+        if not scheduler.running:
+            scheduler.start()
         uvicorn.run("main:app", port=8000, host='0.0.0.0', reload=True, debug=True)
     except (KeyboardInterrupt, SystemExit):
         logger.error("Received interruption")
