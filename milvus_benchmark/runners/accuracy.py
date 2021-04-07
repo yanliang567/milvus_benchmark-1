@@ -111,7 +111,7 @@ class AccAccuracyRunner(AccuracyRunner):
     1. entities from hdf5
     2. one collection test different index
     """
-    name = "acc_accuracy"
+    name = "ann_accuracy"
 
     def __init__(self, env, metric):
         super(AccuracyRunner, self).__init__(env, metric)
