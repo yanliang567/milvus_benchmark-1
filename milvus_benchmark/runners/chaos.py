@@ -2,6 +2,7 @@ import copy
 import logging
 import pdb
 from operator import methodcaller
+from yaml import full_load, dump
 from milvus_benchmark import utils
 from milvus_benchmark.runners import utils as runner_utils
 from milvus_benchmark.runners.base import BaseRunner
@@ -89,6 +90,10 @@ class SimpleChaosRunner(BaseRunner):
         chaos_opt = ChaosOpt(chaos_mesh.kind)
         if len(chaos_opt.list_chaos_object()["items"]) != 0:
             chaos_opt.delete_chaos_object(chaos_mesh.get_metadata_mame())
+        # print(experiment_params)
+        with open('./pod-new.yaml', "w") as f:
+            dump(experiment_params, f)
+            f.close()
         # run experiment with chaos
         chaos_opt.create_chaos_object(experiment_params)
         # the key in params have to equal to key in func

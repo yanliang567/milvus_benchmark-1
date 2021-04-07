@@ -6,7 +6,7 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 from milvus_benchmark import config as cf
 
-config.load_kube_config(config_file='/home/zong/.kube/config')
+config.load_kube_config()
 api_instance = client.CustomObjectsApi()
 logger = logging.getLogger("milvus_benchmark.runners.chaosOpt")
 
