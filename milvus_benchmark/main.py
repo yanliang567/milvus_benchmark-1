@@ -124,13 +124,14 @@ def run_suite(run_type, suite, env_mode, env_params):
             start_status = env.start_up(env_params["host"], env_params["port"])
         elif env_mode == "helm":
             helm_params = env_params["helm_params"]
+            helm_path = env_params["helm_path"]
             server_name = helm_params["server_name"] if "server_name" in helm_params else None
             server_tag = helm_params["server_tag"] if "server_tag" in helm_params else None
             if not server_name and not server_tag:
                 metric.hardware = Hardware("")
             else:
                 metric.hardware = Hardware(server_name) if server_name else Hardware(server_tag)
-            start_status = env.start_up(helm_params)
+            start_status = env.start_up(helm_path, helm_params)
         if start_status:
             metric.update_status(status="DEPLOYE_SUCC")
             logger.debug("Get runner")
