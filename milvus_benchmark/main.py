@@ -108,7 +108,7 @@ def shutdown(event):
 #         # time.sleep(10)
 #         env.tear_down()
 
-def run_suite(suite, env_mode, env_params):
+def run_suite(run_type, suite, env_mode, env_params):
     try:
         start_status = False
         metric = api.Metric()
@@ -119,7 +119,6 @@ def run_suite(suite, env_mode, env_params):
         metric.env = Env()
         metric.server = Server(version=config.SERVER_VERSION, mode=deploy_mode)
         logger.info(env_params)
-        run_type = suite["run_type"]
         if env_mode == "local":
             metric.hardware = Hardware("")
             start_status = env.start_up(env_params["host"], env_params["port"])
@@ -136,7 +135,7 @@ def run_suite(suite, env_mode, env_params):
             metric.update_status(status="DEPLOYE_SUCC")
             logger.debug("Get runner")
             runner = get_runner(run_type, env, metric)
-            cases, case_metrics = runner.extract_cases(suite["run_params"])
+            cases, case_metrics = runner.extract_cases(suite)
             # TODO: only run when the as_group is equal to True
             logger.info("Prepare to run cases")
             runner.prepare(**cases[0])
@@ -252,7 +251,7 @@ def main():
                         "helm_path": helm_path,
                         "helm_params": helm_params
                     }
-                    job = scheduler.add_job(run_suite, args=[suite, env_mode, env_params])
+                    job = scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
                     logger.info(job)
                     logger.info(job.id)
 
@@ -273,9 +272,10 @@ def main():
         if len(collections) > 1:
             raise Exception("Multi collections not supported in Local Mode")
         # ensure there is only one case in suite
-        suite = {"run_type": run_type, "run_params": collections[0]}
+        # suite = {"run_type": run_type, "run_params": collections[0]}
+        suite = collections[0]
         env_mode = "local"
-        job = scheduler.add_job(run_suite, args=[suite, env_mode, env_params])
+        job = scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
         logger.info(job)
         logger.info(job.id)
 

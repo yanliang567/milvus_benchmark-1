@@ -83,7 +83,7 @@ class SimpleChaosRunner(BaseRunner):
         metadata = {"name": metadata_name}
         # load yaml from default template to generate stand chaos dict
         chaos_mesh = kind_chaos_mapping[kind](config.DEFAULT_API_VERSION, kind, metadata, spec)
-        experiment_params = chaos_mesh.gen_experiment_config()
+        experiment_config = chaos_mesh.gen_experiment_config()
         func = processing["interface_name"]
         params = processing["params"]
         logger.debug(chaos_mesh.kind)
@@ -92,10 +92,10 @@ class SimpleChaosRunner(BaseRunner):
             chaos_opt.delete_chaos_object(chaos_mesh.get_metadata_mame())
         # print(experiment_params)
         with open('./pod-new.yaml', "w") as f:
-            dump(experiment_params, f)
+            dump(experiment_config, f)
             f.close()
         # run experiment with chaos
-        chaos_opt.create_chaos_object(experiment_params)
+        chaos_opt.create_chaos_object(experiment_config)
         # the key in params have to equal to key in func
         future = methodcaller(func, **params)(self.milvus)
         # future = self.milvus.flush(_async=True)

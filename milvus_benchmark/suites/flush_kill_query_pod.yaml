@@ -27,8 +27,6 @@ simple_chaos:
           spec:
             action: pod-kill
             selector:
-              namespaces:
-                - milvus
               labelSelectors:
                 "statefulset.kubernetes.io/pod-name": etcd
             scheduler:
