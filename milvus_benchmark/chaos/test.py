@@ -23,11 +23,12 @@ if __name__ == '__main__':
     chaos_mesh = kind_chaos_mapping[kind](config.DEFAULT_API_VERSION, kind, metadata, spec)
     experiment_params = chaos_mesh.gen_experiment_config()
     # print(experiment_params)
-    # with open('./pod-new.yaml', "w") as f:
+    # with open('./pod-new-chaos.yaml', "w") as f:
     #     dump(experiment_params, f)
     #     f.close()
     chaos_opt = ChaosOpt(chaos_mesh.kind)
-    data = chaos_opt.list_chaos_object()
-    print(data)
-    chaos_opt.delete_chaos_object("")
+    res = chaos_opt.list_chaos_object()
+    if len(res["items"]) != 0:
+        print(len(res["items"]))
+        print(res["items"][0]["metadata"]["annotations"]["kubectl.kubernetes.io/last-applied-configuration"])
     # chaos_opt.create_chaos_object(experiment_params)

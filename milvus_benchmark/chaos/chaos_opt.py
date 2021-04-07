@@ -12,7 +12,7 @@ logger = logging.getLogger("milvus_benchmark.runners.chaosOpt")
 
 
 class ChaosOpt(object):
-    def __init__(self, kind, group=cf.DEFAULT_GROUP, version=cf.DEFAULT_VERSION, namespace=cf.NAMESPACE):
+    def __init__(self, kind, group=cf.DEFAULT_GROUP, version=cf.DEFAULT_VERSION, namespace=cf.CHAOS_NAMESPACE):
         self.group = group
         self.version = version
         self.namespace = namespace
@@ -36,21 +36,18 @@ class ChaosOpt(object):
 
     def delete_chaos_object(self, metadata_name):
         try:
-            data = api_instance.delete_namespaced_custom_object(self.group, self.version, self.namespace, self.plural,
-                                                                metadata_name)
-            pprint(data)
+            data = api_instance.delete_namespaced_custom_object(self.group, self.version, self.namespace, self.plural, metadata_name)
             logger.info(data)
         except ApiException as e:
-            logger.error("Exception when calling CustomObjectsApi->create_namespaced_custom_object: %s\n" % e)
+            logger.error("Exception when calling CustomObjectsApi->delete_namespaced_custom_object: %s\n" % e)
             raise Exception(str(e))
 
     def list_chaos_object(self):
         try:
-            data = api_instance.list_namespaced_custom_object(self.group, self.version, self.namespace,
-                                                              plural=self.plural)
-            pprint(data)
+            data = api_instance.list_namespaced_custom_object(self.group, self.version, self.namespace, plural=self.plural)
+            # pprint(data)
             logger.info(data)
         except ApiException as e:
-            logger.error("Exception when calling CustomObjectsApi->create_namespaced_custom_object: %s\n" % e)
+            logger.error("Exception when calling CustomObjectsApi->list_namespaced_custom_object: %s\n" % e)
             raise Exception(str(e))
         return data

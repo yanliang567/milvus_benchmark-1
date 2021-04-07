@@ -6,8 +6,6 @@ metadata:
 spec:
   action: pod-failure
   mode: one
-  value: ''
-  duration: '30s'
   selector:
     labelSelectors:
       'app.kubernetes.io/component': 'tikv'

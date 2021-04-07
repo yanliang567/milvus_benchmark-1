@@ -5,7 +5,7 @@ config.load_kube_config()
 v1 = client.CoreV1Api()
 
 
-def list_pod_for_namespace(label_selector="app.kubernetes.io/instance=zong-single"):
+def list_pod_for_namespace(label_selector="app.kubernetes.io/instance=zong-standalone"):
     ret = v1.list_namespaced_pod(namespace=cf.NAMESPACE, label_selector=label_selector)
     pods = []
     # label_selector = 'release=zong-single'

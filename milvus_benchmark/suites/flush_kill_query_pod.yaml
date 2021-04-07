@@ -21,7 +21,6 @@ simple_chaos:
               nlist: 16384
       processing:
         interface_name: flush
-        params: null
         chaos:
           kind: PodChaos
           spec:

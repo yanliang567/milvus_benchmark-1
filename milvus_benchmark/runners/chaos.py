@@ -85,16 +85,18 @@ class SimpleChaosRunner(BaseRunner):
         chaos_mesh = kind_chaos_mapping[kind](config.DEFAULT_API_VERSION, kind, metadata, spec)
         experiment_config = chaos_mesh.gen_experiment_config()
         func = processing["interface_name"]
-        params = processing["params"]
+        params = processing["params"] if "params" in processing else {}
         logger.debug(chaos_mesh.kind)
         chaos_opt = ChaosOpt(chaos_mesh.kind)
-        if len(chaos_opt.list_chaos_object()["items"]) != 0:
-            chaos_opt.delete_chaos_object(chaos_mesh.get_metadata_mame())
-        # print(experiment_params)
-        with open('./pod-new.yaml', "w") as f:
-            dump(experiment_config, f)
-            f.close()
+        chaos_objects = chaos_opt.list_chaos_object()
+        if len(chaos_objects["items"]) != 0:
+            logger.debug(chaos_objects["items"])
+            # chaos_opt.delete_chaos_object(chaos_mesh.metadata["name"])
+        # with open('./pod-newq.yaml', "w") as f:
+        #     dump(experiment_config, f)
+        #     f.close()
         # run experiment with chaos
+        logger.debug(experiment_config)
         chaos_opt.create_chaos_object(experiment_config)
         # the key in params have to equal to key in func
         future = methodcaller(func, **params)(self.milvus)
@@ -107,7 +109,7 @@ class SimpleChaosRunner(BaseRunner):
             logging.getLogger().error(str(e))
             assert True
         finally:
-            chaos_opt.delete_chaos_object()
+            chaos_opt.delete_chaos_object(chaos_mesh.metadata["name"])
             chaos_opt.list_chaos_object()
             status, count = self.milvus.count()
             logger.info(count)
