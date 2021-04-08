@@ -3,6 +3,7 @@ import logging
 import pdb
 import time
 import random
+import traceback
 from multiprocessing import Process
 from itertools import product
 import numpy as np
@@ -53,6 +54,8 @@ def gen_file_name(idx, dimension, data_type):
     fname = FILE_PREFIX + str(dimension) + "d_" + s + ".npy"
     if data_type == "random":
         fname = SRC_BINARY_DATA_DIR+fname
+    if data_type == "local":
+        fname = None
     elif data_type == "sift":
         fname = SIFT_SRC_DATA_DIR+fname
     elif data_type == "deep":
@@ -121,6 +124,19 @@ class Runner(object):
         else:
             raise TypeError("No args handling exists for %s" % type(args).__name__)
 
+    def insert_core(self, milvus, start_id, vectors):
+        end_id = start_id + len(vectors)
+        logger.debug("Start id: %s, end id: %s" % (start_id, end_id))
+        ids = [k for k in range(start_id, end_id)]
+        ni_start_time = time.time()
+        try:
+            status, ids = milvus.insert(vectors, ids=ids)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            raise e
+        return time.time()-ni_start_time
+
+
     def do_insert(self, milvus, collection_name, data_type, dimension, size, ni):
         '''
         @params:
@@ -146,6 +162,8 @@ class Runner(object):
                 vectors_per_file = 100000
             elif dimension == 16384:
                 vectors_per_file = 10000
+        elif data_type == "local":
+            vectors_per_file = 100000
         elif data_type == "sift":
             vectors_per_file = SIFT_VECTORS_PER_FILE
         elif data_type in ["jaccard", "hamming", "sub", "super"]:
@@ -154,34 +172,40 @@ class Runner(object):
             raise Exception("data_type: %s not supported" % data_type)
         if ni > vectors_per_file:
             raise Exception("Not invalid collection size or ni")
-        if size % vectors_per_file:
-            file_num = size // vectors_per_file + 1
+        if data_type == "local":
+            i = 0
+            while i < (size // vectors_per_file):
+                vectors = []
+                for j in range(vectors_per_file // ni):
+                    vectors = utils.generate_vectors(ni, dimension)
+                    if vectors:
+                        start_id = i * vectors_per_file + j * ni_end_time
+                        ni_time = self.insert_core(milvus, start_id, vectors)
+                        total_time = total_time + ni_time
+                i += 1
         else:
-            file_num = size // vectors_per_file
-        logger.debug(file_num)
-        for i in range(file_num):
-            file_name = gen_file_name(i, dimension, data_type)
-            # logger.info("Load npy file: %s start" % file_name)
-            data = np.load(file_name)
-            # logger.info("Load npy file: %s end" % file_name)
-            if i == file_num-1 and size % vectors_per_file:
-                loops = (size % vectors_per_file) // ni
+            if size % vectors_per_file:
+                file_num = size // vectors_per_file + 1
             else:
-                loops = vectors_per_file // ni
-            for j in range(loops):
-                vectors = data[j*ni:(j+1)*ni].tolist()
-                if vectors:
-                    ni_start_time = time.time()
-                    # start insert vectors
-                    start_id = i * vectors_per_file + j * ni
-                    end_id = start_id + len(vectors)
-                    logger.info("Start id: %s, end id: %s" % (start_id, end_id))
-                    ids = [k for k in range(start_id, end_id)]
-                    status, ids = milvus.insert(vectors, ids=ids)
-                    # milvus.flush()
-                    logger.debug(milvus.count())
-                    ni_end_time = time.time()
-                    total_time = total_time + ni_end_time - ni_start_time
+                file_num = size // vectors_per_file
+            logger.debug(file_num)
+            for i in range(file_num):
+                file_name = gen_file_name(i, dimension, data_type)
+                # logger.info("Load npy file: %s start" % file_name)
+                data = np.load(file_name)
+                # logger.info("Load npy file: %s end" % file_name)
+                if i == file_num-1 and size % vectors_per_file:
+                    loops = (size % vectors_per_file) // ni
+                else:
+                    loops = vectors_per_file // ni
+                for j in range(loops):
+                    vectors = data[j*ni:(j+1)*ni].tolist()
+                    if vectors:
+                        # start insert vectors
+                        start_id = i * vectors_per_file + j * ni
+                        ni_time = self.insert_core(milvus, start_id, vectors)
+                        logger.debug(milvus.count())
+                        total_time = total_time + ni_time
 
         qps = round(size / total_time, 2)
         ni_time = round(total_time / file_num, 2)

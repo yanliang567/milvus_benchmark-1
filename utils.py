@@ -58,6 +58,10 @@ def normalize(metric_type, X):
     return X
 
 
+def generate_vectors(nb, dim):
+    return [[random.random() for _ in range(dim)] for _ in range(nb)]
+
+
 def get_unique_name(prefix=None):
     if prefix is None:
         prefix = "milvus-benchmark-test-"
