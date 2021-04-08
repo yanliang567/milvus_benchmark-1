@@ -14,8 +14,8 @@ insert_performance:
           - gpu0
           - gpu1
         wal_enable: true
-      collection_name: sift_1m_1024_128_l2
-      ni_per: 10000
+      collection_name: local_1m_1024_128_l2
+      ni_per: 50000
       flush: no
       build_index: false
       index_type: flat

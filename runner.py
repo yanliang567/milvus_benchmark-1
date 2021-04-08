@@ -179,7 +179,7 @@ class Runner(object):
                 for j in range(vectors_per_file // ni):
                     vectors = utils.generate_vectors(ni, dimension)
                     if vectors:
-                        start_id = i * vectors_per_file + j * ni_end_time
+                        start_id = i * vectors_per_file + j * ni
                         ni_time = self.insert_core(milvus, start_id, vectors)
                         total_time = total_time + ni_time
                 i += 1
