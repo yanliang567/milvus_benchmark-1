@@ -172,6 +172,11 @@ class Runner(object):
             raise Exception("data_type: %s not supported" % data_type)
         if ni > vectors_per_file:
             raise Exception("Not invalid collection size or ni")
+        if size % vectors_per_file:
+            file_num = size // vectors_per_file + 1
+        else:
+            file_num = size // vectors_per_file
+        logger.debug(file_num)
         if data_type == "local":
             i = 0
             while i < (size // vectors_per_file):
@@ -184,11 +189,6 @@ class Runner(object):
                         total_time = total_time + ni_time
                 i += 1
         else:
-            if size % vectors_per_file:
-                file_num = size // vectors_per_file + 1
-            else:
-                file_num = size // vectors_per_file
-            logger.debug(file_num)
             for i in range(file_num):
                 file_name = gen_file_name(i, dimension, data_type)
                 # logger.info("Load npy file: %s start" % file_name)
@@ -206,12 +206,12 @@ class Runner(object):
                         ni_time = self.insert_core(milvus, start_id, vectors)
                         logger.debug(milvus.count())
                         total_time = total_time + ni_time
-
-        qps = round(size / total_time, 2)
         ni_time = round(total_time / file_num, 2)
+        qps = round(size / total_time, 2)
         bi_res["total_time"] = round(total_time, 2)
         bi_res["qps"] = qps
         bi_res["ni_time"] = ni_time
+        logger.debug(bi_res)
         return bi_res
 
     def do_query(self, milvus, collection_name, top_ks, nqs, run_count=1, search_param=None):
