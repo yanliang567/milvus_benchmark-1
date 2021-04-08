@@ -1,3 +1,4 @@
+import os
 import sys
 import pdb
 import random
@@ -5,7 +6,7 @@ import logging
 import json
 import time, datetime
 from multiprocessing import Process
-from milvus import Milvus, IndexType, MetricType
+from milvus_cloud import Milvus, IndexType, MetricType
 import utils
 
 logger = logging.getLogger("milvus_benchmark.client")
@@ -13,6 +14,9 @@ logger = logging.getLogger("milvus_benchmark.client")
 SERVER_HOST_DEFAULT = "127.0.0.1"
 # SERVER_HOST_DEFAULT = "192.168.1.130"
 SERVER_PORT_DEFAULT = 19530
+TOKEN = "cfca3069b57331a6727ef5ba58c8b87bc01dc13c165c7b55309ed288a0c6d2fd"
+os.environ["tls_path"] = "azure-test.crt"
+
 INDEX_MAP = {
     "flat": IndexType.FLAT,
     "ivf_flat": IndexType.IVFLAT,
@@ -65,7 +69,8 @@ class MilvusClient(object):
                 try:
                     self._milvus = Milvus(
                         host = host,
-                        port = port, 
+                        port = port,
+                        token = TOKEN, 
                         try_connect = False, 
                         pre_ping = False)
                     if self._milvus.server_status():
