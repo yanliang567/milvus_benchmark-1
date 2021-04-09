@@ -13,14 +13,20 @@ simple_chaos:
           params:
             batch_size: 5000
             collection_size: 100000
-        - interface_name: create_index
-          params:
-            metric_type: l2
-            index_type: ivf_flat
-            index_param:
-              nlist: 16384
+#        - interface_name: create_index
+#          params:
+#            metric_type: l2
+#            index_type: ivf_flat
+#            index_param:
+#              nlist: 16384
       processing:
-        interface_name: flush
+        interface_name: create_index
+        params:
+          field_name: float_vector
+          metric_type: l2
+          index_type: ivf_flat
+          index_param:
+            nlist: 16384
         chaos:
           kind: PodChaos
           spec:
@@ -30,11 +36,9 @@ simple_chaos:
                 "statefulset.kubernetes.io/pod-name": etcd
             scheduler:
               cron: "@every 60s"
+        assertion: fail
       after:
-        interface_name: flush
-        params: null
-      assertions:
-        -
-          processing: failed_with_exception
-        -
-          after: pass
+        interface_name: describe_index
+        params:
+          field_name: float_vector
+        assertion: pass

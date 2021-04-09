@@ -1,10 +1,13 @@
 import copy
 import logging
 import pdb
+import time
 from operator import methodcaller
 from yaml import full_load, dump
+import threading
 from milvus_benchmark import utils
 from milvus_benchmark.runners import utils as runner_utils
+from milvus_benchmark.chaos import utils as chaos_utils
 from milvus_benchmark.runners.base import BaseRunner
 from chaos.chaos_opt import ChaosOpt
 from milvus_benchmark import config
@@ -17,6 +20,11 @@ kind_chaos_mapping = {
     "NetworkChaos": NetworkChaos
 }
 
+assert_func_mapping = {
+    "fail": chaos_utils.assert_fail,
+    "pass": chaos_utils.assert_pass
+}
+
 
 class SimpleChaosRunner(BaseRunner):
     """run chaos"""
@@ -24,6 +32,9 @@ class SimpleChaosRunner(BaseRunner):
 
     def __init__(self, env, metric):
         super(SimpleChaosRunner, self).__init__(env, metric)
+
+    async def async_call(self, func, **kwargs):
+        future = methodcaller(func, **kwargs)(self.milvus)
 
     def run_step(self, interface_name, interface_params):
         if interface_name == "create_collection":
@@ -52,13 +63,11 @@ class SimpleChaosRunner(BaseRunner):
         before_steps = collection["before"]
         after = collection["after"] if "after" in collection else None
         processing = collection["processing"]
-        assertions = collection["assertions"]
         case_metrics = []
         case_params = [{
             "before_steps": before_steps,
             "after": after,
-            "processing": processing,
-            "assertions": assertions
+            "processing": processing
         }]
         self.init_metric(self.name, {}, {}, None)
         case_metric = copy.deepcopy(self.metric)
@@ -74,42 +83,44 @@ class SimpleChaosRunner(BaseRunner):
 
     def run_case(self, case_metric, **case_param):
         processing = case_param["processing"]
-        assertions = case_param["assertions"]
+        after = case_param["after"]
         user_chaos = processing["chaos"]
         kind = user_chaos["kind"]
-        logger.debug(kind)
         spec = user_chaos["spec"]
         metadata_name = config.NAMESPACE + "-" + kind.lower()
         metadata = {"name": metadata_name}
+        process_assertion = processing["assertion"]
+        after_assertion = after["assertion"]
         # load yaml from default template to generate stand chaos dict
         chaos_mesh = kind_chaos_mapping[kind](config.DEFAULT_API_VERSION, kind, metadata, spec)
         experiment_config = chaos_mesh.gen_experiment_config()
-        func = processing["interface_name"]
-        params = processing["params"] if "params" in processing else {}
+        process_func = processing["interface_name"]
+        process_params = processing["params"] if "params" in processing else {}
+        after_func = after["interface_name"]
+        after_params = after["params"] if "params" in after else {}
         logger.debug(chaos_mesh.kind)
         chaos_opt = ChaosOpt(chaos_mesh.kind)
         chaos_objects = chaos_opt.list_chaos_object()
         if len(chaos_objects["items"]) != 0:
             logger.debug(chaos_objects["items"])
-            # chaos_opt.delete_chaos_object(chaos_mesh.metadata["name"])
+            chaos_opt.delete_chaos_object(chaos_mesh.metadata["name"])
         # with open('./pod-newq.yaml', "w") as f:
         #     dump(experiment_config, f)
         #     f.close()
-        # run experiment with chaos
-        logger.debug(experiment_config)
-        chaos_opt.create_chaos_object(experiment_config)
-        # the key in params have to equal to key in func
-        future = methodcaller(func, **params)(self.milvus)
-        # future = self.milvus.flush(_async=True)
+        # concurrent inject chaos and run func
+        # logger.debug(experiment_config)
+        t_milvus = threading.Thread(target=assert_func_mapping[process_assertion], args=(process_func, self.milvus,), kwargs=process_params)
         try:
-            status = future.result()
-            logging.getLogger().info(status)
-            assert not status.OK()
+            t_milvus.start()
+            chaos_opt.create_chaos_object(experiment_config)
+        # processing assert exception
         except Exception as e:
-            logging.getLogger().error(str(e))
-            assert True
-        finally:
+            logger.info("exception {}".format(str(e)))
+        else:
             chaos_opt.delete_chaos_object(chaos_mesh.metadata["name"])
-            chaos_opt.list_chaos_object()
-            status, count = self.milvus.count()
-            logger.info(count)
+            # TODO retry connect milvus
+            time.sleep(15)
+            assert_func_mapping[after_assertion](after_func, self.milvus, **after_params)
+        finally:
+            chaos_opt.delete_all_chaos_object()
+            logger.info(chaos_opt.list_chaos_object())

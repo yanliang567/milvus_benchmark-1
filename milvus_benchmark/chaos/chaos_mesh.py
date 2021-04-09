@@ -41,7 +41,6 @@ class BaseChaos(object):
         # pods = utils.list_pod_for_namespace(label_selector[0] + "=" + label_selector_value)
         pods = utils.list_pod_for_namespace()
         real_label_selector_value = list(map(lambda pod: pod, filter(lambda pod: label_selector_value in pod, pods)))[0]
-        print(real_label_selector_value)
         self.spec["selector"]["labelSelectors"].update({label_selector[0]: real_label_selector_value})
 
 

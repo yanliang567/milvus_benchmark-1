@@ -28,7 +28,9 @@ if __name__ == '__main__':
     #     f.close()
     chaos_opt = ChaosOpt(chaos_mesh.kind)
     res = chaos_opt.list_chaos_object()
+    print(res)
     if len(res["items"]) != 0:
-        print(len(res["items"]))
-        print(res["items"][0]["metadata"]["annotations"]["kubectl.kubernetes.io/last-applied-configuration"])
-    # chaos_opt.create_chaos_object(experiment_params)
+        # chaos_opt.delete_chaos_object("milvus-pod-chaos")
+        print(res["items"][0]["metadata"]["name"])
+        chaos_opt.delete_all_chaos_object()
+    print(chaos_opt.list_chaos_object())
