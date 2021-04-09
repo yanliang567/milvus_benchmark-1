@@ -41,7 +41,7 @@ if __name__ == "__main__":
         logger.debug(scheduler.running)
         if not scheduler.running:
             scheduler.start()
-        uvicorn.run("main:app", port=8000, host='0.0.0.0', reload=True, debug=True)
+        uvicorn.run("main:app", port=8000, host='0.0.0.0', reload=True)
     except (KeyboardInterrupt, SystemExit):
         logger.error("Received interruption")
         scheduler.shutdown(wait=False)

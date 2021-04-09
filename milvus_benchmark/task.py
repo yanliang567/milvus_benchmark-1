@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import pdb
+import json
 import logging
 import traceback
 from milvus_benchmark.metrics.models.server import Server
@@ -20,6 +21,10 @@ logger = logging.getLogger("milvus_benchmark.task")
 def run_suite(job_id, suite, env_mode, env_params=None):
     job_logger = RedisLoggingHandler(key=job_id)
     logger.addHandler(job_logger)
+    if suite and not isinstance(suite, dict):
+        suite = json.loads(suite, strict=False)
+    if env_params and not isinstance(env_params, dict):
+        suite = json.loads(env_params, strict=False)
     try:
         start_status = False
         metric = api.Metric()
