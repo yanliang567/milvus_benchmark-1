@@ -12,7 +12,7 @@ simple_chaos:
           interface_name: insert
           params:
             batch_size: 5000
-            collection_size: 100000
+            collection_size: 1000000
 #        - interface_name: create_index
 #          params:
 #            metric_type: l2

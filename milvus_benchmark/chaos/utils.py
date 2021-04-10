@@ -26,6 +26,7 @@ def assert_fail(func, milvus_client, **params):
     except Exception as e:
         logger.debug("11111111111111111111111111")
         logger.info(str(e))
+        pass
     else:
         raise Exception("fail-assert failed")
 
