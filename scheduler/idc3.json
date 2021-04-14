@@ -7,7 +7,7 @@
                 "image_type": "cpu"
             },
             {
-                "suite": "011_cpu_search_sift50m_2048.yaml",
+                "suite": "011_cpu_search_2048.yaml",
                 "image_type": "cpu"
             }
         ]
