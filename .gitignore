@@ -1,6 +1,5 @@
 random_data
 benchmark_logs/
-db/
 *idmap*.txt
 __pycache__/
 venv
