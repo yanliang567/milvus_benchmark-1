@@ -23,7 +23,7 @@ class Task(MongoModel):
     suite = fields.DictField()
     created_time = fields.DateTimeField()
     last_executed_time = fields.DateTimeField(blank=True)
-    staus = fields.CharField(blank=True)
+    status = fields.CharField(blank=True)
 
     def update_time(self):
         self.last_executed_time = datetime.now()

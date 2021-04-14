@@ -24,7 +24,7 @@ def run_suite(job_id, suite, env_mode, env_params=None):
     job_logger = RedisLoggingHandler(key=job_id)
     logger.addHandler(job_logger)
     task = TaskModel.objects.get({"_id": job_id})
-    task.update_status(TaskStatus.RUNNING)
+    task.update_status(TaskStatus.RUNNING.value)
     task.save()
     if suite and not isinstance(suite, dict):
         suite = json.loads(suite, strict=False)
@@ -92,6 +92,6 @@ def run_suite(job_id, suite, env_mode, env_params=None):
     finally:
         # api.save(metric)
         # time.sleep(10)
-        task.update_status(TaskStatus.EXECUTED)
+        task.update_status(TaskStatus.EXECUTED.value)
         task.save()
         env.tear_down()

@@ -23,7 +23,7 @@ class Task(BaseModel):
     env_params: Optional[dict] = None
     config: Optional[str] = None
     suite: dict
-    status: Optional[str] = TaskStatus.NEW
+    status: Optional[str] = TaskStatus.NEW.value
 
 
 router = APIRouter(
