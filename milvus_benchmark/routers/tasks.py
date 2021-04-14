@@ -5,7 +5,7 @@ import traceback
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException, WebSocket
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
 from milvus_benchmark import redis_conn
 from milvus_benchmark.scheduler import scheduler
@@ -55,13 +55,6 @@ def get_task(task_id: str):
         msg = "get tasks by id <{}> failed: {}".format(task_id, str(e))
         logger.error(traceback.format_exc())
         return ResponseDictModel(code=500, msg=msg)
-
-
-@router.websocket_route("/ws/{task_id}")
-async def task_ws_endpoint(websocket: WebSocket, task_id: str):
-    while True:
-        data = redis_conn.lrange(task_id, 0, 128)
-        await websocket.send_text(f"{data}")
 
 
 @router.post("/add", response_model=ResponseDictModel)
@@ -114,8 +107,8 @@ def reschedule_task(task_id: str):
         logger.error(msg)
         return ResponseDictModel(code=500, msg=msg)
     try:
-        task_son = task.to_son()
-        logger.debug(task_son["suite"])
+        # task_son = task.to_son()
+        # logger.debug(task_son["suite"])
         job = scheduler.add_job(run_suite, args=[task_id, task.suite, task.env_mode, task.env_params], misfire_grace_time=30, id=task_id)
         logger.debug(str(job))
         task.update_time()

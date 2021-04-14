@@ -2,21 +2,46 @@ import sys
 import logging
 import traceback
 import uvicorn
+import hypercorn
 from typing import Optional
 from fastapi import FastAPI
+from starlette.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
 from milvus_benchmark.scheduler import scheduler
 from milvus_benchmark.routers import tasks
 from milvus_benchmark.routers import scheduler as scheduler_router
+from milvus_benchmark.routers import websocket
 from milvus_benchmark.logs import log
 
 log.setup_logging()
 logger = logging.getLogger("milvus_benchmark.main")
 
+origins = [
+    "*"
+    ]
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"]
+    )
+]
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    # expose_headers=["Access-Control-Allow-Origin"]
+)
 app.include_router(tasks.router)
 app.include_router(scheduler_router.router)
-
-
+app.include_router(websocket.router)
 # @app.on_event("startup")
 # def init():
 #     # init scheduler
