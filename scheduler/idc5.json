@@ -1,0 +1,15 @@
+[
+    {
+        "server": "idc-sh005",
+        "suite_params": [
+            {
+                "suite": "011_build_4096.yaml",
+                "image_type": "cpu"
+            },
+            {
+                "suite": "011_cpu_search_sift50m_4096.yaml",
+                "image_type": "cpu"
+            }
+        ]
+    }
+]

@@ -5,6 +5,10 @@
             {
                 "suite": "011_build_512.yaml",
                 "image_type": "cpu"
+            },
+            {
+                "suite": "011_cpu_search_sift50m_512.yaml",
+                "image_type": "cpu"
             }
         ]
     }
