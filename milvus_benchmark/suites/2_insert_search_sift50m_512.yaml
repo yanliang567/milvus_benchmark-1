@@ -15,6 +15,8 @@ insert_search_performance:
           - gpu0
           - gpu1
         wal_enable: true
+      server:
+        cpus: 64
       collection_name: sift_50m_128_l2
       ni_per: 50000
       build_index: true
