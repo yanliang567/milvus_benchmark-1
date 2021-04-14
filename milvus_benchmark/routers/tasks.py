@@ -7,10 +7,10 @@ from typing import Optional
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
-from milvus_benchmark import redis_conn
 from milvus_benchmark.scheduler import scheduler
 from milvus_benchmark.task import run_suite
 from milvus_benchmark.db.model import Task as TaskModel
+from milvus_benchmark.db.model import TaskStatus
 from milvus_benchmark.routers import ResponseListModel, ResponseDictModel, ValidationRoute
 
 logger = logging.getLogger("milvus_benchmark.routers.tasks")
@@ -23,6 +23,7 @@ class Task(BaseModel):
     env_params: Optional[dict] = None
     config: Optional[str] = None
     suite: dict
+    status: Optional[str] = TaskStatus.NEW
 
 
 router = APIRouter(

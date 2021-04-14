@@ -13,6 +13,8 @@ from milvus_benchmark.logs.log import RedisLoggingHandler
 from milvus_benchmark.env import get_env
 from milvus_benchmark.runners import get_runner
 from milvus_benchmark.metrics import api
+from milvus_benchmark.db.model import Task as TaskModel
+from milvus_benchmark.db.model import TaskStatus
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.task")
@@ -21,6 +23,9 @@ logger = logging.getLogger("milvus_benchmark.task")
 def run_suite(job_id, suite, env_mode, env_params=None):
     job_logger = RedisLoggingHandler(key=job_id)
     logger.addHandler(job_logger)
+    task = TaskModel.objects.get({"_id": job_id})
+    task.update_status(TaskStatus.RUNNING)
+    task.save()
     if suite and not isinstance(suite, dict):
         suite = json.loads(suite, strict=False)
     if env_params and not isinstance(env_params, dict):
@@ -87,4 +92,6 @@ def run_suite(job_id, suite, env_mode, env_params=None):
     finally:
         # api.save(metric)
         # time.sleep(10)
+        task.update_status(TaskStatus.EXECUTED)
+        task.save()
         env.tear_down()
