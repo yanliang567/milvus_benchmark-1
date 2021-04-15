@@ -285,7 +285,7 @@ if __name__ == "__main__":
     try:
         main()
         from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
-        scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED|EVENT_JOB_ERROR)
+        # scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED|EVENT_JOB_ERROR)
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         logger.error("Received interruption")
@@ -293,5 +293,7 @@ if __name__ == "__main__":
         sys.exit(0)
     except Exception as e:
         logger.error(traceback.format_exc())
+        scheduler.shutdown(wait=False)
         sys.exit(1)
-    logger.info("Finshed")
+    scheduler.shutdown(wait=True)
+    logger.info("All tests run finshed")
