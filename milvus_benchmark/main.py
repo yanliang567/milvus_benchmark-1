@@ -50,7 +50,7 @@ def shutdown(event):
     logger.info("Check if there is scheduled jobs in scheduler")
     if not scheduler.get_jobs():
         logger.info("No job in scheduler, will shutdown the scheduler")
-        scheduler.shutdown(wait=False)
+        scheduler.shutdown(wait=True)
 
 
 # def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=None, helm_path=None, helm_install_params=None):
