@@ -13,6 +13,8 @@ ann_accuracy:
         gpu_resource_config.build_index_resources:
           - gpu0
           - gpu1
+      server:
+        cpus: 12
       source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
       collection_name: sift_128_euclidean
       index_types: ['ivf_flat']
