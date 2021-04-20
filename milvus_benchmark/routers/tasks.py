@@ -94,9 +94,17 @@ def update_task(task_id: str, task: Task):
         return ResponseDictModel(code=500, msg=msg)    
 
 
-@router.delete("/delete/{task_id}")
-def delete_task(task_id: str):
-    return {"task_id": task_id}
+@router.delete("/delete/{task_ids}")
+def delete_tasks(task_ids: list):
+    try:
+        for task_id in task_ids:
+            task = Task.objects.get({"task_id": task_id})
+            task.delete()
+    except Exception as e:
+        logger.error(str(e))
+        msg = "Delete task {} failed with error {}".format(task_id, str(e))
+        return ResponseDictModel(code=500, msg=msg)
+    return ResponseDictModel(code=200, msg="Delete successful")
 
 
 @router.post("/reschedule/{task_id}")
@@ -116,6 +124,7 @@ def reschedule_task(task_id: str):
         task.save()
         return ResponseDictModel(data={"job": str(job)})
     except Exception as e:
+        logger.error(str(e))
         msg = "Task: {} reschedule failed".format(task_id)
         logger.error(traceback.format_exc())
         return ResponseDictModel(code=500, msg=msg)

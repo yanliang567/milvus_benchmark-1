@@ -5,7 +5,7 @@ from pymodm import connect, fields, MongoModel
 # from pymodm.queryset import QuerySet
 from milvus_benchmark import config
 
-connect(config.MONGO_SERVER+config.TASK_DB)
+connect(config.MONGO_SERVER + config.TASK_DB)
 
 
 class TaskStatus(Enum):
