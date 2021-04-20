@@ -94,12 +94,11 @@ def update_task(task_id: str, task: Task):
         return ResponseDictModel(code=500, msg=msg)    
 
 
-@router.delete("/delete/{task_ids}")
-def delete_tasks(task_ids: list):
+@router.delete("/delete/{task_id}")
+def delete_task(task_id: str):
     try:
-        for task_id in task_ids:
-            task = Task.objects.get({"task_id": task_id})
-            task.delete()
+        task = Task.objects.get({"task_id": task_id})
+        task.delete()
     except Exception as e:
         logger.error(str(e))
         msg = "Delete task {} failed with error {}".format(task_id, str(e))
