@@ -42,7 +42,7 @@ async def task_ws_endpoint(websocket: WebSocket, task_id: str):
         while True:
             recv_data = await websocket.receive_text()
             logger.debug(recv_data)
-            data = redis_conn.lrange(task_id, 0, -1)
+            data = redis_conn.lrange(task_id, 0, 128)
             for item in data:
                 await websocket.send_text(f"{item}")
     except WebSocketDisconnect:
