@@ -52,6 +52,9 @@ def get_task(task_id: str):
     try:
         task = TaskModel.objects.values().get({"_id": task_id})
         return ResponseDictModel(data=task)
+    except TaskModel.DoesNotExist as e:
+        msg = "Task {} not existed".format(task_id)
+        return ResponseDictModel(code=500, msg=msg)
     except Exception as e:
         msg = "get tasks by id <{}> failed: {}".format(task_id, str(e))
         logger.error(traceback.format_exc())
