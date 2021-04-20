@@ -85,7 +85,9 @@ def get_vectors_from_binary(nq, dimension, data_type):
     # use the first file, nq should be less than VECTORS_PER_FILE
     if nq > MAX_NQ:
         raise Exception("Over size nq")
-    if data_type == "random":
+    if data_type == "local":
+        return generate_vectors(nq, dimension)
+    elif data_type == "random":
         file_name = RANDOM_SRC_DATA_DIR + 'query_%d.npy' % dimension
     elif data_type == "sift":
         file_name = SIFT_SRC_DATA_DIR + 'query.npy'

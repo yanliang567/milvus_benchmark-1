@@ -13,7 +13,7 @@
    1. set python path 
    
       `export PYTHONPATH=/your/project/path/milvus_benchmark`
-   2. (optional) mount Nars or update `*_DATA_DIR` in `runner.py`
+   2. (optional, use `sift` dataset) mount NAS or update `*_DATA_DIR` in `runner.py`
    
         `sudo mount -t cifs -o username=test,vers=1.0 //172.16.70.249/test /test`
    3. run test

@@ -196,8 +196,8 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
                     "cpu": str(int(cpus)) + ".0"
                 },
                 "requests": {
-                    # "cpu": str(int(cpus) // 2) + ".0"
-                    "cpu": "4.0"
+                    "cpu": str(int(cpus) // 2 + 1) + ".0"
+                    # "cpu": "4.0"
                 }
             }
             logger.debug("Add tolerations into standalone server")
@@ -267,7 +267,6 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
 
 # deploy server
 def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, namespace):
-    timeout = 600
     logger.debug("Server deploy mode: %s" % deploy_mode)
     host = "%s-milvus-ha.%s.svc.cluster.local" % (name, namespace)
     # TODO: update etcd config

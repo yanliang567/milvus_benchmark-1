@@ -295,5 +295,5 @@ if __name__ == "__main__":
         logger.error(traceback.format_exc())
         scheduler.shutdown(wait=False)
         sys.exit(1)
-    scheduler.shutdown(wait=True)
+    scheduler.shutdown(wait=False)
     logger.info("All tests run finshed")
