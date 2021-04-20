@@ -97,10 +97,10 @@ def update_task(task_id: str, task: Task):
 @router.delete("/delete/{task_id}")
 def delete_task(task_id: str):
     try:
-        task = TaskModel.objects.get({"task_id": task_id})
+        task = TaskModel.objects.get({"_id": task_id})
         task.delete()
     except TaskModel.DoesNotExist as e:
-        msg = "Task id not existed"
+        msg = "Task {} not existed".format(task_id)
         return ResponseDictModel(code=500, msg=msg)
     except Exception as e:
         logger.error(str(e))

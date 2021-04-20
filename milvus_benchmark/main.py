@@ -1,17 +1,19 @@
-import sys
+from gevent import monkey
+monkey.patch_all(select=False)
 import logging
+import sys
 import traceback
+
 import uvicorn
-import hypercorn
-from typing import Optional
 from fastapi import FastAPI
-from starlette.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
-from milvus_benchmark.scheduler import scheduler
-from milvus_benchmark.routers import tasks
-from milvus_benchmark.routers import scheduler as scheduler_router
-from milvus_benchmark.routers import websocket
+from starlette.middleware import Middleware
+
 from milvus_benchmark.logs import log
+from milvus_benchmark.routers import scheduler as scheduler_router
+from milvus_benchmark.routers import tasks
+from milvus_benchmark.routers import websocket
+from milvus_benchmark.scheduler import scheduler
 
 log.setup_logging()
 logger = logging.getLogger("milvus_benchmark.main")
