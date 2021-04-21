@@ -19,7 +19,7 @@ from milvus_benchmark.runners import get_runner
 from milvus_benchmark.metrics import api
 from milvus_benchmark import config
 from milvus_benchmark import parser
-from scheduler import scheduler
+from scheduler import back_scheduler
 from logs import log
 
 log.setup_logging()
@@ -30,6 +30,7 @@ LOG_FOLDER = "logs"
 NAMESPACE = "milvus"
 SERVER_VERSION = "2.0"
 q = Queue()
+
 
 def positive_int(s):
     i = None
@@ -48,9 +49,9 @@ def get_image_tag(image_version):
 
 def shutdown(event):
     logger.info("Check if there is scheduled jobs in scheduler")
-    if not scheduler.get_jobs():
+    if not back_scheduler.get_jobs():
         logger.info("No job in scheduler, will shutdown the scheduler")
-        scheduler.shutdown(wait=True)
+        back_scheduler.shutdown(wait=False)
 
 
 # def run_suite(suite, env_mode, deploy_mode, run_type, run_params, env_params=None, helm_path=None, helm_install_params=None):
@@ -148,7 +149,7 @@ def run_suite(run_type, suite, env_mode, env_params):
                 try:
                     result = runner.run_case(case_metric, **case)
                 except Exception as e:
-                    err_message = str(e)+"\n"+traceback.format_exc()
+                    err_message = str(e) + "\n" + traceback.format_exc()
                     logger.error(traceback.format_exc())
                 logger.info(result)
                 if result:
@@ -207,7 +208,7 @@ def main():
         default='')
 
     args = arg_parser.parse_args()
-    
+
     if args.schedule_conf:
         if args.local:
             raise Exception("Helm mode with scheduler and other mode are incompatible")
@@ -253,7 +254,7 @@ def main():
                         "helm_path": helm_path,
                         "helm_params": helm_params
                     }
-                    job = scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
+                    job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
                     logger.info(job)
                     logger.info(job.id)
 
@@ -277,7 +278,7 @@ def main():
         # suite = {"run_type": run_type, "run_params": collections[0]}
         suite = collections[0]
         env_mode = "local"
-        job = scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
+        job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
         logger.info(job)
         logger.info(job.id)
 
@@ -285,16 +286,17 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-        from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
-        # scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED|EVENT_JOB_ERROR)
-        scheduler.start()
+        # from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+
+        # block_scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+        back_scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         logger.error("Received interruption")
-        scheduler.shutdown(wait=False)
+        back_scheduler.shutdown(wait=False)
         sys.exit(0)
     except Exception as e:
         logger.error(traceback.format_exc())
-        scheduler.shutdown(wait=False)
+        back_scheduler.shutdown(wait=False)
         sys.exit(1)
-    scheduler.shutdown(wait=False)
+    # block_scheduler.shutdown(wait=False)
     logger.info("All tests run finshed")

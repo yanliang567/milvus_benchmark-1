@@ -24,4 +24,4 @@ job_defaults = {
     'max_instances': 32
 }
 # TODO:
-scheduler = BlockingScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults, logger=logger)
+back_scheduler = BackgroundScheduler(job_defaults=job_defaults, logger=logger)
