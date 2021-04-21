@@ -158,7 +158,8 @@ def run_suite(run_type, suite, env_mode, env_params):
                     case_metric.update_status(status="RUN_FAILED")
                     case_metric.update_message(err_message)
                 logger.debug(case_metric.metrics)
-                api.save(case_metric)
+                if env_mode == "helm":
+                    api.save(case_metric)
         else:
             logger.info("Deploy failed on server")
             metric.update_status(status="DEPLOYE_FAILED")

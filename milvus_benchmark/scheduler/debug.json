@@ -3,16 +3,7 @@
         "server": "idc-sh003",
         "suite_params": [
             {
-                "suite": "2_insert_search_sift10m.yaml",
-                "image_type": "cpu"
-            }
-        ]
-    },
-    {
-        "server": "idc-sh005",
-        "suite_params": [
-            {
-                "suite": "2_insert_search_sift10m_1024.yaml",
+                "suite": "2_insert_search_debug.yaml",
                 "image_type": "cpu"
             }
         ]
