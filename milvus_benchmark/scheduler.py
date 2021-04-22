@@ -3,7 +3,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from apscheduler.jobstores.mongodb import MongoDBJobStore
-from apscheduler.executors.pool import ProcessPoolExecutor
+from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.executors.debug import DebugExecutor
 import config
 from pymongo import MongoClient
@@ -16,12 +16,12 @@ jobstores = {
 }
 
 executors = {
-    'default': ProcessPoolExecutor()
+    'default': ThreadPoolExecutor(max_workers=100)
 }
 
 job_defaults = {
-    'coalesce': False,
+    'coalesce': True,
     'max_instances': 32
 }
 # TODO:
-back_scheduler = BackgroundScheduler(job_defaults=job_defaults, logger=logger)
+back_scheduler = BackgroundScheduler(executors=executors, job_defaults=job_defaults, logger=logger)
