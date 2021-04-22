@@ -254,7 +254,7 @@ def main():
                         "helm_path": helm_path,
                         "helm_params": helm_params
                     }
-                    job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
+                    job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=30)
                     logger.info(job)
                     logger.info(job.id)
 
@@ -278,7 +278,7 @@ def main():
         # suite = {"run_type": run_type, "run_params": collections[0]}
         suite = collections[0]
         env_mode = "local"
-        job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params])
+        job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=30)
         logger.info(job)
         logger.info(job.id)
 
