@@ -12,7 +12,7 @@ SERVER_PORT_DEFAULT = 19530
 SERVER_VERSION = "2.0"
 
 HELM_NAMESPACE = "milvus"
-BRANCH = "distributed"
+BRANCH = "master"
 
 DEFAULT_CPUS = 48
 

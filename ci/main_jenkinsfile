@@ -6,7 +6,7 @@ pipeline {
     }
 
     parameters{
-        string defaultValue: 'r0.3-test', description: 'server image version', name: 'IMAGE_VERSION', trim: true
+        string defaultValue: 'master', description: 'server image version', name: 'IMAGE_VERSION', trim: true
         choice choices: ['kubernetes', 'idc-kubernetes'], description: 'cluster name', name: 'CLUSTER_NAME'
         string defaultValue: '2_data.json', description: 'test suite config yaml', name: 'CONFIG_FILE', trim: true
         string defaultValue: 'd0928627-efb6-4cfd-8030-9bf635988d85', description: 'git credentials', name: 'GIT_USER', trim: true
@@ -17,7 +17,7 @@ pipeline {
         HELM_BRANCH = "2.0"
         TEST_URL = "https://github.com/zilliztech/milvus_benchmark.git"
         TEST_BRANCH = "distributed"
-        HELM_RELEASE_NAME = "debug-distributed-benchmark-test-${env.BUILD_NUMBER}"
+        HELM_RELEASE_NAME = "distributed-benchmark-test-${env.BUILD_NUMBER}"
     }
 
     stages {
