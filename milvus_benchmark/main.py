@@ -254,7 +254,8 @@ def main():
                         "helm_path": helm_path,
                         "helm_params": helm_params
                     }
-                    job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=30)
+                    job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params],
+                                                 misfire_grace_time=300)
                     logger.info(job)
                     logger.info(job.id)
 
@@ -278,7 +279,7 @@ def main():
         # suite = {"run_type": run_type, "run_params": collections[0]}
         suite = collections[0]
         env_mode = "local"
-        job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=30)
+        job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=300)
         logger.info(job)
         logger.info(job.id)
 
@@ -286,9 +287,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-        # from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
-
-        # block_scheduler.add_listener(shutdown, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+        # from apscheduler.events import EVENT_JOB_MISSED
+        # back_scheduler.add_listener(listen_miss, EVENT_JOB_MISSED)
         back_scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         logger.error("Received interruption")
