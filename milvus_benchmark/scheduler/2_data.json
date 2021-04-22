@@ -1,14 +1,5 @@
 [
     {
-        "deploy_mode": "cluster",
-        "suite_params": [
-            {
-                "suite": "2_cpu_ann_accuracy.yaml",
-                "image_type": "cpu"
-            }
-        ]
-    },
-    {
         "suite_params": [
             {
                 "suite": "2_cpu_ann_accuracy.yaml",
