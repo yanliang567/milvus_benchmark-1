@@ -20,7 +20,8 @@ from yaml import full_load, dump
 import yaml
 import tableprint as tp
 from pprint import pprint
-
+from milvus_metrics.api import get_cpus_by_host
+ 
 
 logger = logging.getLogger("milvus_benchmark.utils")
 
@@ -221,8 +222,10 @@ def update_values(file_path, deploy_mode, hostname, server_tag, server_config):
         v1 = client.CoreV1Api()
         values_dict['nodeSelector'] = {'kubernetes.io/hostname': hostname}
         # node = v1.read_node(hostname)
-        cpus = v1.read_node(hostname).status.allocatable.get("cpu")
-
+        # cpus = v1.read_node(hostname).status.allocatable.get("cpu")
+        cpus = get_cpus_by_host(hostname)
+        if not cpus:
+            raise Exception("Cpus is invalid")
         # set limit/request cpus in resources
         values_dict["image"]['resources'] = {
             "limits": {

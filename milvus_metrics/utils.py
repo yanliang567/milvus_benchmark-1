@@ -2,7 +2,7 @@ from milvus_metrics.models.env import Env
 from milvus_metrics.models.hardware import Hardware
 from milvus_metrics.models.metric import Metric
 from milvus_metrics.models.server import Server
-from milvus_metrics.config import MONGO_SERVER, DB, UNIQUE_ID_COLLECTION, DOC_COLLECTION
+from milvus_metrics.config import MONGO_SERVER, DB, UNIQUE_ID_COLLECTION, DOC_COLLECTION, HOST_COLLECTION
 from pymongo import MongoClient
 import logging
 
@@ -48,3 +48,12 @@ def report(obj):
 
     collection = _client[DB][DOC_COLLECTION]
     collection.insert_one(vars(obj))
+
+
+def get_cpus_by_host(host):
+    collection = _client[DB][HOST_COLLECTION]
+    host_doc = collection.find_one({"name": host})
+    if host_doc:
+        return int(host_doc["cpus"])
+    else:
+        return False
