@@ -274,6 +274,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     if os.system(etcd_config_map_cmd):
         raise Exception("Create configmap: {} failed".format(name))
     logger.debug("Create configmap: {} successfully".format(name))
+    log_path = config.LOG_PATH+"install.log"
     install_cmd = "helm install \
             --set standalone.service.type=ClusterIP \
             --set image.all.repository=%s \
@@ -282,7 +283,8 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
             --set etcd.persistence.enabled=false \
             --set etcd.envVarsConfigMap=%s \
             --namespace %s \
-            %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
+            -v=20 \
+            %s . >>%s >&1" % (config.REGISTRY_URL, image_tag, name, namespace, name, log_path)
             # --set image.all.pullPolicy=Always \
     if deploy_mode == "cluster":
         install_cmd = "helm install \
@@ -293,7 +295,8 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set etcd.persistence.enabled=false \
                 --set etcd.envVarsConfigMap=%s \
                 --namespace %s \
-                %s ." % (config.REGISTRY_URL, image_tag, name, namespace, name)
+                -v=20 \
+                %s . >>%s >&1" % (config.REGISTRY_URL, image_tag, name, namespace, name, log_path)
                 # --set image.all.pullPolicy=Always \
     elif deploy_mode != "single":
         raise Exception("Deploy mode: {} not support".format(deploy_mode))
