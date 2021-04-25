@@ -45,4 +45,4 @@ locust_mix_performance:
         connection_num: 1
         clients_num: 100
         hatch_rate: 2
-        during_time: 5h
+        during_time: 3h
