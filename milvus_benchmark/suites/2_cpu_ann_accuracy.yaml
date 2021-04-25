@@ -60,6 +60,7 @@ ann_accuracy:
       index_params:
         nlist: [1024]
         m: [32]
+        nbits: [8]
       top_ks: [10]
       nqs: [10000]
       search_params:
@@ -154,6 +155,7 @@ ann_accuracy:
       index_params:
         nlist: [1024]
         m: [20]
+        nbits: [8]
       top_ks: [10]
       nqs: [10000]
       search_params:

@@ -283,7 +283,6 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
             --set etcd.persistence.enabled=false \
             --set etcd.envVarsConfigMap=%s \
             --namespace %s \
-            -v=20 \
             %s . >>%s >&1" % (config.REGISTRY_URL, image_tag, name, namespace, name, log_path)
             # --set image.all.pullPolicy=Always \
     if deploy_mode == "cluster":
@@ -295,7 +294,6 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set etcd.persistence.enabled=false \
                 --set etcd.envVarsConfigMap=%s \
                 --namespace %s \
-                -v=20 \
                 %s . >>%s >&1" % (config.REGISTRY_URL, image_tag, name, namespace, name, log_path)
                 # --set image.all.pullPolicy=Always \
     elif deploy_mode != "single":
