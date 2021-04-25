@@ -428,9 +428,9 @@ class K8sRunner(Runner):
             def_name = task_type
             task_params = task["params"]
             collection_names = []
-            # for i in range(collection_num):
-            #     suffix = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
-            #     collection_names.append(collection_name + "_" + suffix)
+            for i in range(collection_num):
+                suffix = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
+                collection_names.append(collection_name + "_" + suffix)
             collection_names = [collection_name]
             # #####
             ni_per = collection["ni_per"]
@@ -438,10 +438,10 @@ class K8sRunner(Runner):
             # TODO: debug
             for c_name in collection_names:
                 milvus_instance = MilvusClient(collection_name=c_name, host=self.host, port=self.port)
-                # if milvus_instance.exists_collection(collection_name=c_name):
-                #     milvus_instance.drop(name=c_name)
-                #     time.sleep(10)
-                # milvus_instance.create_collection(c_name, dimension, index_file_size, metric_type)
+                if milvus_instance.exists_collection(collection_name=c_name):
+                    milvus_instance.drop(name=c_name)
+                    time.sleep(10)
+                milvus_instance.create_collection(c_name, dimension, index_file_size, metric_type)
                 index_info = {
                     "build_index": build_index
                 }
@@ -454,7 +454,7 @@ class K8sRunner(Runner):
                     })
                     milvus_instance.create_index(index_type, index_param)
                     logger.debug(milvus_instance.describe_index())
-                # res = self.do_insert(milvus_instance, c_name, data_type, dimension, collection_size, ni_per)
+                res = self.do_insert(milvus_instance, c_name, data_type, dimension, collection_size, ni_per)
                 logger.info(res)
                 if "flush" in collection and collection["flush"] == "no":
                     logger.debug("No manual flush")
