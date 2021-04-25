@@ -9,7 +9,7 @@ from milvus_benchmark.runners import utils
 from milvus_benchmark.runners.base import BaseRunner
 
 logger = logging.getLogger("milvus_benchmark.runners.accuracy")
-INSERT_INTERVAL = 2000
+INSERT_INTERVAL = 50000
 
 
 class AccuracyRunner(BaseRunner):
