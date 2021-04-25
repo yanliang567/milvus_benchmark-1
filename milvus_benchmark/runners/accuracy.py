@@ -114,7 +114,7 @@ class AccAccuracyRunner(AccuracyRunner):
     name = "ann_accuracy"
 
     def __init__(self, env, metric):
-        super(AccuracyRunner, self).__init__(env, metric)
+        super(AccAccuracyRunner, self).__init__(env, metric)
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
@@ -168,6 +168,7 @@ class AccAccuracyRunner(AccuracyRunner):
                                     "params": search_param}
                                 # TODO: only update search_info
                                 case_metric = copy.deepcopy(self.metric)
+                                case_metric.index = index_info
                                 case_metric.search = {
                                     "nq": nq,
                                     "topk": top_k,
