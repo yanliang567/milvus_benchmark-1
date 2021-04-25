@@ -1,10 +1,10 @@
 [
     {
-        "server": "athena",
+        "server": "idc-sh003",
         "suite_params": [
             {
                 "suite": "locust_search.yaml",
-                "image_type": "gpu"
+                "image_type": "cpu"
             }
         ]
     }
