@@ -44,3 +44,26 @@ class BaseEnv(object):
     def port(self):
         return self._port
     
+
+class ClientEnv(object):
+    """docstring for Client Env"""
+    def __init__(self, client_deploy_mode="local", sdk_version=None):
+        self.client_deploy_mode = client_deploy_mode
+        self._name = utils.get_unique_name()
+        self.sdk_version = sdk_version
+
+    def start_up(self):
+        pass
+
+    def tear_down(self):
+        pass
+
+    def restart(self):
+        pass
+
+    def resources(self):
+        pass
+
+    @property
+    def name(self):
+        return self._name

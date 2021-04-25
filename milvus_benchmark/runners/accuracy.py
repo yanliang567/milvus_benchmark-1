@@ -9,7 +9,7 @@ from milvus_benchmark.runners import utils
 from milvus_benchmark.runners.base import BaseRunner
 
 logger = logging.getLogger("milvus_benchmark.runners.accuracy")
-INSERT_INTERVAL = 2000
+INSERT_INTERVAL = 50000
 
 
 class AccuracyRunner(BaseRunner):
@@ -249,7 +249,6 @@ class AccAccuracyRunner(AccuracyRunner):
         top_k = case_metric.search["topk"]
         query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
         true_ids = np.array(dataset["neighbors"])
-        logger.debug({"true_ids": [len(true_ids), len(true_ids[0])]})
         result_ids = self.milvus.get_ids(query_res)
         logger.debug({"true_ids": [len(result_ids), len(result_ids[0])]})
         acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)

@@ -5,7 +5,7 @@ import logging
 import traceback
 
 from milvus_benchmark.env import helm_utils
-from milvus_benchmark.env.base import BaseEnv
+from milvus_benchmark.env.base import BaseEnv, ClientEnv
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.env.helm")
@@ -68,3 +68,21 @@ class HelmEnv(BaseEnv):
     def tear_down(self):
         logger.debug("Start clean up: {}.{}".format(self.name, self._name_space))
         helm_utils.helm_del_server(self.name, self._name_space)
+
+
+class K8sClientEnv(ClientEnv):
+    """docstring for Client Env"""
+    def __init__(self, client_deploy_mode="docker", sdk_version=None):
+        super(K8sClientEnv, self).__init__(client_deploy_mode, sdk_version)
+
+    def start_up(self):
+        pass
+
+    def tear_down(self):
+        pass
+
+    def restart(self):
+        pass
+
+    def resources(self):
+        pass
