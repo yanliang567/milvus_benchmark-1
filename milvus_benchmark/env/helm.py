@@ -3,7 +3,7 @@ import time
 import pdb
 import logging
 import traceback
-
+from milvus_benchmark.env.kube import create_client_pod, delete_client_pod
 from milvus_benchmark.env import helm_utils
 from milvus_benchmark.env.base import BaseEnv, ClientEnv
 from milvus_benchmark import config
@@ -75,14 +75,17 @@ class K8sClientEnv(ClientEnv):
     def __init__(self, client_deploy_mode="docker", sdk_version=None):
         super(K8sClientEnv, self).__init__(client_deploy_mode, sdk_version)
 
-    def start_up(self):
-        pass
+    def start_up(self, namespace):
+        create_client_pod(self.name, namespace)
 
-    def tear_down(self):
-        pass
+    def tear_down(self, namespace):
+        delete_client_pod(self.name, namespace)
 
     def restart(self):
         pass
 
     def resources(self):
+        pass
+
+    def deploy(self):
         pass
