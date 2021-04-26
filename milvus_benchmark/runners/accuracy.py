@@ -140,6 +140,7 @@ class AccAccuracyRunner(AccuracyRunner):
         cases = list()
         case_metrics = list()
         self.init_metric(self.name, collection_info, {}, search_info=None)
+        true_ids = np.array(dataset["neighbors"])
         for index_type in index_types:
             for index_param in index_params:
                 logger.debug("Building index with param: %s" % json.dumps(index_param))
@@ -187,7 +188,8 @@ class AccAccuracyRunner(AccuracyRunner):
                                     "index_type": index_type,
                                     "index_param": index_param,
                                     "filter_query": filter_query,
-                                    "vector_query": vector_query
+                                    "vector_query": vector_query,
+                                    "true_ids": true_ids
                                 }
                                 cases.append(case)
                                 case_metrics.append(case_metric)
@@ -201,6 +203,7 @@ class AccAccuracyRunner(AccuracyRunner):
         index_type = case_param["index_type"]
         index_param = case_param["index_param"]
         index_field_name = case_param["index_field_name"]
+        
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection(collection_name):
             logger.info("Re-create collection: %s" % collection_name)
@@ -245,14 +248,11 @@ class AccAccuracyRunner(AccuracyRunner):
         logger.info("End load collection: %s" % collection_name)
 
     def run_case(self, case_metric, **case_param):
-        dataset = case_param["dataset"]
+        true_ids = case_param["true_ids"]
         nq = case_metric.search["nq"]
         top_k = case_metric.search["topk"]
         query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
-        true_ids = np.array(dataset["neighbors"])
-        logger.debug({"true_ids": [len(true_ids), len(true_ids[0])]})
         result_ids = self.milvus.get_ids(query_res)
-        logger.debug({"true_ids": [len(result_ids), len(result_ids[0])]})
         acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
         tmp_result = {"acc": acc_value}
         return tmp_result

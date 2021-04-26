@@ -1,0 +1,33 @@
+ann_accuracy:
+  collections:
+    -
+      milvus:
+        cache_config.cpu_cache_capacity: 16GB
+        engine_config.use_blas_threshold: 1100
+      server:
+        cpus: 12
+      source_file: /test/milvus/ann_hdf5/glove-200-angular.hdf5
+      collection_name: glove_200_angular
+      index_types: ['hnsw']
+      index_params:
+        M: [36]
+        efConstruction: [500]
+      top_ks: [10]
+      nqs: [10000]
+      search_params:
+        ef: [10, 16, 32, 64, 128, 256, 512]
+
+    # - milvus:
+    #     cache_config.cpu_cache_capacity: 16GB
+    #     engine_config.use_blas_threshold: 1100
+    #   server:
+    #     cpus: 12
+    #   source_file: /test/milvus/ann_hdf5/glove-200-angular.hdf5
+    #   collection_name: glove_200_angular
+    #   index_types: ['annoy']
+    #   index_params:
+    #     n_trees: [8, 32]
+    #   top_ks: [10]
+    #   nqs: [10000]
+    #   search_params:
+    #     search_k: [50, 100, 500, 1000]
