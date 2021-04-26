@@ -2,10 +2,6 @@
     {
         "server": "idc-sh003",
         "suite_params": [
-             {
-                "suite": "011_insert_10m.yaml",
-                "image_type": "cpu"
-            },
             {
                 "suite": "011_build_10m.yaml",
                 "image_type": "cpu"
