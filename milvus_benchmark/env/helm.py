@@ -51,12 +51,16 @@ class HelmEnv(BaseEnv):
             logger.debug("Start install server")
             hostname = helm_utils.helm_install_server(helm_path, self.deploy_mode, image_tag, image_type, self.name,
                                                        self._name_space)
+            status_cmd = 'kubectl get pods -n milvus -l release=zong-standalone -o=jsonpath=\'{range .items[*]}{.metadata.name}{"\t"}{.status.phase}{"\n"}{end}\''
             if not hostname:
                 logger.error("Helm install server failed")
                 return False
             else:
                 self.set_hostname(hostname)
-                return hostname
+                while not helm_utils.running_status(self.name, self._name_space):
+                    pass
+                else:
+                    return hostname
         except Exception as e:
             os.system("rm -rf %s" % lock_file_path)
             logger.error("Helm install server failed: %s" % (str(e)))
