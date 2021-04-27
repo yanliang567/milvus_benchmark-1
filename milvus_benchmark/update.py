@@ -1,7 +1,9 @@
 import os
+import sys
 import time
 import logging
 import traceback
+import argparse
 from yaml import full_load, dump
 
 
@@ -14,12 +16,16 @@ return: no return
 """
 def update_values(src_values_file, deploy_params_file):
     # deploy_mode, hostname, server_tag, milvus_config, server_config=None
-    with open(src_values_file) as f:
-        values_dict = full_load(f)
-        f.close()
-    with open(deploy_params_file) as f:
-        deploy_params = full_load(f)
-        f.close()
+    try:
+        with open(src_values_file) as f:
+            values_dict = full_load(f)
+            f.close()
+        with open(deploy_params_file) as f:
+            deploy_params = full_load(f)
+            f.close()
+    except Exception as e:
+        logging.error(str(e))
+        raise Exception("File not found")
     deploy_mode = deploy_params["deploy_mode"] if "deploy_mode" in deploy_params else DEFUALT_DEPLOY_MODE
     cluster = False
     if deploy_mode != DEFUALT_DEPLOY_MODE:
@@ -119,3 +125,31 @@ def update_values(src_values_file, deploy_params_file):
     with open(src_values_file, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
+
+
+
+if __name__ == "__main__":
+    arg_parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    arg_parser.add_argument(
+        '--src-values',
+        action='store_true',
+        help='src values.yaml')
+    arg_parser.add_argument(
+        '--deploy-params',
+        help='deploy params')
+
+    args = arg_parser.parse_args()
+    src_values_file = args.src_values
+    deploy_params_file = args.deploy_params
+    if not src_values_file or not deploy_params_file:
+        logging.error("No valid file input")
+        sys.exit(-1)
+    try:
+        update_values(src_values_file, deploy_params_file)
+        logging.info("Values.yaml updated")
+    except Exception as e:
+        logging.error(str(e))
+        logging.error(traceback.format_exc())
+        sys.exit(-1)
