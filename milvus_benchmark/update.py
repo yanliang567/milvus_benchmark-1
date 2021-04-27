@@ -28,8 +28,12 @@ def update_values(src_values_file, deploy_params_file):
         raise Exception("File not found")
     deploy_mode = deploy_params["deploy_mode"] if "deploy_mode" in deploy_params else DEFUALT_DEPLOY_MODE
     cluster = False
+    
     if deploy_mode != DEFUALT_DEPLOY_MODE:
         cluster = True
+        values_dict["standalone"]["enabled"] = False
+    else:
+        values_dict["standalone"]["service"]["type"] = "ClusterIP"
     if "server" in deploy_params:
         server = deploy_params["server"]
         server_name = server["server_name"] if "server_name" in server else ""
