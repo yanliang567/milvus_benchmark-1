@@ -36,7 +36,8 @@ def positive_int(s):
 
 
 def get_image_tag(image_version, image_type):
-    return "%s-%s-centos7-release" % (image_version, image_type)
+    return "1.0.0-%s-d030521-1ea92e" % image_type
+    # return "%s-%s-centos7-release" % (image_version, image_type)
     # return "%s-%s-centos7-release" % ("0.7.1", image_type)
     # return "%s-%s-centos7-release" % ("PR-2780", image_type)
 

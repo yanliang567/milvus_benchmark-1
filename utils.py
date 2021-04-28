@@ -24,7 +24,7 @@ from pprint import pprint
 
 logger = logging.getLogger("milvus_benchmark.utils")
 
-REGISTRY_URL = "registry.zilliz.com/milvus/engine"
+REGISTRY_URL = "milvusdb/milvus"
 
 class literal_str(str): pass
 
