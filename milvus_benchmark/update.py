@@ -138,7 +138,6 @@ if __name__ == "__main__":
 
     arg_parser.add_argument(
         '--src-values',
-        action='store_true',
         help='src values.yaml')
     arg_parser.add_argument(
         '--deploy-params',
