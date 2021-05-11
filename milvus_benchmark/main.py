@@ -44,7 +44,7 @@ def positive_int(s):
 
 
 def get_image_tag(image_version):
-    return "%s-release" % (image_version)
+    return "%s-latest" % (image_version)
 
 
 def shutdown(event):
