@@ -114,7 +114,7 @@ def run_suite(run_type, suite, env_mode, env_params):
         logger.error(traceback.format_exc())
         metric.update_status(status="DEPLOYE_FAILED")
     finally:
-        # api.save(metric)
+        api.save(metric)
         # time.sleep(10)
         env.tear_down()
 
