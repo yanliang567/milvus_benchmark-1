@@ -15,18 +15,19 @@ IDC_NAS_URL = "//172.16.70.249/test"
 def parse_server_tag(server_tag):
     # tag format: "8c"/"8c16m"/"8c16m1g"
     if server_tag[-1] == "c":
-        p = "(\d+)\c"
+        p = r"(\d+)c"
     elif server_tag[-1] == "m":
-        p = "(\d+)\c(\d+)\m"
+        p = r"(\d+)c(\d+)m"
     elif server_tag[-1] == "g":
-        p = "(\d+)\c(\d+)\m(\d+)\g"
-    m = re.match(r"%s" % p, server_tag)
-    cpus = int(m.groups[0])
+        p = r"(\d+)c(\d+)m(\d+)g"
+    m = re.match(p, server_tag)
+    cpus = int(m.groups()[0])
     mems = None
     gpus = None
-    if len(m.groups) > 1:
-        mems = int(m.groups[1])
-        gpus = int(m.groups[2])
+    if len(m.groups()) > 1:
+        mems = int(m.groups()[1])
+    if len(m.groups()) > 2:
+        gpus = int(m.groups()[2])
     return {"cpus": cpus, "mems": mems, "gpus": gpus}
 
 
