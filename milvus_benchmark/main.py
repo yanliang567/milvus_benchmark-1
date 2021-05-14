@@ -19,8 +19,8 @@ from milvus_benchmark.runners import get_runner
 from milvus_benchmark.metrics import api
 from milvus_benchmark import config
 from milvus_benchmark import parser
-from scheduler import back_scheduler
-from logs import log
+# from scheduler import back_scheduler
+# from logs import log
 
 log.setup_logging()
 logger = logging.getLogger("milvus_benchmark.main")
@@ -47,11 +47,11 @@ def get_image_tag(image_version):
     return "%s-latest" % (image_version)
 
 
-def shutdown(event):
-    logger.info("Check if there is scheduled jobs in scheduler")
-    if not back_scheduler.get_jobs():
-        logger.info("No job in scheduler, will shutdown the scheduler")
-        back_scheduler.shutdown(wait=False)
+# def shutdown(event):
+#     logger.info("Check if there is scheduled jobs in scheduler")
+#     if not back_scheduler.get_jobs():
+#         logger.info("No job in scheduler, will shutdown the scheduler")
+#         back_scheduler.shutdown(wait=False)
 
 
 def run_suite(run_type, suite, env_mode, env_params):
@@ -199,10 +199,10 @@ def main():
                         "helm_path": helm_path,
                         "helm_params": helm_params
                     }
-                    job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params],
-                                                 misfire_grace_time=36000)
-                    logger.info(job)
-                    logger.info(job.id)
+                    # job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params],
+                    #                              misfire_grace_time=36000)
+                    # logger.info(job)
+                    # logger.info(job.id)
 
     elif args.local:
         # for local mode
@@ -224,9 +224,10 @@ def main():
         # suite = {"run_type": run_type, "run_params": collections[0]}
         suite = collections[0]
         env_mode = "local"
-        job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=36000)
-        logger.info(job)
-        logger.info(job.id)
+        run_suite(run_type, suite, env_mode, env_params)
+        # job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=36000)
+        # logger.info(job)
+        # logger.info(job.id)
 
 
 if __name__ == "__main__":
@@ -234,14 +235,14 @@ if __name__ == "__main__":
         main()
         # from apscheduler.events import EVENT_JOB_MISSED
         # back_scheduler.add_listener(listen_miss, EVENT_JOB_MISSED)
-        back_scheduler.start()
-    except (KeyboardInterrupt, SystemExit):
-        logger.error("Received interruption")
-        back_scheduler.shutdown(wait=False)
-        sys.exit(0)
+        # back_scheduler.start()
+    # except (KeyboardInterrupt, SystemExit):
+    #     logger.error("Received interruption")
+    #     # back_scheduler.shutdown(wait=False)
+    #     sys.exit(0)
     except Exception as e:
         logger.error(traceback.format_exc())
-        back_scheduler.shutdown(wait=False)
+        # back_scheduler.shutdown(wait=False)
         sys.exit(1)
     # block_scheduler.shutdown(wait=False)
     logger.info("All tests run finshed")
