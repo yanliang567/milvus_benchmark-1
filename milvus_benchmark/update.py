@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import re
 import logging
 import traceback
 import argparse
@@ -9,6 +10,25 @@ from yaml import full_load, dump
 
 DEFUALT_DEPLOY_MODE = "single"
 IDC_NAS_URL = "//172.16.70.249/test"
+
+
+def parse_server_tag(server_tag):
+    # tag format: "8c"/"8c16m"/"8c16m1g"
+    if server_tag[-1] == "c":
+        p = "(\d+)\c"
+    elif server_tag[-1] == "m":
+        p = "(\d+)\c(\d+)\m"
+    elif server_tag[-1] == "g":
+        p = "(\d+)\c(\d+)\m(\d+)\g"
+    m = re.match(r"%s" % p, server_tag)
+    cpus = int(m.groups[0])
+    mems = None
+    gpus = None
+    if len(m.groups) > 1:
+        mems = int(m.groups[1])
+        gpus = int(m.groups[2])
+    return {"cpus": cpus, "mems": mems, "gpus": gpus}
+
 
 """
 description: update values.yaml
@@ -44,45 +64,69 @@ def update_values(src_values_file, deploy_params_file):
     # # update values.yaml with the given host
     node_config = None
     perf_tolerations = [{
-            "key": "worker",
+            "key": "node-role.kubernetes.io",
             "operator": "Equal",
-            "value": "performance",
+            "value": "benchmark",
             "effect": "NoSchedule"
         }]  
-    if server_name:
-        node_config = {'kubernetes.io/hostname': server_name}
-    elif server_tag:
-        # server tag
-        node_config = {'instance-type': server_tag}
+    # if server_name:
+    #     node_config = {'kubernetes.io/hostname': server_name}
+    # elif server_tag:
+    #     # server tag
+    #     node_config = {'instance-type': server_tag}
+    cpus = None
+    mems = None
+    gpus = None
+    if server_tag:
+        res = parse_server_tag(server_tag)
+        cpus = res["cpus"]
+        mems = res["mems"]
+        gpus = res["gpus"]
+    if cpus:
+        resources = {
+                "limits": {
+                    "cpu": str(int(cpus)) + ".0"
+                },
+                "requests": {
+                    "cpu": str(int(cpus) // 2 + 1) + ".0"
+                    # "cpu": "4.0"
+                }
+            }
     if cluster is False:
-        if node_config:
-            values_dict['standalone']['nodeSelector'] = node_config
-            values_dict['minio']['nodeSelector'] = node_config
-            values_dict['etcd']['nodeSelector'] = node_config
+        # TODO: support pod affinity for standalone mode
+        if cpus:
+            # values_dict['standalone']['nodeSelector'] = node_config
+            # values_dict['minio']['nodeSelector'] = node_config
+            # values_dict['etcd']['nodeSelector'] = node_config
             # # set limit/request cpus in resources
-            # values_dict['standalone']['resources'] = {
-            #     "limits": {
-            #         # "cpu": str(int(cpus)) + ".0"
-            #         "cpu": str(int(cpus)) + ".0"
-            #     },
-            #     "requests": {
-            #         "cpu": str(int(cpus) // 2 + 1) + ".0"
-            #         # "cpu": "4.0"
-            #     }
-            # }
-            logging.debug("Add tolerations into standalone server")
-            values_dict['standalone']['tolerations'] = perf_tolerations
-            values_dict['minio']['tolerations'] = perf_tolerations
-            values_dict['etcd']['tolerations'] = perf_tolerations
+            values_dict['standalone']['resources'] = resources
+        if mems:
+            values_dict['standalone']['resources']["limits"].update({"memory": str(int(mems)) + "Gi"})
+            values_dict['standalone']['resources']["requests"].update({"memory": str(int(mems) // 2 + 1) + "Gi"})
+        if gpus:
+            logging.info("TODO: Need to schedule pod on GPU server")
+        logging.debug("Add tolerations into standalone server")
+        values_dict['standalone']['tolerations'] = perf_tolerations
+        values_dict['minio']['tolerations'] = perf_tolerations
+        values_dict['etcd']['tolerations'] = perf_tolerations
     else:
+        # TODO: mem limits on distributed mode
         # values_dict['pulsar']["broker"]["configData"].update({"maxMessageSize": "52428800", "PULSAR_MEM": BOOKKEEPER_PULSAR_MEM})
         # values_dict['pulsar']["bookkeeper"]["configData"].update({"nettyMaxFrameSizeBytes": "52428800", "PULSAR_MEM": BROKER_PULSAR_MEM})
-        values_dict['proxynode']['nodeSelector'] = node_config
-        values_dict['querynode']['nodeSelector'] = node_config
-        values_dict['indexnode']['nodeSelector'] = node_config
-        values_dict['datanode']['nodeSelector'] = node_config
-        values_dict['minio']['nodeSelector'] = node_config
-        values_dict['pulsarStandalone']['nodeSelector'] = node_config
+        if cpus:
+            # values_dict['standalone']['nodeSelector'] = node_config
+            # values_dict['minio']['nodeSelector'] = node_config
+            # values_dict['etcd']['nodeSelector'] = node_config
+            # # set limit/request cpus in resources
+            # values_dict['proxynode']['resources'] = resources
+            # values_dict['proxynode']['resources'] = resources
+            values_dict['querynode']['resources'] = resources
+            values_dict['indexnode']['resources'] = resources
+            values_dict['datanode']['resources'] = resources
+            # values_dict['minio']['resources'] = resources
+            # values_dict['pulsarStandalone']['resources'] = resources
+        if mems:
+            logging.debug("TODO: Update mem resources")
         # # pulsar distributed mode
         # values_dict['pulsar']["enabled"] = True
         # values_dict['pulsar']['autoRecovery']['nodeSelector'] = node_config
@@ -91,20 +135,20 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict['pulsar']['bookkeeper']['nodeSelector'] = node_config
         # values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
         
-        if server_name:
-            logging.debug("Add tolerations into cluster server")
-            values_dict['proxynode']['tolerations'] = perf_tolerations
-            values_dict['querynode']['tolerations'] = perf_tolerations
-            values_dict['indexnode']['tolerations'] = perf_tolerations
-            values_dict['datanode']['tolerations'] = perf_tolerations
-            values_dict['etcd']['tolerations'] = perf_tolerations
-            values_dict['minio']['tolerations'] = perf_tolerations
-            values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
-            # values_dict['pulsar']['autoRecovery']['tolerations'] = perf_tolerations
-            # values_dict['pulsar']['proxy']['tolerations'] = perf_tolerations
-            # values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
-            # values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
-            # values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
+        logging.debug("Add tolerations into cluster server")
+        values_dict['proxynode']['tolerations'] = perf_tolerations
+        values_dict['querynode']['tolerations'] = perf_tolerations
+        values_dict['indexnode']['tolerations'] = perf_tolerations
+        values_dict['datanode']['tolerations'] = perf_tolerations
+        values_dict['etcd']['tolerations'] = perf_tolerations
+        values_dict['minio']['tolerations'] = perf_tolerations
+        values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
+        # TODO: for distributed deployment
+        # values_dict['pulsar']['autoRecovery']['tolerations'] = perf_tolerations
+        # values_dict['pulsar']['proxy']['tolerations'] = perf_tolerations
+        # values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
+        # values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
+        # values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
