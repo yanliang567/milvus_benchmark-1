@@ -57,6 +57,8 @@ def update_server_config(server_name, server_tag, server_config):
 description: update values.yaml
 return: no return
 """
+
+
 def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, server_config=None):
     # bak values.yaml
     file_name = os.path.basename(file_path)
@@ -73,7 +75,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
     cluster = False
     if deploy_mode == "cluster":
         cluster = True
-    
+
     # TODO: disable change config
     # cluster = False
     # if "cluster" in milvus_config and milvus_config["cluster"]:
@@ -171,11 +173,11 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
     # # update values.yaml with the given host
     node_config = None
     perf_tolerations = [{
-            "key": "worker",
-            "operator": "Equal",
-            "value": "performance",
-            "effect": "NoSchedule"
-        }]  
+        "key": "worker",
+        "operator": "Equal",
+        "value": "performance",
+        "effect": "NoSchedule"
+    }]
     if hostname:
         node_config = {'kubernetes.io/hostname': hostname}
     elif server_tag:
@@ -212,7 +214,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
         values_dict['indexnode']['nodeSelector'] = node_config
         values_dict['datanode']['nodeSelector'] = node_config
         values_dict['minio']['nodeSelector'] = node_config
-        
+
         # values_dict['pulsar']["enabled"] = True
         # values_dict['pulsar']['autoRecovery']['nodeSelector'] = node_config
         # values_dict['pulsar']['proxy']['nodeSelector'] = node_config
@@ -234,7 +236,7 @@ def update_values(file_path, deploy_mode, hostname, server_tag, milvus_config, s
             # values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
             # values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
             # values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
- 
+
     # add extra volumes
     values_dict['extraVolumes'] = [{
         'name': 'test',
@@ -270,11 +272,12 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     logger.debug("Server deploy mode: %s" % deploy_mode)
     host = "%s-milvus-ha.%s.svc.cluster.local" % (name, namespace)
     # TODO: update etcd config
-    etcd_config_map_cmd = "kubectl create configmap -n %s %s --from-literal=ETCD_QUOTA_BACKEND_BYTES=8589934592 --from-literal=ETCD_SNAPSHOT_COUNT=5000 --from-literal=ETCD_AUTO_COMPACTION_MODE=revision --from-literal=ETCD_AUTO_COMPACTION_RETENTION=1" % (namespace, name)
+    etcd_config_map_cmd = "kubectl create configmap -n %s %s --from-literal=ETCD_QUOTA_BACKEND_BYTES=8589934592 --from-literal=ETCD_SNAPSHOT_COUNT=5000 --from-literal=ETCD_AUTO_COMPACTION_MODE=revision --from-literal=ETCD_AUTO_COMPACTION_RETENTION=1" % (
+        namespace, name)
     if os.system(etcd_config_map_cmd):
         raise Exception("Create configmap: {} failed".format(name))
     logger.debug("Create configmap: {} successfully".format(name))
-    log_path = config.LOG_PATH+"install.log"
+    log_path = config.LOG_PATH + "install.log"
     install_cmd = "helm install \
             --set standalone.service.type=ClusterIP \
             --set image.all.repository=%s \
@@ -284,7 +287,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
             --set etcd.envVarsConfigMap=%s \
             --namespace %s \
             %s . >>%s >&1" % (config.REGISTRY_URL, image_tag, name, namespace, name, log_path)
-            # --set image.all.pullPolicy=Always \
+    # --set image.all.pullPolicy=Always \
     if deploy_mode == "cluster":
         install_cmd = "helm install \
                 --set standalone.enabled=false \
@@ -295,7 +298,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
                 --set etcd.envVarsConfigMap=%s \
                 --namespace %s \
                 %s . >>%s >&1" % (config.REGISTRY_URL, image_tag, name, namespace, name, log_path)
-                # --set image.all.pullPolicy=Always \
+        # --set image.all.pullPolicy=Always \
     elif deploy_mode != "single":
         raise Exception("Deploy mode: {} not support".format(deploy_mode))
     logger.debug(install_cmd)
@@ -318,6 +321,7 @@ def helm_install_server(helm_path, deploy_mode, image_tag, image_type, name, nam
     # logger.debug(pod_ip)
     # return pod_name, pod_ip
     return host
+
 
 # delete server
 @utils.retry(3)
@@ -420,5 +424,50 @@ def restart_server(helm_release_name, namespace):
     return res
 
 
+def get_pod_status(helm_release_name, namespace):
+    from kubernetes import client, config
+    config.load_kube_config()
+    v1 = client.CoreV1Api()
+    pod_status = []
+    label_selector = 'app.kubernetes.io/instance={}'.format(helm_release_name)
+    # pods = v1.list_namespaced_pod(namespace, label_selector=label_selector)
+    pods = v1.list_namespaced_pod(namespace)
+    for i in pods.items:
+        if i.metadata.name.find(helm_release_name) != -1:
+            pod_name = i.metadata.name
+            result = v1.read_namespaced_pod_status(pod_name, namespace)
+            pod_status.append({"pod": pod_name, "status": result.status.phase})
+    # print(pod_status)
+    return pod_status
+
+
+def running_status(helm_release_name, namespace):
+    pod_status = get_pod_status(helm_release_name, namespace)
+    for pod in pod_status:
+        if pod["status"] != "Running":
+            return False
+    return True
+
+
 if __name__ == '__main__':
-    print(type(get_host_cpus("idc-sh002")))
+    def ff():
+        namespace = 'milvus'
+        helm_release_name = 'zong-standalone'
+        # st = get_pod_status(helm_release_name, namespace)
+        status = get_pod_status(helm_release_name, namespace)
+        print(status)
+        for s in status:
+            if s["status"] != "Runningk":
+                return False
+        return True
+
+
+    def fff():
+        print(time.time())
+
+
+    while not ff():
+        print("retry")
+    else:
+        print("gogog")
+    print("hhhh")
