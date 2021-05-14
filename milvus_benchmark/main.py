@@ -20,7 +20,7 @@ from milvus_benchmark.metrics import api
 from milvus_benchmark import config
 from milvus_benchmark import parser
 # from scheduler import back_scheduler
-# from logs import log
+from logs import log
 
 log.setup_logging()
 logger = logging.getLogger("milvus_benchmark.main")
