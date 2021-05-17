@@ -65,9 +65,8 @@ def update_values(src_values_file, deploy_params_file):
     # # update values.yaml with the given host
     node_config = None
     perf_tolerations = [{
-            "key": "node-role.kubernetes.io",
-            "operator": "Equal",
-            "value": "benchmark",
+            "key": "node-role.kubernetes.io/benchmark",
+            "operator": "Exists",
             "effect": "NoSchedule"
         }]  
     # if server_name:
