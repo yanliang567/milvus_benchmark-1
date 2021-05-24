@@ -232,7 +232,9 @@ class AccAccuracyRunner(AccuracyRunner):
                     entities = utils.generate_entities(tmp_vectors, ids)
                     res_ids = self.milvus.insert(entities, ids=ids)
                 assert res_ids == ids
+        logger.debug("End insert, start flush")
         self.milvus.flush()
+        logger.debug("End flush")
         res_count = self.milvus.count()
         logger.info("Table: %s, row count: %d" % (collection_name, res_count))
         if res_count != len(insert_vectors):
