@@ -9,9 +9,6 @@ from milvus_benchmark import config as cf
 logger = logging.getLogger("milvus_benchmark.chaos.chaosOpt")
 
 class ChaosOpt(object):
-    config.load_kube_config()
-    api_instance = client.CustomObjectsApi()
-
     def __init__(self, kind, group=cf.DEFAULT_GROUP, version=cf.DEFAULT_VERSION, namespace=cf.CHAOS_NAMESPACE):
         self.group = group
         self.version = version
@@ -25,11 +22,13 @@ class ChaosOpt(object):
         # body = create_chaos_config(self.plural, self.metadata_name, spec_params)
         # logger.info(body)
         pretty = 'true'
+        config.load_kube_config()
+        api_instance = client.CustomObjectsApi()
         try:
-            api_response = self.api_instance.create_namespaced_custom_object(self.group, self.version, self.namespace,
+            api_response = api_instance.create_namespaced_custom_object(self.group, self.version, self.namespace,
                                                                         plural=self.plural, body=body, pretty=pretty)
             print(api_response)
-            logging.getLogger().info(self.api_instance)
+            logging.getLogger().info(api_instance)
         except ApiException as e:
             logger.error("Exception when calling CustomObjectsApi->create_namespaced_custom_object: %s\n" % e)
             raise Exception(str(e))
@@ -37,7 +36,9 @@ class ChaosOpt(object):
     def delete_chaos_object(self, metadata_name):
         print(metadata_name)
         try:
-            data = self.api_instance.delete_namespaced_custom_object(self.group, self.version, self.namespace, self.plural,
+            config.load_kube_config()
+            api_instance = client.CustomObjectsApi()
+            data = api_instance.delete_namespaced_custom_object(self.group, self.version, self.namespace, self.plural,
                                                                 metadata_name)
             logger.info(data)
         except ApiException as e:
@@ -46,7 +47,9 @@ class ChaosOpt(object):
 
     def list_chaos_object(self):
         try:
-            data = self.api_instance.list_namespaced_custom_object(self.group, self.version, self.namespace,
+            config.load_kube_config()
+            api_instance = client.CustomObjectsApi()
+            data = api_instance.list_namespaced_custom_object(self.group, self.version, self.namespace,
                                                               plural=self.plural)
             # pprint(data)
         except ApiException as e:
