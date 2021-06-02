@@ -8,8 +8,8 @@ try {
         print "Git clone url: ${TEST_URL}:${TEST_BRANCH}"
         checkout([$class: 'GitSCM', branches: [[name: "${TEST_BRANCH}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${params.GIT_USER}", url: "${TEST_URL}", name: 'origin', refspec: "+refs/heads/${TEST_BRANCH}:refs/remotes/origin/${TEST_BRANCH}"]]])
         print "Install requirements"
-        sh "python3 -m pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
-        // sh "python3 -m pip install -r requirements.txt"
+        // sh "python3 -m pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
+        sh "python3 -m pip install -r requirements.txt"
         sh "python3 -m pip install --index-url https://test.pypi.org/simple/ pymilvus"
 
         if ("${params.CLUSTER_NAME}" == "idc-kubernetes") {

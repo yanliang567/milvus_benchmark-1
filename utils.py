@@ -311,10 +311,10 @@ def update_values(file_path, deploy_mode, hostname, server_tag, server_config):
         dump(values_dict, f, default_flow_style=False)
     f.close()
     # DEBUG
-    with open(file_path) as f:
-        for line in f.readlines():
-            line = line.strip("\n")
-            logger.debug(line)
+    # with open(file_path) as f:
+    #     for line in f.readlines():
+    #         line = line.strip("\n")
+    #         logger.debug(line)
 
 
 # deploy server
