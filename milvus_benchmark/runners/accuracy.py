@@ -143,7 +143,6 @@ class AccAccuracyRunner(AccuracyRunner):
         true_ids = np.array(dataset["neighbors"])
         for index_type in index_types:
             for index_param in index_params:
-                logger.debug("Building index with param: %s" % json.dumps(index_param))
                 index_info = {
                     "index_type": index_type,
                     "index_param": index_param
@@ -245,7 +244,7 @@ class AccAccuracyRunner(AccuracyRunner):
         self.milvus.create_index(index_field_name, index_type, metric_type, index_param=index_param)
         logger.info(self.milvus.describe_index(index_field_name))
         logger.info("Start load collection: %s" % collection_name)
-        self.milvus.release_collection()
+        # self.milvus.release_collection()
         self.milvus.load_collection()
         logger.info("End load collection: %s" % collection_name)
 
