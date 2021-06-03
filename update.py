@@ -96,6 +96,25 @@ def update_values(src_values_file, deploy_params_file):
     # elif server_tag:
     #     # server tag
     #     node_config = {'instance-type': server_tag}
+    cpus = None
+    mems = None
+    gpus = None
+    if server_tag:
+        res = parse_server_tag(server_tag)
+        cpus = res["cpus"]
+        mems = res["mems"]
+        gpus = res["gpus"]
+    if cpus:
+        resources = {
+                "limits": {
+                    "cpu": str(int(cpus)) + ".0"
+                },
+                "requests": {
+                    "cpu": str(int(cpus) // 2 + 1) + ".0"
+                    # "cpu": "4.0"
+                    # "cpu": str(int(cpus) - 1) + ".0"
+                }
+            }    
     if cluster is False:
         if node_config:
             values_dict['standalone']['nodeSelector'] = node_config
