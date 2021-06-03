@@ -10,6 +10,25 @@ from yaml import full_load, dump
 DEFUALT_DEPLOY_MODE = "single"
 IDC_NAS_URL = "//172.16.70.249/test"
 
+def parse_server_tag(server_tag):
+    # tag format: "8c"/"8c16m"/"8c16m1g"
+    if server_tag[-1] == "c":
+        p = r"(\d+)c"
+    elif server_tag[-1] == "m":
+        p = r"(\d+)c(\d+)m"
+    elif server_tag[-1] == "g":
+        p = r"(\d+)c(\d+)m(\d+)g"
+    m = re.match(p, server_tag)
+    cpus = int(m.groups()[0])
+    mems = None
+    gpus = None
+    if len(m.groups()) > 1:
+        mems = int(m.groups()[1])
+    if len(m.groups()) > 2:
+        gpus = int(m.groups()[2])
+    return {"cpus": cpus, "mems": mems, "gpus": gpus}
+
+
 """
 description: update values.yaml
 return: no return
@@ -116,25 +135,12 @@ def update_values(src_values_file, deploy_params_file):
                 }
             }    
     if cluster is False:
-        if node_config:
-            values_dict['standalone']['nodeSelector'] = node_config
-            values_dict['minio']['nodeSelector'] = node_config
-            values_dict['etcd']['nodeSelector'] = node_config
+        if cpus:
             # # set limit/request cpus in resources
-            # values_dict['standalone']['resources'] = {
-            #     "limits": {
-            #         # "cpu": str(int(cpus)) + ".0"
-            #         "cpu": str(int(cpus)) + ".0"
-            #     },
-            #     "requests": {
-            #         "cpu": str(int(cpus) // 2 + 1) + ".0"
-            #         # "cpu": "4.0"
-            #     }
-            # }
-            logging.debug("Add tolerations into standalone server")
-            values_dict['standalone']['tolerations'] = perf_tolerations
-            values_dict['minio']['tolerations'] = perf_tolerations
-            values_dict['etcd']['tolerations'] = perf_tolerations
+            values_dict['images']['resources'] = resources
+        if mems:
+            values_dict['images']['resources']["limits"].update({"memory": str(int(mems)) + "Gi"})
+            values_dict['images']['resources']["requests"].update({"memory": str(int(mems) // 2 + 1) + "Gi"})
  
     # add extra volumes
     values_dict['extraVolumes'] = [{

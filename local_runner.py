@@ -13,10 +13,13 @@ from client import MilvusClient
 import utils
 import parser
 from runner import Runner
+from milvus_metrics.api import report
+from milvus_metrics.models import Env, Hardware, Server, Metric
 
 DELETE_INTERVAL_TIME = 5
 INSERT_INTERVAL = 50000
 logger = logging.getLogger("milvus_benchmark.local_runner")
+timestamp = int(time.time())
 
 
 class LocalRunner(Runner):
@@ -26,6 +29,22 @@ class LocalRunner(Runner):
         self.host = host
         self.port = port
 
+    def report_wrapper(self, milvus_instance, env_value, hostname, collection_info, index_info, search_params, run_params=None):
+        metric = Metric()
+        metric.set_run_id(timestamp)
+        metric.env = Env(env_value)
+        metric.env.OMP_NUM_THREADS = 0
+        metric.hardware = Hardware(name=hostname)
+        server_version = milvus_instance.get_server_version()
+        server_mode = milvus_instance.get_server_mode()
+        commit = milvus_instance.get_server_commit()
+        metric.server = Server(version=server_version, mode=server_mode, build_commit=commit)
+        metric.collection = collection_info
+        metric.index = index_info
+        metric.search = search_params
+        metric.run_params = run_params
+        return metric
+
     def run(self, run_type, collection):
         logger.debug(run_type)
         logger.debug(collection)
@@ -34,6 +53,15 @@ class LocalRunner(Runner):
         logger.info(milvus_instance.show_collections())
         env_value = milvus_instance.get_server_config()
         logger.debug(env_value)
+        # ugly implemention
+        self.env_value.pop("logs")
+        if milvus_instance.get_server_mode() == "CPU":
+            if "gpu" in self.env_value:
+                self.env_value.pop("gpu")
+        elif "cache.enable" in self.env_value["gpu"]:
+            self.env_value["gpu"].pop("cache.enable")
+
+        self.env_value.pop("network")
 
         if run_type in ["insert_performance", "insert_flush_performance"]:
             (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -83,6 +111,16 @@ class LocalRunner(Runner):
             if not milvus_instance.exists_collection():
                 logger.error("Table name: %s not existed" % collection_name)
                 return
+            collection_info = {
+                "dimension": dimension,
+                "metric_type": metric_type,
+                "index_file_size": index_file_size,
+                "dataset_name": collection_name
+            }
+            index_info = {
+                "index_type": index_type,
+                "index_param": index_param
+            }
             search_params = {}
             start_time = time.time()
             # drop index
@@ -95,6 +133,17 @@ class LocalRunner(Runner):
             end_time = time.time()
             end_mem_usage = milvus_instance.get_mem_info()["memory_used"]
             logger.debug("Diff memory: %s, current memory usage: %s, build time: %s" % ((end_mem_usage - start_mem_usage), end_mem_usage, round(end_time - start_time, 1)))
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info, search_params)
+            metric.metrics = {
+                "type": "build_performance",
+                "value": {
+                    "build_time": round(end_time - start_time, 1),
+                    "start_mem_usage": start_mem_usage,
+                    "end_mem_usage": end_mem_usage,
+                    "diff_mem": end_mem_usage - start_mem_usage
+                } 
+            }
+            report(metric)
 
         elif run_type == "search_performance":
             (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -107,9 +156,15 @@ class LocalRunner(Runner):
             if not milvus_instance.exists_collection():
                 logger.error("Table name: %s not existed" % collection_name)
                 return
+            collection_info = {
+                "dimension": dimension,
+                "metric_type": metric_type,
+                "index_file_size": index_file_size,
+                "dataset_name": collection_name
+            }
             logger.info(milvus_instance.count())
-            result = milvus_instance.describe_index()
-            logger.info(result)
+            index_info = milvus_instance.describe_index()
+            logger.info(index_info)
             milvus_instance.preload_collection()
             mem_usage = milvus_instance.get_mem_info()["memory_used"]
             logger.info(mem_usage)
@@ -122,6 +177,22 @@ class LocalRunner(Runner):
                 utils.print_table(headers, nqs, res)
                 mem_usage = milvus_instance.get_mem_info()["memory_used"]
                 logger.info(mem_usage)
+                for index_nq, nq in enumerate(nqs):
+                    for index_top_k, top_k in enumerate(top_ks):
+                        search_param_group = {
+                            "nq": nq,
+                            "topk": top_k,
+                            "search_param": search_param
+                        }
+                        search_time = res[index_nq][index_top_k]
+                        metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info, search_param_group)
+                        metric.metrics = {
+                            "type": "search_performance",
+                            "value": {
+                                "search_time": search_time
+                            } 
+                        }
+                        report(metric)
 
         elif run_type == "locust_search_performance":
             (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -146,10 +217,6 @@ class LocalRunner(Runner):
             for i in range(collection_num):
                 suffix = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(5))
                 collection_names.append(collection_name + "_" + suffix)
-            # collection_names = ['sift_1m_1024_128_l2_Kg6co', 'sift_1m_1024_128_l2_egkBK', 'sift_1m_1024_128_l2_D0wtE',
-            #                     'sift_1m_1024_128_l2_9naps', 'sift_1m_1024_128_l2_iJ0jj', 'sift_1m_1024_128_l2_nqUTm',
-            #                     'sift_1m_1024_128_l2_GIF0D', 'sift_1m_1024_128_l2_EL2qk', 'sift_1m_1024_128_l2_qLRnC',
-            #                     'sift_1m_1024_128_l2_8Ditg']
             # #####
             ni_per = collection["ni_per"]
             build_index = collection["build_index"]
@@ -160,9 +227,16 @@ class LocalRunner(Runner):
                     milvus_instance.drop(name=c_name)
                     time.sleep(10)
                 milvus_instance.create_collection(c_name, dimension, index_file_size, metric_type)
+                index_info = {
+                    "build_index": build_index
+                }
                 if build_index is True:
                     index_type = collection["index_type"]
                     index_param = collection["index_param"]
+                    index_info.update({
+                        "index_type": index_type,
+                        "index_param": index_param
+                    })
                     milvus_instance.create_index(index_type, index_param)
                     logger.debug(milvus_instance.describe_index())
                 res = self.do_insert(milvus_instance, c_name, data_type, dimension, collection_size, ni_per)
@@ -227,16 +301,48 @@ class QueryTask(User):
                 return
             
             #. retrieve and collect test statistics
-            metric = None
+            locust_stats = None
             with open(task_file_csv, newline='') as fd:
                 dr = csv.DictReader(fd)
                 for row in dr:
                     if row["Name"] != "Aggregated":
                         continue
-                    metric = row
-            logger.info(metric)
+                    locust_stats = row
+            logger.info(locust_stats)
             # clean up temp files
-                    
+            search_params = {
+                "top_k": task_params["top_k"],
+                "nq": task_params["nq"],
+                "nprobe": task_params["search_param"]["nprobe"]
+            }
+            run_params = {
+                "connection_num": connection_num,
+                "clients_num": clients_num,
+                "hatch_rate": hatch_rate,
+                "during_time": during_time
+            }
+            collection_info = {
+                "dimension": dimension,
+                "metric_type": metric_type,
+                "index_file_size": index_file_size,
+                "dataset_name": collection_name
+            }
+            metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info, search_params, run_params)
+            metric.metrics = {
+                "type": run_type,
+                "value": {
+                    "during_time": during_time,
+                    "request_count": int(locust_stats["Request Count"]),
+                    "failure_count": int(locust_stats["Failure Count"]),
+                    "qps": locust_stats["Requests/s"],
+                    "min_response_time": int(locust_stats["Min Response Time"]),
+                    "max_response_time": int(locust_stats["Max Response Time"]),
+                    "min_response_time": int(locust_stats["Median Response Time"]),
+                    "avg_response_time": int(locust_stats["Average Response Time"])
+                }
+            }
+            report(metric)
+
         elif run_type == "search_ids_stability":
             (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
             search_params = collection["search_params"]
@@ -342,6 +448,12 @@ class QueryTask(User):
                 time.sleep(DELETE_INTERVAL_TIME)
             true_ids = np.array(dataset["neighbors"])
             for index_file_size in index_file_sizes:
+                collection_info = {
+                    "dimension": dimension,
+                    "metric_type": metric_type,
+                    "index_file_size": index_file_size,
+                    "dataset_name": collection_name
+                }
                 milvus_instance.create_collection(collection_name, dimension, index_file_size, metric_type)
                 logger.info(milvus_instance.describe())
                 insert_vectors = self.normalize(metric_type, np.array(dataset["train"]))
@@ -365,6 +477,10 @@ class QueryTask(User):
                     return
                 for index_type in index_types:
                     for index_param in index_params:
+                        index_info = {
+                            "index_type": index_type,
+                            "index_param": index_param
+                        }
                         logger.debug("Building index with param: %s" % json.dumps(index_param))
                         milvus_instance.create_index(index_type, index_param=index_param)
                         logger.info(milvus_instance.describe_index())
@@ -374,6 +490,12 @@ class QueryTask(User):
                             for nq in nqs:
                                 query_vectors = self.normalize(metric_type, np.array(dataset["test"][:nq]))
                                 for top_k in top_ks:
+                                    search_param_group = {
+                                        "nq": len(query_vectors),
+                                        "topk": top_k,
+                                        "search_param": search_param 
+                                    }
+                                    logger.debug(search_param_group)
                                     logger.debug("Search nq: %d, top-k: %d, search_param: %s" % (nq, top_k, json.dumps(search_param)))
                                     if not isinstance(query_vectors, list):
                                         result = milvus_instance.query(query_vectors.tolist(), top_k, search_param=search_param)
@@ -382,7 +504,14 @@ class QueryTask(User):
                                     result_ids = result.id_array
                                     acc_value = self.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
                                     logger.info("Query ann_accuracy: %s" % acc_value)
-
+                                    metric = self.report_wrapper(milvus_instance, self.env_value, self.hostname, collection_info, index_info, search_param_group)
+                                    metric.metrics = {
+                                        "type": "ann_accuracy",
+                                        "value": {
+                                            "acc": acc_value
+                                        } 
+                                    }
+                                    report(metric)
 
         elif run_type == "stability":
             (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
