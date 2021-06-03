@@ -138,10 +138,10 @@ def update_values(src_values_file, deploy_params_file):
     if cluster is False:
         if cpus:
             # # set limit/request cpus in resources
-            values_dict['images']['resources'] = resources
+            values_dict['image']['resources'] = resources
         if mems:
-            values_dict['images']['resources']["limits"].update({"memory": str(int(mems)) + "Gi"})
-            values_dict['images']['resources']["requests"].update({"memory": str(int(mems) // 2 + 1) + "Gi"})
+            values_dict['image']['resources']["limits"].update({"memory": str(int(mems)) + "Gi"})
+            values_dict['image']['resources']["requests"].update({"memory": str(int(mems) // 2 + 1) + "Gi"})
  
     # add extra volumes
     values_dict['extraVolumes'] = [{
