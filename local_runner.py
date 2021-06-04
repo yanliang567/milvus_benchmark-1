@@ -51,8 +51,8 @@ class LocalRunner(Runner):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         milvus_instance = MilvusClient(collection_name=collection_name, host=self.host, port=self.port)
         logger.info(milvus_instance.show_collections())
-        env_value = milvus_instance.get_server_config()
-        logger.debug(env_value)
+        self.env_value = milvus_instance.get_server_config()
+        logger.debug(self.env_value)
         # ugly implemention
         self.env_value.pop("logs")
         if milvus_instance.get_server_mode() == "CPU":
