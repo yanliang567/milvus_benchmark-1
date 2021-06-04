@@ -143,6 +143,7 @@ def update_values(src_values_file, deploy_params_file):
             values_dict['image']['resources']["limits"].update({"memory": str(int(mems)) + "Gi"})
             values_dict['image']['resources']["requests"].update({"memory": str(int(mems) // 2 + 1) + "Gi"})
         if gpus:
+            values_dict['image']['resources']["limits"].update({"nvidia.com/gpu": int(gpus)})
             values_dict['image']['resources']["requests"].update({"nvidia.com/gpu": int(gpus)})
  
     # add extra volumes
