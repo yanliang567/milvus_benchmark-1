@@ -28,6 +28,8 @@ class LocalRunner(Runner):
         super(LocalRunner, self).__init__()
         self.host = host
         self.port = port
+        self.hostname = None
+        self.env_value = None
 
     def report_wrapper(self, milvus_instance, env_value, hostname, collection_info, index_info, search_params, run_params=None):
         metric = Metric()
