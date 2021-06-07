@@ -229,6 +229,12 @@ class MilvusClient(object):
         self.check_status(status)
 
     @time_wrapper
+    def get(self, ids, collection_name=None):
+        tmp_collection_name = self._collection_name if collection_name is None else collection_name
+        res = self._milvus.get(tmp_collection_name, ids, output_fields=None, partition_names=None)
+        return res
+
+    @time_wrapper
     def create_index(self, field_name, index_type, metric_type, _async=False, index_param=None):
         index_type = INDEX_MAP[index_type]
         metric_type = utils.metric_type_trans(metric_type)
