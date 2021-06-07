@@ -444,10 +444,6 @@ class QueryTask(User):
 
             data_type, dimension, metric_type = parser.parse_ann_collection_name(collection_name)
             dataset = utils.get_dataset(hdf5_source_file)
-            if milvus_instance.exists_collection(collection_name):
-                logger.info("Re-create collection: %s" % collection_name)
-                milvus_instance.drop()
-                time.sleep(DELETE_INTERVAL_TIME)
             true_ids = np.array(dataset["neighbors"])
             for index_file_size in index_file_sizes:
                 collection_info = {
@@ -456,7 +452,11 @@ class QueryTask(User):
                     "index_file_size": index_file_size,
                     "dataset_name": collection_name
                 }
-                milvus_instance.create_collection(collection_name, dimension, index_file_size, metric_type)
+                if milvus_instance.exists_collection(collection_name):
+                    logger.info("Re-create collection: %s" % collection_name)
+                    milvus_instance.drop()
+                    time.sleep(DELETE_INTERVAL_TIME)
+                milvus_instance.create_collection(collection_name, dimension, index_file_size, metric_type)                
                 logger.info(milvus_instance.describe())
                 insert_vectors = self.normalize(metric_type, np.array(dataset["train"]))
                 logger.debug(len(insert_vectors))
