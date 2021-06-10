@@ -13,30 +13,13 @@
             {
                 "suite": "gpu_accuracy_ann.yaml",
                 "image_type": "gpu"
-            }
-        ]
-    },
-    {
-        "server": "idc-sh005",
-        "suite_params": [
+            },
             {
                 "suite": "080_gpu_search.yaml",
                 "image_type": "gpu"
             },
             {
                 "suite": "080_cpu_search.yaml",
-                "image_type": "cpu"
-            },
-            {
-                "suite": "080_gpu_build.yaml",
-                "image_type": "gpu"
-            },
-            {
-                "suite": "080_cpu_accuracy.yaml",
-                "image_type": "cpu"
-            },
-            {
-                "suite": "locust_search.yaml",
                 "image_type": "cpu"
             }
         ]
@@ -58,6 +41,18 @@
             },
             {
                 "suite": "add_flush_performance.yaml",
+                "image_type": "cpu"
+            },
+            {
+                "suite": "080_gpu_build.yaml",
+                "image_type": "gpu"
+            },
+            {
+                "suite": "080_cpu_accuracy.yaml",
+                "image_type": "cpu"
+            },
+            {
+                "suite": "locust_search.yaml",
                 "image_type": "cpu"
             }
         ]
