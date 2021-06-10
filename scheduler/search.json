@@ -1,6 +1,6 @@
 [
     {
-        "server": "idc-sh005",
+        "server": "idc-sh002",
         "suite_params": [
             {
                 "suite": "080_gpu_search.yaml",
