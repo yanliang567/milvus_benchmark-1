@@ -1,6 +1,6 @@
 [
     {
-        "server": "idc-sh002",
+        "server": "idc-sh004",
         "suite_params": [
             {
                 "suite": "080_insert_1b.yaml",
