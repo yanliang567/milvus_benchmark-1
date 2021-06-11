@@ -1,13 +1,9 @@
 [
     {
-        "server": "poseidon",
+        "server": "idc-sh002",
         "suite_params": [
             {
-                "suite": "crud_add.yaml",
-                "image_type": "gpu"
-            },
-            {
-                "suite": "gpu_accuracy_sift1m.yaml",
+                "suite": "gpu_accuracy_ann.yaml",
                 "image_type": "gpu"
             }
         ]
