@@ -121,7 +121,7 @@ def run_suite(run_type, suite, env_mode, env_params):
         api.save(metric)
         # time.sleep(10)
         env.tear_down()
-        if matric.status != "RUN_FAILED":
+        if metric.status != "RUN_FAILED":
             return -1
 
 
