@@ -84,8 +84,12 @@ def run_suite(run_type, suite, env_mode, env_params):
             runner = get_runner(run_type, env, metric)
             cases, case_metrics = runner.extract_cases(suite)
             # TODO: only run when the as_group is equal to True
-            logger.info("Prepare to run cases")
-            runner.prepare(**cases[0])
+            try:
+                logger.info("Prepare to run cases")
+                runner.prepare(**cases[0])
+            except Exception as e:
+                logger.error("Perpare to run cases failed")
+                metric.update_status(status="RUN_FAILED")
             logger.info("Start run case")
             for index, case in enumerate(cases):
                 case_metric = case_metrics[index]
@@ -117,6 +121,8 @@ def run_suite(run_type, suite, env_mode, env_params):
         api.save(metric)
         # time.sleep(10)
         env.tear_down()
+        if matric.status != "RUN_FAILED":
+            return -1
 
 
 def main():
