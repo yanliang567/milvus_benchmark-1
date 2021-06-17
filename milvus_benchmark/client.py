@@ -116,10 +116,17 @@ class MilvusClient(object):
         fields = [{"name": vec_field_name, "type": data_type, "params": {"dim": dimension}}]
         if other_fields:
             other_fields = other_fields.split(",")
-            if "int" in other_fields:
-                fields.append({"name": utils.DEFAULT_INT_FIELD_NAME, "type": DataType.INT64})
-            if "float" in other_fields:
-                fields.append({"name": utils.DEFAULT_FLOAT_FIELD_NAME, "type": DataType.FLOAT})
+            for other_field_name in other_fields:
+                field = {}
+                if other_field_name.startswith("int"):
+                    field = {"name": utils.DEFAULT_INT_FIELD_NAME, "type": DataType.INT64}
+                elif other_field_name.startswith("float"):
+                    field = {"name": utils.DEFAULT_FLOAT_FIELD_NAME, "type": DataType.FLOAT}
+                elif other_field_name.startswith("double"):
+                    field = {"name": utils.DEFAULT_DOUBLE_FIELD_NAME, "type": DataType.DOUBLE}
+                else:
+                    raise Exception("Field name not supported")
+                fields.append(field)
         create_param = {
             "fields": fields,
             "auto_id": auto_id}
