@@ -195,9 +195,6 @@ class MilvusClient(object):
     #     self.check_status(status)
     #     return ids, get_res
 
-    def get(self):
-        get_ids = random.randint(1, 1000000)
-        self._milvus.get_entity_by_id(self._collection_name, [get_ids])
 
     @time_wrapper
     def get_entities(self, get_ids):
@@ -235,10 +232,13 @@ class MilvusClient(object):
         status = self._milvus.compact(tmp_collection_name)
         self.check_status(status)
 
+    # only support "in" in expr
     @time_wrapper
     def get(self, ids, collection_name=None):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
-        res = self._milvus.get(tmp_collection_name, ids, output_fields=None, partition_names=None)
+        # res = self._milvus.get(tmp_collection_name, ids, output_fields=None, partition_names=None)
+        ids_expr = "id in %s" % (str(ids))
+        res = self._milvus.query(tmp_collection_name, ids_expr, output_fields=None, partition_names=None)
         return res
 
     @time_wrapper
