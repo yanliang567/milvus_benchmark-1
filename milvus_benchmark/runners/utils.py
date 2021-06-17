@@ -38,6 +38,7 @@ DEFAULT_F_FIELD_NAME = 'float_vector'
 DEFAULT_B_FIELD_NAME = 'binary_vector'
 DEFAULT_INT_FIELD_NAME = 'int64'
 DEFAULT_FLOAT_FIELD_NAME = 'float'
+DEFAULT_DOUBLE_FIELD_NAME = "double"
 
 GROUNDTRUTH_MAP = {
     "1000000": "idx_1M.ivecs",
