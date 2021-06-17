@@ -118,7 +118,9 @@ def run_suite(run_type, suite, env_mode, env_params):
         # time.sleep(10)
         env.tear_down()
         if metric.status != "RUN_SUCC":
-            return -1
+            return False
+        else:
+            return True
 
 
 def main():
@@ -234,7 +236,8 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        if not main():
+            sys.exit(-1)
         # from apscheduler.events import EVENT_JOB_MISSED
         # back_scheduler.add_listener(listen_miss, EVENT_JOB_MISSED)
         # back_scheduler.start()
@@ -245,6 +248,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(traceback.format_exc())
         # back_scheduler.shutdown(wait=False)
-        sys.exit(1)
+        sys.exit(-2)
     # block_scheduler.shutdown(wait=False)
     logger.info("All tests run finshed")
+    # sys.exit(0)
