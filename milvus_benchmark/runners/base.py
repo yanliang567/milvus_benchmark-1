@@ -77,8 +77,8 @@ class BaseRunner(object):
         ni_start_time = time.time()
         try:
             _res_ids = milvus.insert(entities, ids=ids)
-        except grpc.RpcError as e:
-            logger.error(str(e))
+        except Exception as e:
+            logger.error("Insert failed")
             logger.error(traceback.format_exc())
             raise e
         # assert ids == res_ids
