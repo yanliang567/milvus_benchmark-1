@@ -7,7 +7,7 @@ import h5py
 import random
 from itertools import product
 
-from milvus import DataType
+from pymilvus import DataType
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.runners.utils")
