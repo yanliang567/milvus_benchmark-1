@@ -19,7 +19,7 @@ from yaml import full_load, dump
 import yaml
 import tableprint as tp
 from pprint import pprint
-from milvus import DataType
+from pymilvus import DataType
 
 logger = logging.getLogger("milvus_benchmark.utils")
 

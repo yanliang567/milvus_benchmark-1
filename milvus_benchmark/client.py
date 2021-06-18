@@ -6,7 +6,7 @@ import json
 import time, datetime
 import traceback
 from multiprocessing import Process
-from milvus import Milvus, DataType
+from pymilvus import Milvus, DataType
 import numpy as np
 import utils
 import config
