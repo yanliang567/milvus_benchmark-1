@@ -54,7 +54,7 @@ def update_values(src_values_file, deploy_params_file):
         cluster = True
         values_dict["standalone"]["enabled"] = False
     else:
-        values_dict["standalone"]["service"]["type"] = "ClusterIP"
+        values_dict["service"]["type"] = "ClusterIP"
     if "server" in deploy_params:
         server = deploy_params["server"]
         server_name = server["server_name"] if "server_name" in server else ""
