@@ -24,7 +24,7 @@ class SearchRunner(BaseRunner):
         top_ks = collection["top_ks"]
         nqs = collection["nqs"]
         filters = collection["filters"] if "filters" in collection else []
-        filter_query = []
+        
         search_params = collection["search_params"]
         # TODO: get fields by describe_index
         # fields = self.get_fields(self.milvus, collection_name)
@@ -46,16 +46,18 @@ class SearchRunner(BaseRunner):
         self.init_metric(self.name, collection_info, index_info, None)
         for search_param in search_params:
             logger.info("Search param: %s" % json.dumps(search_param))
-            if not filters:
-                filters.append(None)
             for filter in filters:
+                filter_query = []
                 filter_param = []
-                if isinstance(filter, dict) and "range" in filter:
-                    filter_query.append(eval(filter["range"]))
-                    filter_param.append(filter["range"])
-                if isinstance(filter, dict) and "term" in filter:
-                    filter_query.append(eval(filter["term"]))
-                    filter_param.append(filter["term"])
+                if filter and isinstance(filter, dict):
+                    if "range" in filter:
+                        filter_query.append(eval(filter["range"]))
+                        filter_param.append(filter["range"])
+                    elif "term" in filter:
+                        filter_query.append(eval(filter["term"]))
+                        filter_param.append(filter["term"])
+                    else:
+                        raise Exception("%s not supported" % filter)
                 logger.info("filter param: %s" % json.dumps(filter_param))
                 for nq in nqs:
                     query_vectors = base_query_vectors[0:nq]
