@@ -117,8 +117,7 @@ def update_values(src_values_file, deploy_params_file):
             # values_dict['minio']['nodeSelector'] = node_config
             # values_dict['etcd']['nodeSelector'] = node_config
             # # set limit/request cpus in resources
-            # values_dict['proxynode']['resources'] = resources
-            # values_dict['proxynode']['resources'] = resources
+            # values_dict['proxy']['resources'] = resources
             values_dict['querynode']['resources'] = resources
             values_dict['indexnode']['resources'] = resources
             values_dict['datanode']['resources'] = resources
@@ -135,7 +134,7 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
         
         logging.debug("Add tolerations into cluster server")
-        values_dict['proxynode']['tolerations'] = perf_tolerations
+        values_dict['proxy']['tolerations'] = perf_tolerations
         values_dict['querynode']['tolerations'] = perf_tolerations
         values_dict['indexnode']['tolerations'] = perf_tolerations
         values_dict['datanode']['tolerations'] = perf_tolerations
