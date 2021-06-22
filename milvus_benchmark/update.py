@@ -109,6 +109,7 @@ def update_values(src_values_file, deploy_params_file):
         values_dict['standalone']['tolerations'] = perf_tolerations
         # values_dict['minio']['tolerations'] = perf_tolerations
         values_dict['etcd']['tolerations'] = perf_tolerations
+        values_dict['minio']['enabled'] = False
         # use external minio/s3
         values_dict["externalS3"]["enabled"] = True
         values_dict["externalS3"]["host"] = MINIO_HOST
@@ -154,7 +155,7 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
-
+        values_dict['minio']['enabled'] = False
         # use external minio/s3
         values_dict["externalS3"]["enabled"] = True
         values_dict["externalS3"]["host"] = MINIO_HOST
