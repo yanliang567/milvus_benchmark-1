@@ -58,7 +58,7 @@ class Tasks(TaskSet):
         ids = [random.randint(1, 10000000) for _ in range(self.params[op]["ni_per"])]
         X = [[random.random() for _ in range(dim)] for _ in range(self.params[op]["ni_per"])]
         entities = utils.generate_entities(self.op_info["collection_info"], X, ids)
-        self.client.insert(entities, ids, log=False)
+        self.client.insert(entities, log=False)
 
     @task
     def insert_rand(self):

@@ -226,10 +226,10 @@ class AccAccuracyRunner(AccuracyRunner):
                 ids = [i for i in range(start, end)]
                 if not isinstance(tmp_vectors, list):
                     entities = utils.generate_entities(info, tmp_vectors.tolist(), ids)
-                    res_ids = self.milvus.insert(entities, ids=ids)
+                    res_ids = self.milvus.insert(entities)
                 else:
                     entities = utils.generate_entities(tmp_vectors, ids)
-                    res_ids = self.milvus.insert(entities, ids=ids)
+                    res_ids = self.milvus.insert(entities)
                 assert res_ids == ids
         logger.debug("End insert, start flush")
         self.milvus.flush()

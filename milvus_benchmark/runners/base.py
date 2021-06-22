@@ -76,7 +76,7 @@ class BaseRunner(object):
         entities = utils.generate_entities(info, vectors, ids)
         ni_start_time = time.time()
         try:
-            _res_ids = milvus.insert(entities, ids=ids)
+            _res_ids = milvus.insert(entities)
         except Exception as e:
             logger.error("Insert failed")
             logger.error(traceback.format_exc())
