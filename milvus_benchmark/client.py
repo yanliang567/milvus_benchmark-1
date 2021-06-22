@@ -113,7 +113,10 @@ class MilvusClient(object):
         if not collection_name:
             collection_name = self._collection_name
         vec_field_name = utils.get_default_field_name(data_type)
-        fields = [{"name": vec_field_name, "type": data_type, "params": {"dim": dimension}}]
+        fields = [
+            {"name": vec_field_name, "type": data_type, "params": {"dim": dimension}},
+            {"name": "id", "type": DataType.INT64, "is_primary": True}
+        ]
         if other_fields:
             other_fields = other_fields.split(",")
             for other_field_name in other_fields:
@@ -143,11 +146,11 @@ class MilvusClient(object):
         self._milvus.create_partition(collection_name, tag)
 
     @time_wrapper
-    def insert(self, entities, ids=None, collection_name=None):
+    def insert(self, entities, collection_name=None):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         try:
-            insert_ids = self._milvus.insert(tmp_collection_name, entities, ids)
-            return insert_ids
+            insert_res = self._milvus.insert(tmp_collection_name, entities)
+            return insert_res.primary_keys
         except Exception as e:
             logger.error(str(e))
 

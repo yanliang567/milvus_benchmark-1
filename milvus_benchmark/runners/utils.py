@@ -119,8 +119,8 @@ def generate_values(data_type, vectors, ids):
 def generate_entities(info, vectors, ids=None):
     entities = []
     for field in info["fields"]:
-        if field["name"] == "_id":
-            continue
+        # if field["name"] == "_id":
+        #     continue
         field_type = field["type"]
         entities.append(
             {"name": field["name"], "type": field_type, "values": generate_values(field_type, vectors, ids)})
