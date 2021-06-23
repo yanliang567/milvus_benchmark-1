@@ -277,4 +277,9 @@ class InsertSearchRunner(BaseRunner):
         avg_query_time = round(total_query_time/run_count, 2)
         logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
         tmp_result = {"insert": self.insert_result, "build_time": self.build_time, "search_time": min_query_time, "avc_search_time": avg_query_time}
+        # 
+        logger.info("Start load collection")
+        self.milvus.load_collection()
+        logger.info("Release load collection")
+        self.milvus.release_collection()
         return tmp_result
