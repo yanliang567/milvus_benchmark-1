@@ -234,7 +234,7 @@ def main():
         # suite = {"run_type": run_type, "run_params": collections[0]}
         suite = collections[0]
         env_mode = "local"
-        run_suite(run_type, suite, env_mode, env_params)
+        return run_suite(run_type, suite, env_mode, env_params)
         # job = back_scheduler.add_job(run_suite, args=[run_type, suite, env_mode, env_params], misfire_grace_time=36000)
         # logger.info(job)
         # logger.info(job.id)
