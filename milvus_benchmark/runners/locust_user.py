@@ -58,7 +58,7 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
         "rps": round(env.stats.total.current_rps, 1),
         "fail_ratio": env.stats.total.fail_ratio,
         "max_response_time": round(env.stats.total.max_response_time, 1),
-        "min_response_time": round(env.stats.total.avg_response_time, 1)
+        "avg_response_time": round(env.stats.total.avg_response_time, 1)
     }
     runner.stop()
     return result
