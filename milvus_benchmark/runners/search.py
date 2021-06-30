@@ -268,6 +268,7 @@ class InsertSearchRunner(BaseRunner):
         total_query_time = 0.0        
         for i in range(run_count):
             logger.debug("Start run query, run %d of %s" % (i+1, run_count))
+            logger.info(case_metric.search)
             start_time = time.time()
             _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
             interval_time = time.time() - start_time
