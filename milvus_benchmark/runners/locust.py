@@ -28,6 +28,7 @@ class LocustRunner(BaseRunner):
         run_params = {"tasks": {}, "clients_num": clients_num, "spawn_rate": hatch_rate, "during_time": during_time}
         info_in_params = {
             "index_field_name": case_param["index_field_name"],
+            "vector_field_name": case_param["vector_field_name"],
             "dimension": case_param["dimension"],
             "collection_info": self.milvus.get_info(collection_name)}
         logger.info(info_in_params)
@@ -107,9 +108,9 @@ class LocustInsertRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
+            "vector_field_name": index_field_name,
             "index_type": index_type,
             "index_param": index_param,
-
             "task": collection["task"],
             "connection_type": connection_type,
         }
@@ -208,9 +209,9 @@ class LocustSearchRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
+            "vector_field_name": index_field_name,
             "index_type": index_type,
             "index_param": index_param,
-
             "task": collection["task"],
             "connection_type": connection_type,
         }
@@ -334,9 +335,9 @@ class LocustRandomRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
+            "vector_field_name": index_field_name,
             "index_type": index_type,
             "index_param": index_param,
-
             "task": collection["task"],
             "connection_type": connection_type,
         }

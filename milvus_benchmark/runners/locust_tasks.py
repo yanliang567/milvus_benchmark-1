@@ -2,6 +2,7 @@ import pdb
 import random
 import time
 import logging
+import json
 from locust import TaskSet, task
 from . import utils
 
@@ -15,22 +16,20 @@ class Tasks(TaskSet):
     def query(self):
         op = "query"
         X = utils.generate_vectors(self.params[op]["nq"], self.op_info["dimension"])
-        vector_query = {"vector": {self.op_info["index_field_name"]: {
+        vector_query = {"vector": {self.op_info["vector_field_name"]: {
             "topk": self.params[op]["top_k"], 
             "query": X, 
-            "metric_type": "L2", 
+            "metric_type": self.params[op]["metric_type"] if "metric_type" in self.params[op] else utils.DEFAULT_METRIC_TYPE, 
             "params": self.params[op]["search_param"]}
         }}
         filter_query = []
         if "filters" in self.params[op]:
             for filter in self.params[op]["filters"]:
-                filter_param = []
                 if isinstance(filter, dict) and "range" in filter:
                     filter_query.append(eval(filter["range"]))
-                    # filter_param.append(filter["range"])
                 if isinstance(filter, dict) and "term" in filter:
                     filter_query.append(eval(filter["term"]))
-                    # filter_param.append(filter["term"])
+        logger.debug(filter_query)
         self.client.query(vector_query, filter_query=filter_query, log=False)
 
     @task
@@ -44,6 +43,7 @@ class Tasks(TaskSet):
     @task
     def release(self):
         self.client.release_collection()
+        self.client.load_collection()
 
     # @task
     # def release_index(self):
@@ -53,6 +53,7 @@ class Tasks(TaskSet):
     # def create_index(self):
     #     self.client.release_index()
 
+    @task
     def insert(self):
         op = "insert"
         ids = [random.randint(1, 10000000) for _ in range(self.params[op]["ni_per"])]
@@ -63,3 +64,9 @@ class Tasks(TaskSet):
     @task
     def insert_rand(self):
         self.client.insert_rand(log=False)
+
+    @task
+    def get(self):
+        op = "get"
+        ids = [random.randint(1, 10000000) for _ in range(self.params[op]["ids_length"])]
+        self.client.get(ids)
