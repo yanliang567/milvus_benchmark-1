@@ -4,13 +4,6 @@ locust_random_performance:
       milvus:
         cache_config.insert_buffer_size: 2GB
         engine_config.use_blas_threshold: 1100
-        engine_config.gpu_search_threshold: 1
-        gpu_resource_config.enable: true
-        gpu_resource_config.cache_capacity: 4GB
-        gpu_resource_config.search_resources:
-          gpu0
-        gpu_resource_config.build_index_resources:
-          gpu0
         wal_enable: true
       collection_name: sift_1m_128_l2
       # other_fields: int
@@ -43,7 +36,7 @@ locust_random_performance:
               ni_per: 1
           -
             type: load
-            weight: 2
+            weight: 1
         connection_num: 1
         clients_num: 20
         hatch_rate: 2
