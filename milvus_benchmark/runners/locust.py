@@ -75,6 +75,7 @@ class LocustInsertRunner(LocustRunner):
         index_type = None
         index_param = None
         index_info = None
+        vector_field_name = runner_utils.get_default_field_name(vector_type)
         if build_index is True:
             index_type = collection["index_type"]
             index_param = collection["index_param"]
@@ -108,7 +109,7 @@ class LocustInsertRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
-            "vector_field_name": index_field_name,
+            "vector_field_name": vector_field_name,
             "index_type": index_type,
             "index_param": index_param,
             "task": collection["task"],
@@ -183,7 +184,8 @@ class LocustSearchRunner(LocustRunner):
                 "index_type": index_type,
                 "index_param": index_param
             }
-        index_field_name = runner_utils.get_default_field_name(vector_type)
+            index_field_name = runner_utils.get_default_field_name(vector_type)
+        vector_field_name = runner_utils.get_default_field_name(vector_type)
         task = collection["task"]
         connection_type = "single"
         connection_num = task["connection_num"]
@@ -209,7 +211,7 @@ class LocustSearchRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
-            "vector_field_name": index_field_name,
+            "vector_field_name": vector_field_name,
             "index_type": index_type,
             "index_param": index_param,
             "task": collection["task"],
@@ -302,6 +304,7 @@ class LocustRandomRunner(LocustRunner):
         index_type = None
         index_param = None
         index_info = None
+        vector_field_name = runner_utils.get_default_field_name(vector_type)
         if build_index is True:
             index_type = collection["index_type"]
             index_param = collection["index_param"]
@@ -335,7 +338,7 @@ class LocustRandomRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
-            "vector_field_name": index_field_name,
+            "vector_field_name": vector_field_name,
             "index_type": index_type,
             "index_param": index_param,
             "task": collection["task"],
