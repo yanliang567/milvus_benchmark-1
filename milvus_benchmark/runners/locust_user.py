@@ -19,7 +19,8 @@ logger = logging.getLogger("milvus_benchmark.runners.locust_user")
 
 class MyUser(User):
     # task_set = None
-    wait_time = between(0.001, 0.002)
+    # wait_time = between(0.001, 0.002)
+    pass
 
 
 def locust_executor(host, port, collection_name, connection_type="single", run_params=None):
