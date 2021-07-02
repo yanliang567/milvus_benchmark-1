@@ -225,29 +225,27 @@ class LocalRunner(Runner):
             # TODO: debug
             for c_name in collection_names:
                 milvus_instance = MilvusClient(collection_name=c_name, host=self.host, port=self.port)
-                if milvus_instance.exists_collection(collection_name=c_name):
-                    milvus_instance.drop(name=c_name)
-                    time.sleep(10)
-                milvus_instance.create_collection(c_name, dimension, index_file_size, metric_type)
-                index_info = {
-                    "build_index": build_index
-                }
-                if build_index is True:
-                    index_type = collection["index_type"]
-                    index_param = collection["index_param"]
-                    index_info.update({
-                        "index_type": index_type,
-                        "index_param": index_param
-                    })
-                    milvus_instance.create_index(index_type, index_param)
-                    logger.debug(milvus_instance.describe_index())
-                res = self.do_insert(milvus_instance, c_name, data_type, dimension, collection_size, ni_per)
-                milvus_instance.flush()
-                logger.debug("Table row counts: %d" % milvus_instance.count(name=c_name))
-                if build_index is True:
-                    logger.debug("Start build index for last file")
-                    milvus_instance.create_index(index_type, index_param)
-                    logger.debug(milvus_instance.describe_index())
+                if not milvus_instance.exists_collection(collection_name=c_name):
+                    milvus_instance.create_collection(c_name, dimension, index_file_size, metric_type)
+                    index_info = {
+                        "build_index": build_index
+                    }
+                    if build_index is True:
+                        index_type = collection["index_type"]
+                        index_param = collection["index_param"]
+                        index_info.update({
+                            "index_type": index_type,
+                            "index_param": index_param
+                        })
+                        milvus_instance.create_index(index_type, index_param)
+                        logger.debug(milvus_instance.describe_index())
+                    res = self.do_insert(milvus_instance, c_name, data_type, dimension, collection_size, ni_per)
+                    milvus_instance.flush()
+                    logger.debug("Table row counts: %d" % milvus_instance.count(name=c_name))
+                    if build_index is True:
+                        logger.debug("Start build index for last file")
+                        milvus_instance.create_index(index_type, index_param)
+                        logger.debug(milvus_instance.describe_index())
             code_str = """
 import random
 import string
