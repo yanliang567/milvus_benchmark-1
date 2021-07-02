@@ -165,14 +165,14 @@ class InsertSearchRunner(BaseRunner):
             if not filters:
                 filters.append(None)
             for filter in filters:
-                filter_param = []
+                # filter_param = []
                 if isinstance(filter, dict) and "range" in filter:
                     filter_query.append(eval(filter["range"]))
-                    filter_param.append(filter["range"])
+                    # filter_param.append(filter["range"])
                 if isinstance(filter, dict) and "term" in filter:
                     filter_query.append(eval(filter["term"]))
-                    filter_param.append(filter["term"])
-                logger.info("filter param: %s" % json.dumps(filter_param))
+                    # filter_param.append(filter["term"])
+                # logger.info("filter param: %s" % json.dumps(filter_param))
                 for nq in nqs:
                     query_vectors = base_query_vectors[0:nq]
                     for top_k in top_ks:
@@ -187,7 +187,7 @@ class InsertSearchRunner(BaseRunner):
                             "nq": nq,
                             "topk": top_k,
                             "search_param": search_param,
-                            "filter": filter_param
+                            "filter": filter_query
                         }
                         vector_query = {"vector": {index_field_name: search_info}}
                         case = {
