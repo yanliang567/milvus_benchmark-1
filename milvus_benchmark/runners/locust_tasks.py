@@ -29,7 +29,7 @@ class Tasks(TaskSet):
                     filter_query.append(eval(filter["range"]))
                 if isinstance(filter, dict) and "term" in filter:
                     filter_query.append(eval(filter["term"]))
-        logger.debug(filter_query)
+        # logger.debug(filter_query)
         self.client.query(vector_query, filter_query=filter_query, log=False)
 
     @task
