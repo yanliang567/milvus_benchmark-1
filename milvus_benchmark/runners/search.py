@@ -166,6 +166,7 @@ class InsertSearchRunner(BaseRunner):
                 filters.append(None)
             for filter in filters:
                 # filter_param = []
+                filter_query = []
                 if isinstance(filter, dict) and "range" in filter:
                     filter_query.append(eval(filter["range"]))
                     # filter_param.append(filter["range"])
