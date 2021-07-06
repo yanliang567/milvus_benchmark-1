@@ -126,9 +126,9 @@ def update_values(src_values_file, deploy_params_file):
             # values_dict['etcd']['nodeSelector'] = node_config
             # # set limit/request cpus in resources
             # values_dict['proxy']['resources'] = resources
-            values_dict['querynode']['resources'] = resources
-            values_dict['indexnode']['resources'] = resources
-            values_dict['datanode']['resources'] = resources
+            values_dict['queryNode']['resources'] = resources
+            values_dict['indexNode']['resources'] = resources
+            values_dict['dataNode']['resources'] = resources
             # values_dict['minio']['resources'] = resources
             # values_dict['pulsarStandalone']['resources'] = resources
         if mems:
@@ -143,9 +143,9 @@ def update_values(src_values_file, deploy_params_file):
         
         logging.debug("Add tolerations into cluster server")
         values_dict['proxy']['tolerations'] = perf_tolerations
-        values_dict['querynode']['tolerations'] = perf_tolerations
-        values_dict['indexnode']['tolerations'] = perf_tolerations
-        values_dict['datanode']['tolerations'] = perf_tolerations
+        values_dict['queryNode']['tolerations'] = perf_tolerations
+        values_dict['indexNode']['tolerations'] = perf_tolerations
+        values_dict['dataNode']['tolerations'] = perf_tolerations
         values_dict['etcd']['tolerations'] = perf_tolerations
         # values_dict['minio']['tolerations'] = perf_tolerations
         values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
