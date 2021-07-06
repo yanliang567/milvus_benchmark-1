@@ -2,8 +2,8 @@ import pdb
 import random
 import time
 import logging
-import json
-from locust import TaskSet, task
+import math 
+from locust import TaskSet, LoadTestShape, task
 from . import utils
 
 dim = 128

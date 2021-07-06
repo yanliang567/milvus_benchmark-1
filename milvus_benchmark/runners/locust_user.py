@@ -7,14 +7,42 @@ import gevent
 from locust import User, between, events, stats
 from locust.env import Environment
 import locust.stats
+import math
+from locust import LoadTestShape
 from locust.stats import stats_printer, print_stats
 from locust.log import setup_logging, greenlet_exception_logger
 from milvus_benchmark.client import MilvusClient
 from .locust_task import MilvusTask
 from .locust_tasks import Tasks
 
-locust.stats.CONSOLE_STATS_INTERVAL_SEC = 30
+locust.stats.CONSOLE_STATS_INTERVAL_SEC = 20
 logger = logging.getLogger("milvus_benchmark.runners.locust_user")
+
+
+class StepLoadShape(LoadTestShape):
+    """
+    A step load shape
+    Keyword arguments:
+        step_time -- Time between steps
+        step_load -- User increase amount at each step
+        spawn_rate -- Users to stop/start per second at every step
+        time_limit -- Time limit in seconds
+    """
+
+    def init(self, step_time, step_load, spawn_rate, time_limit):
+        self.step_time = step_time
+        self.step_load = step_load
+        self.spawn_rate = spawn_rate
+        self.time_limit = time_limit
+
+    def tick(self):
+        run_time = self.get_run_time()
+
+        if run_time > self.time_limit:
+            return None
+
+        current_step = math.floor(run_time / self.step_time) + 1
+        return (current_step * self.step_load, self.spawn_rate)
 
 
 class MyUser(User):
@@ -38,9 +66,15 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     # MyUser.tasks = {Tasks.query: 1, Tasks.flush: 1}
     MyUser.client = MilvusTask(host=host, port=port, collection_name=collection_name, connection_type=connection_type,
                                m=m)
-    # MyUser.info = m.get_info(collection_name)
-    env = Environment(events=events, user_classes=[MyUser])
-    runner = env.create_local_runner()
+    if "load_shape" in run_params and run_params["load_shape"]:
+        test = StepLoadShape() 
+        test.init(run_params["step_time"], run_params["step_load"], run_params["spawn_rate"], run_params["during_time"])
+        env = Environment(events=events, user_classes=[MyUser], shape_class=test)
+        runner = env.create_local_runner()
+        env.runner.start_shape()
+    else:
+        env = Environment(events=events, user_classes=[MyUser])
+        runner = env.create_local_runner()
     # setup logging
     # setup_logging("WARNING", "/dev/null")
     # greenlet_exception_logger(logger=logger)

@@ -21,11 +21,10 @@ class LocustRunner(BaseRunner):
         connection_type = case_param["connection_type"]
 
         # spawn locust requests
-        clients_num = task["clients_num"]
-        hatch_rate = task["hatch_rate"]
-        during_time = utils.timestr_to_int(task["during_time"])
+        task["during_time"] = utils.timestr_to_int(task["during_time"])
         task_types = task["types"]
-        run_params = {"tasks": {}, "clients_num": clients_num, "spawn_rate": hatch_rate, "during_time": during_time}
+        run_params = {"tasks": {}}
+        run_params.update(task)
         info_in_params = {
             "index_field_name": case_param["index_field_name"],
             "vector_field_name": case_param["vector_field_name"],
