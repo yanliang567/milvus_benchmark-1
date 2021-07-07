@@ -28,7 +28,7 @@ logger = logging.getLogger("milvus_benchmark.main")
 DEFAULT_IMAGE = "milvusdb/milvus:latest"
 LOG_FOLDER = "logs"
 NAMESPACE = "milvus"
-SERVER_VERSION = "2.0"
+SERVER_VERSION = "2.0.0-RC2"
 q = Queue()
 
 

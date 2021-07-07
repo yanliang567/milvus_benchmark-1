@@ -10,7 +10,8 @@ from yaml import full_load, dump
 
 DEFUALT_DEPLOY_MODE = "single"
 IDC_NAS_URL = "//172.16.70.249/test"
-MINIO_HOST = "minio-test.qa.svc.cluster.local"
+MINIO_HOST = "minio-test"
+MINIO_PORT = 9000
 
 
 def parse_server_tag(server_tag):
@@ -92,6 +93,15 @@ def update_values(src_values_file, deploy_params_file):
                     # "cpu": str(int(cpus) - 1) + ".0"
                 }
             }
+    # use external minio/s3
+    values_dict['minio']['enabled'] = False
+    values_dict["externalS3"]["enabled"] = True
+    values_dict["externalS3"]["host"] = MINIO_HOST
+    values_dict["externalS3"]["port"] = MINIO_PORT
+    values_dict["externalS3"]["accessKey"] = "minioadmin"
+    values_dict["externalS3"]["secretKey"] = "minioadmin"
+    values_dict["externalS3"]["bucketName"] = "test"
+
     if cluster is False:
         # TODO: support pod affinity for standalone mode
         if cpus:
@@ -109,13 +119,6 @@ def update_values(src_values_file, deploy_params_file):
         values_dict['standalone']['tolerations'] = perf_tolerations
         # values_dict['minio']['tolerations'] = perf_tolerations
         values_dict['etcd']['tolerations'] = perf_tolerations
-        values_dict['minio']['enabled'] = False
-        # use external minio/s3
-        values_dict["externalS3"]["enabled"] = True
-        values_dict["externalS3"]["host"] = MINIO_HOST
-        values_dict["externalS3"]["accessKey"] = "minioadmin"
-        values_dict["externalS3"]["secretKey"] = "minioadmin"
-
     else:
         # TODO: mem limits on distributed mode
         # values_dict['pulsar']["broker"]["configData"].update({"maxMessageSize": "52428800", "PULSAR_MEM": BOOKKEEPER_PULSAR_MEM})
@@ -155,12 +158,7 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
-        values_dict['minio']['enabled'] = False
-        # use external minio/s3
-        values_dict["externalS3"]["enabled"] = True
-        values_dict["externalS3"]["host"] = MINIO_HOST
-        values_dict["externalS3"]["accessKey"] = "minioadmin"
-        values_dict["externalS3"]["secretKey"] = "minioadmin"
+
     # add extra volumes
     values_dict['extraVolumes'] = [{
         'name': 'test',
