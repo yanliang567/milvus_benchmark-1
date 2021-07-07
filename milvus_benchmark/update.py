@@ -96,7 +96,8 @@ def update_values(src_values_file, deploy_params_file):
     values_dict["externalS3"]["accessKey"] = config.MINIO_ACCESS_KEY
     values_dict["externalS3"]["secretKey"] = config.MINIO_SECRET_KEY
     values_dict["externalS3"]["bucketName"] = config.MINIO_BUCKET_NAME
-
+    logging.debug(values_dict["externalS3"])
+    
     if cluster is False:
         # TODO: support pod affinity for standalone mode
         if cpus:
