@@ -2,7 +2,7 @@ version: 1
 disable_existing_loggers: False
 formatters:
     simple:
-        format: "[%(asctime)-15s] [%(levelname)8s]\t- %(message)s (%(name)s:%(lineno)s)"
+        format: "[%(asctime)-15s] [%(levelname)8s] - %(message)s (%(name)s:%(lineno)s)"
 
 handlers:
     console:

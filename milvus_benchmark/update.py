@@ -10,7 +10,7 @@ from yaml import full_load, dump
 
 DEFUALT_DEPLOY_MODE = "single"
 IDC_NAS_URL = "//172.16.70.249/test"
-MINIO_HOST = "minio-test"
+MINIO_HOST = "minio-test-new"
 MINIO_PORT = 9000
 
 
