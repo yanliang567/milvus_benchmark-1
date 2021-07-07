@@ -6,12 +6,7 @@ import logging
 import traceback
 import argparse
 from yaml import full_load, dump
-
-
-DEFUALT_DEPLOY_MODE = "single"
-IDC_NAS_URL = "//172.16.70.249/test"
-MINIO_HOST = "minio-test-new"
-MINIO_PORT = 9000
+import config
 
 
 def parse_server_tag(server_tag):
@@ -49,10 +44,10 @@ def update_values(src_values_file, deploy_params_file):
     except Exception as e:
         logging.error(str(e))
         raise Exception("File not found")
-    deploy_mode = deploy_params["deploy_mode"] if "deploy_mode" in deploy_params else DEFUALT_DEPLOY_MODE
+    deploy_mode = deploy_params["deploy_mode"] if "deploy_mode" in deploy_params else config.DEFUALT_DEPLOY_MODE
     cluster = False
     values_dict["service"]["type"] = "ClusterIP"
-    if deploy_mode != DEFUALT_DEPLOY_MODE:
+    if deploy_mode != config.DEFUALT_DEPLOY_MODE:
         cluster = True
         values_dict["cluster"]["enabled"] = True
     if "server" in deploy_params:
@@ -96,11 +91,11 @@ def update_values(src_values_file, deploy_params_file):
     # use external minio/s3
     values_dict['minio']['enabled'] = False
     values_dict["externalS3"]["enabled"] = True
-    values_dict["externalS3"]["host"] = MINIO_HOST
-    values_dict["externalS3"]["port"] = MINIO_PORT
-    values_dict["externalS3"]["accessKey"] = "minioadmin"
-    values_dict["externalS3"]["secretKey"] = "minioadmin"
-    values_dict["externalS3"]["bucketName"] = "test"
+    values_dict["externalS3"]["host"] = config.MINIO_HOST
+    values_dict["externalS3"]["port"] = config.MINIO_PORT
+    values_dict["externalS3"]["accessKey"] = config.MINIO_ACCESS_KEY
+    values_dict["externalS3"]["secretKey"] = config.MINIO_SECRET_KEY
+    values_dict["externalS3"]["bucketName"] = config.MINIO_BUCKET_NAME
 
     if cluster is False:
         # TODO: support pod affinity for standalone mode
@@ -169,7 +164,7 @@ def update_values(src_values_file, deploy_params_file):
                 'name': "cifs-test-secret"
             },
             'options': {
-                'networkPath': IDC_NAS_URL,
+                'networkPath': config.IDC_NAS_URL,
                 'mountOptions': "vers=1.0"
             }
         }

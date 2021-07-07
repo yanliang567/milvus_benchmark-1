@@ -6,10 +6,13 @@ JOB_COLLECTION = "jobs"
 
 REGISTRY_URL = "registry.zilliz.com/milvus/milvus"
 IDC_NAS_URL = "//172.16.70.249/test"
+DEFAULT_IMAGE = "milvusdb/milvus:latest"
 
 SERVER_HOST_DEFAULT = "127.0.0.1"
 SERVER_PORT_DEFAULT = 19530
-SERVER_VERSION = "2.0"
+SERVER_VERSION = "2.0.0-RC2"
+DEFUALT_DEPLOY_MODE = "single"
+
 
 HELM_NAMESPACE = "milvus"
 BRANCH = "master"
@@ -28,3 +31,10 @@ CHAOS_NAMESPACE = "chaos-testing"
 DEFAULT_API_VERSION = 'chaos-mesh.org/v1alpha1'
 DEFAULT_GROUP = 'chaos-mesh.org'
 DEFAULT_VERSION = 'v1alpha1'
+
+# minio config
+MINIO_HOST = "minio-test-new"
+MINIO_PORT = 9000
+MINIO_ACCESS_KEY = "minioadmin"
+MINIO_SECRET_KEY = "minioadmin"
+MINIO_BUCKET_NAME = "test"

@@ -7,7 +7,7 @@ import argparse
 import logging
 import traceback
 from multiprocessing import Process
-from queue import Queue
+# from queue import Queue
 from logging import handlers
 from yaml import full_load, dump
 from milvus_benchmark.metrics.models.server import Server
@@ -25,11 +25,7 @@ from logs import log
 log.setup_logging()
 logger = logging.getLogger("milvus_benchmark.main")
 
-DEFAULT_IMAGE = "milvusdb/milvus:latest"
-LOG_FOLDER = "logs"
-NAMESPACE = "milvus"
-SERVER_VERSION = "2.0.0-RC2"
-q = Queue()
+# q = Queue()
 
 
 def positive_int(s):
