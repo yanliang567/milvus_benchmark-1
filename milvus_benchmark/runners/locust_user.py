@@ -82,7 +82,9 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     # env.create_web_ui("127.0.0.1", 8089)
     # gevent.spawn(stats_printer(env.stats), env, "test", full_history=True)
     # events.init.fire(environment=env, runner=runner)
-    clients_num = run_params["clients_num"]
+    clients_num = run_params["clients_num"] if "clients_num" in run_params else 0
+    step_load = run_params["step_load"] if "step_load" in run_params else 0
+    step_time = run_params["step_time"] if "step_time" in run_params else 0
     spawn_rate = run_params["spawn_rate"]
     during_time = run_params["during_time"]
     runner.start(clients_num, spawn_rate=spawn_rate)
