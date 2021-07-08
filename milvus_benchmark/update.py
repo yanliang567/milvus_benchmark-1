@@ -44,7 +44,10 @@ def update_values(src_values_file, deploy_params_file):
     except Exception as e:
         logging.error(str(e))
         raise Exception("File not found")
-    deploy_mode = deploy_params["deploy_mode"] if "deploy_mode" in deploy_params else config.DEFUALT_DEPLOY_MODE
+    milvus_params = deploy_params["milvus"] if "milvus" in deploy_params else None
+    deploy_mode = config.DEFUALT_DEPLOY_MODE
+    if milvus_params and "deploy_mode" in deploy_params:
+        deploy_mode = deploy_params["deploy_mode"]
     cluster = False
     values_dict["service"]["type"] = "ClusterIP"
     if deploy_mode != config.DEFUALT_DEPLOY_MODE:
@@ -52,7 +55,7 @@ def update_values(src_values_file, deploy_params_file):
         values_dict["cluster"]["enabled"] = True
     if "server" in deploy_params:
         server = deploy_params["server"]
-        server_name = server["server_name"] if "server_name" in server else ""
+        # server_name = server["server_name"] if "server_name" in server else ""
         server_tag = server["server_tag"] if "server_tag" in server else ""
     else:
         raise Exception("No server specified in {}".format(deploy_params_file))
@@ -97,7 +100,7 @@ def update_values(src_values_file, deploy_params_file):
     values_dict["externalS3"]["secretKey"] = config.MINIO_SECRET_KEY
     values_dict["externalS3"]["bucketName"] = config.MINIO_BUCKET_NAME
     logging.debug(values_dict["externalS3"])
-    
+
     if cluster is False:
         # TODO: support pod affinity for standalone mode
         if cpus:
@@ -154,7 +157,18 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
-
+        if "datanode" in milvus_params:
+            if "replicas" in milvus_params["datanode"]:
+                values_dict['dataNode']["replicas"] = milvus_params["datanode"]["replicas"]
+        if "querynode"in milvus_params:
+            if "replicas" in milvus_params["querynode"]:
+                values_dict['queryNode']["replicas"] = milvus_params["querynode"]["replicas"]
+        if "indexnode"in milvus_params:
+            if "replicas" in milvus_params["indexnode"]:
+                values_dict['indexNode']["replicas"] = milvus_params["indexnode"]["replicas"]
+        if "proxy"in milvus_params:
+            if "replicas" in milvus_params["proxy"]:
+                values_dict['proxy']["replicas"] = milvus_params["proxy"]["replicas"]
     # add extra volumes
     values_dict['extraVolumes'] = [{
         'name': 'test',
