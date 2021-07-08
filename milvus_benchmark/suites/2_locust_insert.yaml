@@ -10,10 +10,10 @@ locust_insert_performance:
       index_param:
         nlist: 1024
       task: 
-        load_shape: true
+        load_shape: false
         step_time: 100 
         step_load: 50
-        spawn_rate: 50
+        spawn_rate: 2
         connection_num: 1
         clients_num: 100
         during_time: 600
