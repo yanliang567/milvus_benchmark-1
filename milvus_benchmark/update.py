@@ -44,11 +44,12 @@ def update_values(src_values_file, deploy_params_file):
     except Exception as e:
         logging.error(str(e))
         raise Exception("File not found")
-    milvus_params = deploy_params["milvus"] if "milvus" in deploy_params else None
     deploy_mode = config.DEFUALT_DEPLOY_MODE
-    if milvus_params and "deploy_mode" in deploy_params:
-        deploy_mode = deploy_params["deploy_mode"]
     cluster = False
+
+    milvus_params = deploy_params["milvus"] if "milvus" in deploy_params else None
+    if milvus_params and "deploy_mode" in milvus_params:
+        deploy_mode = milvus_params["deploy_mode"]
     values_dict["service"]["type"] = "ClusterIP"
     if deploy_mode != config.DEFUALT_DEPLOY_MODE:
         cluster = True
@@ -61,7 +62,7 @@ def update_values(src_values_file, deploy_params_file):
         raise Exception("No server specified in {}".format(deploy_params_file))
     # TODO: update milvus config
     # # update values.yaml with the given host
-    node_config = None
+    # node_config = None
     perf_tolerations = [{
             "key": "node-role.kubernetes.io/benchmark",
             "operator": "Exists",
