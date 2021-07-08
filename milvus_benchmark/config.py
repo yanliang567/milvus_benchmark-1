@@ -33,7 +33,7 @@ DEFAULT_GROUP = 'chaos-mesh.org'
 DEFAULT_VERSION = 'v1alpha1'
 
 # minio config
-MINIO_HOST = "minio-test-new"
+MINIO_HOST = "minio-test-milvus.qa-milvus.svc.cluster.local"
 MINIO_PORT = 9000
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin"
