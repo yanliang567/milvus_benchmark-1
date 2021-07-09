@@ -14,9 +14,12 @@ from locust.log import setup_logging, greenlet_exception_logger
 from milvus_benchmark.client import MilvusClient
 from .locust_task import MilvusTask
 from .locust_tasks import Tasks
+from . import utils
 
 locust.stats.CONSOLE_STATS_INTERVAL_SEC = 20
 logger = logging.getLogger("milvus_benchmark.runners.locust_user")
+nq = 10000
+nb = 100000
 
 
 class StepLoadShape(LoadTestShape):
@@ -62,6 +65,11 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
         MyUser.tasks.update(task)
         MyUser.params[op] = value["params"] if "params" in value else None
     logger.info(MyUser.tasks)
+    MyUser.values = {
+        "ids": [random.randint(1000000, 10000000) for _ in range(nb)],
+        "get_ids": [random.randint(1, 10000000) for _ in range(nb)],
+        "X": utils.generate_vectors(nq, MyUser.op_info["dimension"])
+    }
 
     # MyUser.tasks = {Tasks.query: 1, Tasks.flush: 1}
     MyUser.client = MilvusTask(host=host, port=port, collection_name=collection_name, connection_type=connection_type,
