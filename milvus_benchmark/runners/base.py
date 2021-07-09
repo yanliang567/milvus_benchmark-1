@@ -54,10 +54,11 @@ class BaseRunner(object):
     def run_as_group(self):
         return self._run_as_group
     
-    def init_metric(self, name, collection_info=None, index_info=None, search_info=None, run_params=None):
+    def init_metric(self, name, collection_info=None, index_info=None, search_info=None, run_params=None, t="metric"):
         self._metric.collection = collection_info
         self._metric.index = index_info
         self._metric.search = search_info
+        self._metric.type = t
         self._metric.run_params = run_params
         self._metric.metrics = {
             "type": name,

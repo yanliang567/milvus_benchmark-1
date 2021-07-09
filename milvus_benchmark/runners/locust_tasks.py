@@ -10,7 +10,7 @@ logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
 class Tasks(TaskSet):
-    def on_start(self):
+    def setup(self):
         nq = 10000
         nb = 100000
         self.ids = [random.randint(1000000, 10000000) for _ in range(nb)]

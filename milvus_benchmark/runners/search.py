@@ -69,6 +69,7 @@ class SearchRunner(BaseRunner):
                             "params": search_param}
                         # TODO: only update search_info
                         case_metric = copy.deepcopy(self.metric)
+                        case_metric.set_case_metric_type()
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
@@ -161,6 +162,7 @@ class InsertSearchRunner(BaseRunner):
         cases = list()
         case_metrics = list()
         self.init_metric(self.name, collection_info, index_info, None)
+        
         for search_param in search_params:
             if not filters:
                 filters.append(None)
@@ -184,6 +186,7 @@ class InsertSearchRunner(BaseRunner):
                             "params": search_param}
                         # TODO: only update search_info
                         case_metric = copy.deepcopy(self.metric)
+                        case_metric.set_case_metric_type()
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
