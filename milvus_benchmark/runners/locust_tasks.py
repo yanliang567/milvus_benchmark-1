@@ -10,16 +10,6 @@ logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
 class Tasks(TaskSet):
-<<<<<<< HEAD
-    def setup(self):
-        nq = 10000
-        nb = 100000
-        self.ids = [random.randint(1000000, 10000000) for _ in range(nb)]
-        self.get_ids = [random.randint(1, 10000000) for _ in range(nb)]
-        self.X = utils.generate_vectors(nq, self.op_info["dimension"])
-
-=======
->>>>>>> d57d668dbb143179c2b45c79a7a5e2b9aa92a3bb
     @task
     def query(self):
         op = "query"
