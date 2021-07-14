@@ -28,7 +28,8 @@ class BaseRunner(object):
         pass
 
     def stop(self):
-        logger.debug("Start clean up env: {} in runner".format(self.env.name))
+        logger.debug("Stop runner...")
+        pass
 
     @property
     def hostname(self):
