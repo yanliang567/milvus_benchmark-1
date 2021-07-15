@@ -1,12 +1,11 @@
-import os
 import sys
-import time
 import re
 import logging
 import traceback
 import argparse
 from yaml import full_load, dump
 import config
+import utils
 
 
 def parse_server_tag(server_tag):
@@ -44,22 +43,15 @@ def update_values(src_values_file, deploy_params_file):
     except Exception as e:
         logging.error(str(e))
         raise Exception("File not found")
-    deploy_mode = config.DEFUALT_DEPLOY_MODE
+    deploy_mode = utils.get_deploy_mode(deploy_params)
     cluster = False
-
-    milvus_params = deploy_params["milvus"] if "milvus" in deploy_params else None
-    if milvus_params and "deploy_mode" in milvus_params:
-        deploy_mode = milvus_params["deploy_mode"]
     values_dict["service"]["type"] = "ClusterIP"
     if deploy_mode != config.DEFUALT_DEPLOY_MODE:
         cluster = True
         values_dict["cluster"]["enabled"] = True
-    if "server" in deploy_params:
-        server = deploy_params["server"]
-        # server_name = server["server_name"] if "server_name" in server else ""
-        server_tag = server["server_tag"] if "server_tag" in server else ""
     else:
         raise Exception("No server specified in {}".format(deploy_params_file))
+    server_tag = utils.get_server_tag(deploy_params)
     # TODO: update milvus config
     # # update values.yaml with the given host
     # node_config = None

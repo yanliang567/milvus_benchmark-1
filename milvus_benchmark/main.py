@@ -1,14 +1,9 @@
 import os
 import sys
-import time
-from datetime import datetime
-import pdb
 import argparse
 import logging
 import traceback
-from multiprocessing import Process
 # from queue import Queue
-from logging import handlers
 from yaml import full_load, dump
 from milvus_benchmark.metrics.models.server import Server
 from milvus_benchmark.metrics.models.hardware import Hardware
@@ -17,7 +12,7 @@ from milvus_benchmark.metrics.models.env import Env
 from milvus_benchmark.env import get_env
 from milvus_benchmark.runners import get_runner
 from milvus_benchmark.metrics import api
-from milvus_benchmark import config
+from milvus_benchmark import config, utils
 from milvus_benchmark import parser
 # from scheduler import back_scheduler
 from logs import log
@@ -63,6 +58,8 @@ def run_suite(run_type, suite, env_mode, env_params):
         logger.info(env_params)
         if env_mode == "local":
             metric.hardware = Hardware("")
+            if "server_tag" in env_params and env_params["server_tag"]:
+                metric.hardware = Hardware("server_tag")
             start_status = env.start_up(env_params["host"], env_params["port"])
         elif env_mode == "helm":
             helm_params = env_params["helm_params"]
@@ -157,6 +154,11 @@ def main():
         metavar='FILE',
         help='load test suite from FILE',
         default='')
+    arg_parser.add_argument(
+        '--server-config',
+        metavar='FILE',
+        help='load server config from FILE',
+        default='')
 
     args = arg_parser.parse_args()
 
@@ -212,10 +214,14 @@ def main():
 
     elif args.local:
         # for local mode
+        deploy_params = args.deploy_params
+        deploy_mode = utils.get_deploy_mode(deploy_params)
+        server_tag = utils.get_server_tag(deploy_params)
         env_params = {
             "host": args.host,
             "port": args.port,
-            "deploy_mode": None
+            "deploy_mode": deploy_mode,
+            "server_tag": server_tag
         }
         suite_file = args.suite
         with open(suite_file) as f:
