@@ -215,7 +215,7 @@ def main():
 
     elif args.local:
         # for local mode
-        deploy_params = args.deploy_params
+        deploy_params = args.server_config
         deploy_mode = utils.get_deploy_mode(deploy_params)
         server_tag = utils.get_server_tag(deploy_params)
         env_params = {
