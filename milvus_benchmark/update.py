@@ -44,6 +44,7 @@ def update_values(src_values_file, deploy_params_file):
         logging.error(str(e))
         raise Exception("File not found")
     deploy_mode = utils.get_deploy_mode(deploy_params)
+    print(deploy_mode)
     cluster = False
     values_dict["service"]["type"] = "ClusterIP"
     if deploy_mode != config.DEFUALT_DEPLOY_MODE:
@@ -52,6 +53,7 @@ def update_values(src_values_file, deploy_params_file):
     else:
         raise Exception("No server specified in {}".format(deploy_params_file))
     server_tag = utils.get_server_tag(deploy_params)
+    print(server_tag)
     # TODO: update milvus config
     # # update values.yaml with the given host
     # node_config = None
