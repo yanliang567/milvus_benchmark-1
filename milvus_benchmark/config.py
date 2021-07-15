@@ -25,6 +25,8 @@ RAW_DATA_DIR = "/test/milvus/raw_data/"
 LOG_PATH = "/test/milvus/benchmark/logs/{}/".format(BRANCH)
 
 DEFAULT_DEPLOY_MODE = "single"
+SINGLE_DEPLOY_MODE = "single"
+CLUSTER_DEPLOY_MODE = "cluster"
 
 NAMESPACE = "milvus"
 CHAOS_NAMESPACE = "chaos-testing"

@@ -111,11 +111,17 @@ def print_table(headers, columns, data):
 
 
 def get_deploy_mode(deploy_params):
-    deploy_mode = config.DEFUALT_DEPLOY_MODE
+    deploy_mode = None
     if deploy_params:
-        milvus_params = deploy_params["milvus"] if "milvus" in deploy_params else None
-        if milvus_params and "deploy_mode" in milvus_params:
+        milvus_params = None
+        if "milvus" in deploy_params:
+            milvus_params = deploy_params["milvus"]
+        if not milvus_params:
+            deploy_mode = config.DEFUALT_DEPLOY_MODE
+        elif "deploy_mode" in milvus_params:
             deploy_mode = milvus_params["deploy_mode"]
+            if deploy_mode not in [config.SINGLE_DEPLOY_MODE, config.CLUSTER_DEPLOY_MODE]:
+                raise Exception("Invalid deploy mode: %s" % deploy_mode)
     return deploy_mode
 
 

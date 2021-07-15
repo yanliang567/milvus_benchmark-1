@@ -49,7 +49,7 @@ def run_suite(run_type, suite, env_mode, env_params):
     try:
         start_status = False
         metric = api.Metric()
-        deploy_mode = env_params["deploy_mode"] if "deploy_mode" in env_params else config.DEFAULT_DEPLOY_MODE
+        deploy_mode = env_params["deploy_mode"]
         env = get_env(env_mode, deploy_mode)
         metric.set_run_id()
         metric.set_mode(env_mode)
@@ -99,8 +99,8 @@ def run_suite(run_type, suite, env_mode, env_params):
                     case_metric.update_message(err_message)
                     suite_status = False
                 logger.debug(case_metric.metrics)
-                # if env_mode == "helm":
-                api.save(case_metric)
+                if deploy_mode:
+                    api.save(case_metric)
             if suite_status:
                 metric.update_status(status="RUN_SUCC")
             else:
@@ -113,7 +113,8 @@ def run_suite(run_type, suite, env_mode, env_params):
         logger.error(traceback.format_exc())
         metric.update_status(status="RUN_FAILED")
     finally:
-        api.save(metric)
+        if deploy_mode:
+            api.save(metric)
         # time.sleep(10)
         env.tear_down()
         if metric.status != "RUN_SUCC":
