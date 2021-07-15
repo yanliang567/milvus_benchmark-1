@@ -50,8 +50,6 @@ def update_values(src_values_file, deploy_params_file):
     if deploy_mode != config.DEFUALT_DEPLOY_MODE:
         cluster = True
         values_dict["cluster"]["enabled"] = True
-    else:
-        raise Exception("No server specified in {}".format(deploy_params_file))
     server_tag = utils.get_server_tag(deploy_params)
     print(server_tag)
     # TODO: update milvus config
