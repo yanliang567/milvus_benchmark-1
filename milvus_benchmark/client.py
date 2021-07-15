@@ -434,28 +434,28 @@ class MilvusClient(object):
             self.drop(collection_name=name)
 
     @time_wrapper
-    def load_collection(self, collection_name=None):
+    def load_collection(self, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.load_collection(collection_name, timeout=3000)
+        return self._milvus.load_collection(collection_name, timeout=timeout)
 
     @time_wrapper
-    def release_collection(self, collection_name=None):
+    def release_collection(self, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.release_collection(collection_name, timeout=3000)
+        return self._milvus.release_collection(collection_name, timeout=timeout)
 
     @time_wrapper
-    def load_partitions(self, tag_names, collection_name=None):
+    def load_partitions(self, tag_names, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.load_partitions(collection_name, tag_names, timeout=3000)
+        return self._milvus.load_partitions(collection_name, tag_names, timeout=timeout)
 
     @time_wrapper
-    def release_partitions(self, tag_names, collection_name=None):
+    def release_partitions(self, tag_names, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.release_partitions(collection_name, tag_names, timeout=3000)
+        return self._milvus.release_partitions(collection_name, tag_names, timeout=timeout)
 
     # TODO: remove
     # def get_server_version(self):

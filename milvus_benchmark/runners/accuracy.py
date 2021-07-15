@@ -247,7 +247,7 @@ class AccAccuracyRunner(AccuracyRunner):
         logger.info(self.milvus.describe_index(index_field_name))
         logger.info("Start load collection: %s" % collection_name)
         # self.milvus.release_collection()
-        self.milvus.load_collection()
+        self.milvus.load_collection(timeout=600)
         logger.info("End load collection: %s" % collection_name)
 
     def run_case(self, case_metric, **case_param):
