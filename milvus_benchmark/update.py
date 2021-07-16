@@ -154,6 +154,7 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict['pulsar']['broker']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['bookkeeper']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['zookeeper']['tolerations'] = perf_tolerations
+        milvus_params = deploy_params["milvus"]
         if "datanode" in milvus_params:
             if "replicas" in milvus_params["datanode"]:
                 values_dict['dataNode']["replicas"] = milvus_params["datanode"]["replicas"]
@@ -189,7 +190,6 @@ def update_values(src_values_file, deploy_params_file):
     with open(src_values_file, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
-
 
 
 if __name__ == "__main__":
