@@ -216,10 +216,12 @@ def main():
     elif args.local:
         # for local mode
         deploy_params = args.server_config
-        with open(deploy_params) as f:
-            deploy_params_dict = full_load(f)
-            f.close()
-        logger.debug(deploy_params_dict)
+        deploy_params_dict = None
+        if deploy_params:
+            with open(deploy_params) as f:
+                deploy_params_dict = full_load(f)
+                f.close()
+            logger.debug(deploy_params_dict)
         deploy_mode = utils.get_deploy_mode(deploy_params_dict)
         server_tag = utils.get_server_tag(deploy_params_dict)
         env_params = {

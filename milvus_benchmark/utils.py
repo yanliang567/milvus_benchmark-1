@@ -127,7 +127,7 @@ def get_deploy_mode(deploy_params):
 
 def get_server_tag(deploy_params):
     server_tag = ""
-    if "server" in deploy_params:
+    if deploy_params and "server" in deploy_params:
         server = deploy_params["server"]
         # server_name = server["server_name"] if "server_name" in server else ""
         server_tag = server["server_tag"] if "server_tag" in server else ""
