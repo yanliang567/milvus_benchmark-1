@@ -20,20 +20,11 @@
    1). set PYTHONPATH:
    
       `export PYTHONPATH=/your/project/path/milvus_benchmark`
-<<<<<<< HEAD
-   2. update `LOG_PATH` value to your local path in `config.py` if run at local mode
-   3. (optional, use `sift` dataset) mount NAS or update `*_DATA_DIR` in `runner.py`
-=======
->>>>>>> argo
    
    2). prepare data: 
    
       if we need to use the sift/deep dataset as the raw data input, we need to mount NAS and update `RAW_DATA_DIR` in `config.py`, the example mount command:
         `sudo mount -t cifs -o username=test,vers=1.0 //172.16.70.249/test /test`
-<<<<<<< HEAD
-   4. run test
-=======
->>>>>>> argo
    
    3). install requirements:
 
