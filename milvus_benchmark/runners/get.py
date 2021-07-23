@@ -5,15 +5,23 @@ from milvus_benchmark import parser
 from milvus_benchmark.runners import utils
 from milvus_benchmark.runners.base import BaseRunner
 
-logger = logging.getLogger("milvus_benchmark.runners.build")
+logger = logging.getLogger("milvus_benchmark.runners.get")
 
 
-class BuildRunner(BaseRunner):
-    """run build"""
-    name = "build_performance"
+def get_ids(length, size):
+    ids_list = []
+    step = size // length
+    for i in range(length):
+        ids_list.append(step * i)
+    return ids_list
+
+
+class GetRunner(BaseRunner):
+    """run get"""
+    name = "get_performance"
 
     def __init__(self, env, metric):
-        super(BuildRunner, self).__init__(env, metric)
+        super(GetRunner, self).__init__(env, metric)
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
@@ -21,6 +29,7 @@ class BuildRunner(BaseRunner):
         ni_per = collection["ni_per"]
         vector_type = utils.get_vector_type(data_type)
         other_fields = collection["other_fields"] if "other_fields" in collection else None
+        ids_length_list = collection["ids_length_list"]
         collection_info = {
             "dimension": dimension,
             "metric_type": metric_type,
@@ -40,26 +49,30 @@ class BuildRunner(BaseRunner):
         if "flush" in collection and collection["flush"] == "no":
             flush = False
         self.init_metric(self.name, collection_info, index_info, search_info=None)
-        case_metric = copy.deepcopy(self.metric)
-        case_metric.set_case_metric_type()
         case_metrics = list()
-        case_params = list()
-        case_metrics.append(case_metric)
-        case_param = {
-            "collection_name": collection_name,
-            "data_type": data_type,
-            "dimension": dimension,
-            "collection_size": collection_size,
-            "ni_per": ni_per,
-            "metric_type": metric_type,
-            "vector_type": vector_type,
-            "other_fields": other_fields,
-            "flush_after_insert": flush,
-            "index_field_name": index_field_name,
-            "index_type": index_type,
-            "index_param": index_param,
-        }
-        case_params.append(case_param)
+        for ids_length in ids_length_list:
+            ids = get_ids(ids_length, collection_size)
+            case_metric = copy.deepcopy(self.metric)
+            case_metric.set_case_metric_type()
+            case_params = list()
+            case_metric.run_params = {"ids_length": ids_length}
+            case_metrics.append(case_metric)
+            case_param = {
+                "collection_name": collection_name,
+                "data_type": data_type,
+                "dimension": dimension,
+                "collection_size": collection_size,
+                "ni_per": ni_per,
+                "metric_type": metric_type,
+                "vector_type": vector_type,
+                "other_fields": other_fields,
+                "flush_after_insert": flush,
+                "index_field_name": index_field_name,
+                "index_type": index_type,
+                "index_param": index_param,
+                "ids": ids
+            }
+            case_params.append(case_param)
         return case_params, case_metrics
 
     def prepare(self, **case_param):
@@ -70,21 +83,20 @@ class BuildRunner(BaseRunner):
         logger.debug({"collection count": self.milvus.count()})
 
     def run_case(self, case_metric, **case_param):
-        index_field_name = case_param["index_field_name"]
+        ids = case_param["ids"]
         start_time = time.time()
-        self.milvus.create_index(index_field_name, case_param["index_type"], case_param["metric_type"],
-                                 index_param=case_param["index_param"])
-        build_time = round(time.time() - start_time, 2)
-        tmp_result = {"build_time": build_time}
+        self.milvus.get(ids)
+        get_time = round(time.time() - start_time, 2)
+        tmp_result = {"get_time": get_time}
         return tmp_result
 
 
-class InsertBuildRunner(BuildRunner):
-    """run insert and build"""
-    name = "insert_build_performance"
+class InsertGetRunner(GetRunner):
+    """run insert and get"""
+    name = "insert_get_performance"
 
     def __init__(self, env, metric):
-        super(InsertBuildRunner, self).__init__(env, metric)
+        super(InsertGetRunner, self).__init__(env, metric)
 
     def prepare(self, **case_param):
         collection_name = case_param["collection_name"]
@@ -104,3 +116,4 @@ class InsertBuildRunner(BuildRunner):
         flush_time = round(time.time() - start_time, 2)
         logger.debug({"collection count": self.milvus.count()})
         logger.debug({"flush_time": flush_time})
+        self.milvus.load_collection()

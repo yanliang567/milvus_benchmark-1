@@ -6,7 +6,7 @@ import json
 import time, datetime
 import traceback
 from multiprocessing import Process
-from milvus import Milvus, DataType
+from pymilvus import Milvus, DataType
 import numpy as np
 import utils
 import config
@@ -113,13 +113,22 @@ class MilvusClient(object):
         if not collection_name:
             collection_name = self._collection_name
         vec_field_name = utils.get_default_field_name(data_type)
-        fields = [{"name": vec_field_name, "type": data_type, "params": {"dim": dimension}}]
+        fields = [
+            {"name": vec_field_name, "type": data_type, "params": {"dim": dimension}},
+            {"name": "id", "type": DataType.INT64, "is_primary": True}
+        ]
         if other_fields:
             other_fields = other_fields.split(",")
-            if "int" in other_fields:
-                fields.append({"name": utils.DEFAULT_INT_FIELD_NAME, "type": DataType.INT64})
-            if "float" in other_fields:
-                fields.append({"name": utils.DEFAULT_FLOAT_FIELD_NAME, "type": DataType.FLOAT})
+            for other_field_name in other_fields:
+                if other_field_name.startswith("int"):
+                    field_type = DataType.INT64
+                elif other_field_name.startswith("float"):
+                    field_type = DataType.FLOAT
+                elif other_field_name.startswith("double"):
+                    field_type = DataType.DOUBLE
+                else:
+                    raise Exception("Field name not supported")
+                fields.append({"name": other_field_name, "type": field_type})
         create_param = {
             "fields": fields,
             "auto_id": auto_id}
@@ -136,13 +145,23 @@ class MilvusClient(object):
         self._milvus.create_partition(collection_name, tag)
 
     @time_wrapper
-    def insert(self, entities, ids=None, collection_name=None):
+    def insert(self, entities, collection_name=None):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         try:
-            insert_ids = self._milvus.insert(tmp_collection_name, entities, ids)
-            return insert_ids
+            insert_res = self._milvus.insert(tmp_collection_name, entities)
+            return insert_res.primary_keys
         except Exception as e:
             logger.error(str(e))
+
+    @time_wrapper
+    def insert_flush(self, entities, _async=False, collection_name=None):
+        tmp_collection_name = self._collection_name if collection_name is None else collection_name
+        try:
+            insert_res = self._milvus.insert(tmp_collection_name, entities)
+            return insert_res.primary_keys
+        except Exception as e:
+            logger.error(str(e))
+        self._milvus.flush([tmp_collection_name], _async=_async)
 
     def get_dimension(self):
         info = self.get_info()
@@ -188,9 +207,6 @@ class MilvusClient(object):
     #     self.check_status(status)
     #     return ids, get_res
 
-    def get(self):
-        get_ids = random.randint(1, 1000000)
-        self._milvus.get_entity_by_id(self._collection_name, [get_ids])
 
     @time_wrapper
     def get_entities(self, get_ids):
@@ -227,6 +243,15 @@ class MilvusClient(object):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         status = self._milvus.compact(tmp_collection_name)
         self.check_status(status)
+
+    # only support "in" in expr
+    @time_wrapper
+    def get(self, ids, collection_name=None):
+        tmp_collection_name = self._collection_name if collection_name is None else collection_name
+        # res = self._milvus.get(tmp_collection_name, ids, output_fields=None, partition_names=None)
+        ids_expr = "id in %s" % (str(ids))
+        res = self._milvus.query(tmp_collection_name, ids_expr, output_fields=None, partition_names=None)
+        return res
 
     @time_wrapper
     def create_index(self, field_name, index_type, metric_type, _async=False, index_param=None):
@@ -409,28 +434,28 @@ class MilvusClient(object):
             self.drop(collection_name=name)
 
     @time_wrapper
-    def load_collection(self, collection_name=None):
+    def load_collection(self, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.load_collection(collection_name, timeout=3000)
+        return self._milvus.load_collection(collection_name, timeout=timeout)
 
     @time_wrapper
-    def release_collection(self, collection_name=None):
+    def release_collection(self, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.release_collection(collection_name, timeout=3000)
+        return self._milvus.release_collection(collection_name, timeout=timeout)
 
     @time_wrapper
-    def load_partitions(self, tag_names, collection_name=None):
+    def load_partitions(self, tag_names, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.load_partitions(collection_name, tag_names, timeout=3000)
+        return self._milvus.load_partitions(collection_name, tag_names, timeout=timeout)
 
     @time_wrapper
-    def release_partitions(self, tag_names, collection_name=None):
+    def release_partitions(self, tag_names, collection_name=None, timeout=3000):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.release_partitions(collection_name, tag_names, timeout=3000)
+        return self._milvus.release_partitions(collection_name, tag_names, timeout=timeout)
 
     # TODO: remove
     # def get_server_version(self):

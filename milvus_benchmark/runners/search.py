@@ -24,7 +24,7 @@ class SearchRunner(BaseRunner):
         top_ks = collection["top_ks"]
         nqs = collection["nqs"]
         filters = collection["filters"] if "filters" in collection else []
-        filter_query = []
+        
         search_params = collection["search_params"]
         # TODO: get fields by describe_index
         # fields = self.get_fields(self.milvus, collection_name)
@@ -46,16 +46,18 @@ class SearchRunner(BaseRunner):
         self.init_metric(self.name, collection_info, index_info, None)
         for search_param in search_params:
             logger.info("Search param: %s" % json.dumps(search_param))
-            if not filters:
-                filters.append(None)
             for filter in filters:
+                filter_query = []
                 filter_param = []
-                if isinstance(filter, dict) and "range" in filter:
-                    filter_query.append(eval(filter["range"]))
-                    filter_param.append(filter["range"])
-                if isinstance(filter, dict) and "term" in filter:
-                    filter_query.append(eval(filter["term"]))
-                    filter_param.append(filter["term"])
+                if filter and isinstance(filter, dict):
+                    if "range" in filter:
+                        filter_query.append(eval(filter["range"]))
+                        filter_param.append(filter["range"])
+                    elif "term" in filter:
+                        filter_query.append(eval(filter["term"]))
+                        filter_param.append(filter["term"])
+                    else:
+                        raise Exception("%s not supported" % filter)
                 logger.info("filter param: %s" % json.dumps(filter_param))
                 for nq in nqs:
                     query_vectors = base_query_vectors[0:nq]
@@ -67,6 +69,7 @@ class SearchRunner(BaseRunner):
                             "params": search_param}
                         # TODO: only update search_info
                         case_metric = copy.deepcopy(self.metric)
+                        case_metric.set_case_metric_type()
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
@@ -159,18 +162,20 @@ class InsertSearchRunner(BaseRunner):
         cases = list()
         case_metrics = list()
         self.init_metric(self.name, collection_info, index_info, None)
+        
         for search_param in search_params:
             if not filters:
                 filters.append(None)
             for filter in filters:
-                filter_param = []
+                # filter_param = []
+                filter_query = []
                 if isinstance(filter, dict) and "range" in filter:
                     filter_query.append(eval(filter["range"]))
-                    filter_param.append(filter["range"])
+                    # filter_param.append(filter["range"])
                 if isinstance(filter, dict) and "term" in filter:
                     filter_query.append(eval(filter["term"]))
-                    filter_param.append(filter["term"])
-                logger.info("filter param: %s" % json.dumps(filter_param))
+                    # filter_param.append(filter["term"])
+                # logger.info("filter param: %s" % json.dumps(filter_param))
                 for nq in nqs:
                     query_vectors = base_query_vectors[0:nq]
                     for top_k in top_ks:
@@ -181,11 +186,12 @@ class InsertSearchRunner(BaseRunner):
                             "params": search_param}
                         # TODO: only update search_info
                         case_metric = copy.deepcopy(self.metric)
+                        case_metric.set_case_metric_type()
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
                             "search_param": search_param,
-                            "filter": filter_param
+                            "filter": filter_query
                         }
                         vector_query = {"vector": {index_field_name: search_info}}
                         case = {
@@ -266,6 +272,7 @@ class InsertSearchRunner(BaseRunner):
         total_query_time = 0.0        
         for i in range(run_count):
             logger.debug("Start run query, run %d of %s" % (i+1, run_count))
+            logger.info(case_metric.search)
             start_time = time.time()
             _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
             interval_time = time.time() - start_time
@@ -275,4 +282,9 @@ class InsertSearchRunner(BaseRunner):
         avg_query_time = round(total_query_time/run_count, 2)
         logger.info("Min query time: %.2f, avg query time: %.2f" % (min_query_time, avg_query_time))
         tmp_result = {"insert": self.insert_result, "build_time": self.build_time, "search_time": min_query_time, "avc_search_time": avg_query_time}
+        # 
+        # logger.info("Start load collection")
+        # self.milvus.load_collection()
+        # logger.info("Release load collection")
+        # self.milvus.release_collection()
         return tmp_result

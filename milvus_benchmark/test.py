@@ -1,5 +1,5 @@
 import random
-from milvus import Milvus, DataType
+from pymilvus import Milvus, DataType
 
 dim = 128
 name = "sift_1m_128_l2"

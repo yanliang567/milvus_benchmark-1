@@ -62,6 +62,7 @@ class AccuracyRunner(BaseRunner):
                             "params": search_param}
                         # TODO: only update search_info
                         case_metric = copy.deepcopy(self.metric)
+                        case_metric.set_case_metric_type()
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
@@ -143,7 +144,6 @@ class AccAccuracyRunner(AccuracyRunner):
         true_ids = np.array(dataset["neighbors"])
         for index_type in index_types:
             for index_param in index_params:
-                logger.debug("Building index with param: %s" % json.dumps(index_param))
                 index_info = {
                     "index_type": index_type,
                     "index_param": index_param
@@ -169,6 +169,7 @@ class AccAccuracyRunner(AccuracyRunner):
                                     "params": search_param}
                                 # TODO: only update search_info
                                 case_metric = copy.deepcopy(self.metric)
+                                case_metric.set_case_metric_type()
                                 case_metric.index = index_info
                                 case_metric.search = {
                                     "nq": nq,
@@ -227,12 +228,14 @@ class AccAccuracyRunner(AccuracyRunner):
                 ids = [i for i in range(start, end)]
                 if not isinstance(tmp_vectors, list):
                     entities = utils.generate_entities(info, tmp_vectors.tolist(), ids)
-                    res_ids = self.milvus.insert(entities, ids=ids)
+                    res_ids = self.milvus.insert(entities)
                 else:
                     entities = utils.generate_entities(tmp_vectors, ids)
-                    res_ids = self.milvus.insert(entities, ids=ids)
+                    res_ids = self.milvus.insert(entities)
                 assert res_ids == ids
+        logger.debug("End insert, start flush")
         self.milvus.flush()
+        logger.debug("End flush")
         res_count = self.milvus.count()
         logger.info("Table: %s, row count: %d" % (collection_name, res_count))
         if res_count != len(insert_vectors):
@@ -243,8 +246,8 @@ class AccAccuracyRunner(AccuracyRunner):
         self.milvus.create_index(index_field_name, index_type, metric_type, index_param=index_param)
         logger.info(self.milvus.describe_index(index_field_name))
         logger.info("Start load collection: %s" % collection_name)
-        self.milvus.release_collection()
-        self.milvus.load_collection()
+        # self.milvus.release_collection()
+        self.milvus.load_collection(timeout=600)
         logger.info("End load collection: %s" % collection_name)
 
     def run_case(self, case_metric, **case_param):

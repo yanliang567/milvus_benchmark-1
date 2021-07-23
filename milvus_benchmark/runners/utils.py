@@ -7,7 +7,7 @@ import h5py
 import random
 from itertools import product
 
-from milvus import DataType
+from pymilvus import DataType
 from milvus_benchmark import config
 
 logger = logging.getLogger("milvus_benchmark.runners.utils")
@@ -24,6 +24,7 @@ FILE_PREFIX = "binary_"
 WARM_TOP_K = 1
 WARM_NQ = 1
 DEFAULT_DIM = 512
+DEFAULT_METRIC_TYPE = "L2"
 
 RANDOM_SRC_DATA_DIR = config.RAW_DATA_DIR + 'random/'
 SIFT_SRC_DATA_DIR = config.RAW_DATA_DIR + 'sift1b/'
@@ -38,6 +39,7 @@ DEFAULT_F_FIELD_NAME = 'float_vector'
 DEFAULT_B_FIELD_NAME = 'binary_vector'
 DEFAULT_INT_FIELD_NAME = 'int64'
 DEFAULT_FLOAT_FIELD_NAME = 'float'
+DEFAULT_DOUBLE_FIELD_NAME = "double"
 
 GROUNDTRUTH_MAP = {
     "1000000": "idx_1M.ivecs",
@@ -118,8 +120,8 @@ def generate_values(data_type, vectors, ids):
 def generate_entities(info, vectors, ids=None):
     entities = []
     for field in info["fields"]:
-        if field["name"] == "_id":
-            continue
+        # if field["name"] == "_id":
+        #     continue
         field_type = field["type"]
         entities.append(
             {"name": field["name"], "type": field_type, "values": generate_values(field_type, vectors, ids)})

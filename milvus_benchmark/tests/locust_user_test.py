@@ -1,4 +1,4 @@
-from milvus import DataType
+from pymilvus import DataType
 from milvus_benchmark.runners.locust_user import locust_executor
 from milvus_benchmark.client import MilvusClient
 

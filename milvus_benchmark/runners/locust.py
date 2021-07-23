@@ -21,13 +21,13 @@ class LocustRunner(BaseRunner):
         connection_type = case_param["connection_type"]
 
         # spawn locust requests
-        clients_num = task["clients_num"]
-        hatch_rate = task["hatch_rate"]
-        during_time = utils.timestr_to_int(task["during_time"])
+        task["during_time"] = utils.timestr_to_int(task["during_time"])
         task_types = task["types"]
-        run_params = {"tasks": {}, "clients_num": clients_num, "spawn_rate": hatch_rate, "during_time": during_time}
+        run_params = {"tasks": {}}
+        run_params.update(task)
         info_in_params = {
             "index_field_name": case_param["index_field_name"],
+            "vector_field_name": case_param["vector_field_name"],
             "dimension": case_param["dimension"],
             "collection_info": self.milvus.get_info(collection_name)}
         logger.info(info_in_params)
@@ -74,6 +74,7 @@ class LocustInsertRunner(LocustRunner):
         index_type = None
         index_param = None
         index_info = None
+        vector_field_name = runner_utils.get_default_field_name(vector_type)
         if build_index is True:
             index_type = collection["index_type"]
             index_param = collection["index_param"]
@@ -93,6 +94,7 @@ class LocustInsertRunner(LocustRunner):
         }
         self.init_metric(self.name, collection_info, index_info, None, run_params)
         case_metric = copy.deepcopy(self.metric)
+        case_metric.set_case_metric_type()
         case_metrics = list()
         case_params = list()
         case_metrics.append(case_metric)
@@ -107,9 +109,9 @@ class LocustInsertRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
+            "vector_field_name": vector_field_name,
             "index_type": index_type,
             "index_param": index_param,
-
             "task": collection["task"],
             "connection_type": connection_type,
         }
@@ -182,7 +184,8 @@ class LocustSearchRunner(LocustRunner):
                 "index_type": index_type,
                 "index_param": index_param
             }
-        index_field_name = runner_utils.get_default_field_name(vector_type)
+            index_field_name = runner_utils.get_default_field_name(vector_type)
+        vector_field_name = runner_utils.get_default_field_name(vector_type)
         task = collection["task"]
         connection_type = "single"
         connection_num = task["connection_num"]
@@ -194,6 +197,7 @@ class LocustSearchRunner(LocustRunner):
         }
         self.init_metric(self.name, collection_info, index_info, None, run_params)
         case_metric = copy.deepcopy(self.metric)
+        case_metric.set_case_metric_type()
         case_metrics = list()
         case_params = list()
         case_metrics.append(case_metric)
@@ -208,9 +212,9 @@ class LocustSearchRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
+            "vector_field_name": vector_field_name,
             "index_type": index_type,
             "index_param": index_param,
-
             "task": collection["task"],
             "connection_type": connection_type,
         }
@@ -301,6 +305,7 @@ class LocustRandomRunner(LocustRunner):
         index_type = None
         index_param = None
         index_info = None
+        vector_field_name = runner_utils.get_default_field_name(vector_type)
         if build_index is True:
             index_type = collection["index_type"]
             index_param = collection["index_param"]
@@ -320,6 +325,7 @@ class LocustRandomRunner(LocustRunner):
         }
         self.init_metric(self.name, collection_info, index_info, None, run_params)
         case_metric = copy.deepcopy(self.metric)
+        case_metric.set_case_metric_type()
         case_metrics = list()
         case_params = list()
         case_metrics.append(case_metric)
@@ -334,9 +340,9 @@ class LocustRandomRunner(LocustRunner):
             "other_fields": other_fields,
             "build_index": build_index,
             "index_field_name": index_field_name,
+            "vector_field_name": vector_field_name,
             "index_type": index_type,
             "index_param": index_param,
-
             "task": collection["task"],
             "connection_type": connection_type,
         }
