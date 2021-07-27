@@ -32,7 +32,7 @@ class Tasks(TaskSet):
 
     @task
     def flush(self):
-        self.client.flush(log=False)
+        self.client.flush(log=False, timeout=30)
 
     @task
     def load(self):
