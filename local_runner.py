@@ -106,6 +106,31 @@ class LocalRunner(Runner):
             milvus_instance.flush() 
             logger.debug("Table row counts: %d" % milvus_instance.count())
 
+        elif run_type == "get_ids_performance":
+            (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
+            ids_length_per_segment = collection["ids_length_per_segment"]
+            if not milvus_instance.exists_collection():
+                logger.error("Table name: %s not existed" % collection_name)
+                return
+            collection_info = {
+                "dimension": dimension,
+                "metric_type": metric_type,
+                "index_file_size": index_file_size,
+                "dataset_name": collection_name
+            }
+            search_params = {}
+            logger.info(milvus_instance.count())
+            index_info = milvus_instance.describe_index()
+            logger.info(index_info)  
+            for ids_num in ids_length_per_segment:
+                segment_num, get_ids = milvus_instance.get_rand_ids_each_segment(ids_num)
+                start_time = time.time()
+                _ = milvus_instance.get_entities(get_ids)
+                total_time = time.time() - start_time
+                # avg_time = total_time / segment_num
+                run_params = {"ids_num": ids_num}
+                logger.info("Segment num: %d, ids num per segment: %d, run_time: %f" % (segment_num, ids_num, total_time))
+
         elif run_type == "build_performance":
             (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
             index_type = collection["index_type"]
