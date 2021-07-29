@@ -306,7 +306,6 @@ class QueryTask(User):
         X = [[random.random() for i in range(dim)] for i in range(%s)]
         search_param = %s
         collection_name = get_collection_name()
-        print(collection_name)
         client = get_client(collection_name)
         client.query(X, top_k, search_param, collection_name=collection_name)
             """ % (self.host, self.port, dimension, connection_type, collection_names, def_name, task_params["top_k"], task_params["nq"], task_params["search_param"])
@@ -643,6 +642,7 @@ class QueryTask(User):
                     milvus_instance = MilvusClient(collection_name=name, host=self.host)
                     milvus_instances_map.update({name: milvus_instance})
                 i = i + 1
+
         elif run_type == "locust_mix_performance":
             (data_type, collection_size, index_file_size, dimension, metric_type) = parser.collection_parser(collection_name)
             # ni_per = collection["ni_per"]
