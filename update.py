@@ -169,6 +169,7 @@ def update_values(src_values_file, deploy_params_file):
     with open(src_values_file, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
+    print(values_dict)
 
 
 
