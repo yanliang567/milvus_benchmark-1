@@ -105,12 +105,13 @@ def update_values(src_values_file, deploy_params_file):
             values_dict["mysql"]["enabled"] = False
 
     # # update values.yaml with the given host
-    node_config = None
+    # node_config = None
     perf_tolerations = [{
             "key": "node-role.kubernetes.io/benchmark",
             "operator": "Exists",
             "effect": "NoSchedule"
         }]  
+    values_dict['tolerations'] = perf_tolerations
     # if server_name:
     #     node_config = {'kubernetes.io/hostname': server_name}
     # elif server_tag:
@@ -169,8 +170,6 @@ def update_values(src_values_file, deploy_params_file):
     with open(src_values_file, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
-    print(values_dict)
-
 
 
 if __name__ == "__main__":
