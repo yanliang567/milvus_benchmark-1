@@ -224,7 +224,7 @@ class BPInsertRunner(BaseRunner):
         dimension = case_param["dimension"]
         index_field_name = case_param["index_field_name"]
         build_index = case_param["build_index"]
-
+        # TODO:
         tmp_result = self.insert(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         flush_time = 0.0
         build_time = 0.0
