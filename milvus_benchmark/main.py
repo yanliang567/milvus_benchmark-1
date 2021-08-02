@@ -51,11 +51,12 @@ def run_suite(run_type, suite, env_mode, env_params, timeout=None):
         start_status = False
         metric = api.Metric()
         deploy_mode = env_params["deploy_mode"]
+        deploy_opology = env_params["deploy_opology"] if "deploy_opology" in env_params else None
         env = get_env(env_mode, deploy_mode)
         metric.set_run_id()
         metric.set_mode(env_mode)
         metric.env = Env()
-        metric.server = Server(version=config.SERVER_VERSION, mode=deploy_mode)
+        metric.server = Server(version=config.SERVER_VERSION, mode=deploy_mode, deploy_opology=deploy_opology)
         logger.info(env_params)
         if env_mode == "local":
             metric.hardware = Hardware("")
@@ -229,7 +230,8 @@ def main():
             "host": args.host,
             "port": args.port,
             "deploy_mode": deploy_mode,
-            "server_tag": server_tag
+            "server_tag": server_tag,
+            "deploy_opology": deploy_params_dict
         }
         suite_file = args.suite
         with open(suite_file) as f:
