@@ -128,7 +128,7 @@ def update_values(src_values_file, deploy_params_file):
             values_dict['queryNode']['resources'] = resources
             values_dict['indexNode']['resources'] = resources
             values_dict['dataNode']['resources'] = resources
-            # values_dict['minio']['resources'] = resources
+            values_dict['minio']['resources'] = resources
             # values_dict['pulsarStandalone']['resources'] = resources
         if mems:
             logging.debug("TODO: Update mem resources")
@@ -146,7 +146,7 @@ def update_values(src_values_file, deploy_params_file):
         values_dict['indexNode']['tolerations'] = perf_tolerations
         values_dict['dataNode']['tolerations'] = perf_tolerations
         values_dict['etcd']['tolerations'] = perf_tolerations
-        # values_dict['minio']['tolerations'] = perf_tolerations
+        values_dict['minio']['tolerations'] = perf_tolerations
         values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
         # TODO: for distributed deployment
         # values_dict['pulsar']['autoRecovery']['tolerations'] = perf_tolerations
