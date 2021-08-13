@@ -25,6 +25,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget apt-transp
 
 COPY requirements.txt /requirements.txt
 
-RUN python3 -m pip install -r /requirements.txt
+RUN python3 -m pip install --no-cache-dir -r /requirements.txt
 
 WORKDIR /root
