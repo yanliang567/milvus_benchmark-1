@@ -1,4 +1,4 @@
-`milvus_benchmark` is a non-functional testing tool which allows users to run tests on k8s cluster or at local, the primary use case is performance/load/stability testing, the objective is to expose problems in milvus project.
+The milvus_benchmark is a non-functional testing tool or service which allows users to run tests on k8s cluster or at local, the primary use case is performance/load/stability testing, the objective is to expose problems in milvus project.
 
 ## Quick start
 
@@ -68,6 +68,69 @@ insert_performance:
    - The field `ni_per` means the batch size
    - The filed `build_index` means that whether to create index during inserting
 
+While using argo workflow as benchmark pipeline, the test suite is made of both `client` and `server` configmap, an example will be like this:
+
+`server`
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: server-cluster-8c16m
+  namespace: qa
+  uid: 3752f85c-c840-40c6-a5db-ae44146ad8b5
+  resourceVersion: '42213135'
+  creationTimestamp: '2021-05-14T07:00:53Z'
+  managedFields:
+    - manager: dashboard
+      operation: Update
+      apiVersion: v1
+      time: '2021-05-14T07:00:53Z'
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:data':
+          .: {}
+          'f:config.yaml': {}
+data:
+  config.yaml: |
+    server:
+      server_tag: "8c16m"
+    milvus:
+      deploy_mode: "cluster"
+```
+`client`
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: client-insert-batch-1000
+  namespace: qa
+  uid: 8604c277-f00f-47c7-8fcb-9b3bc97efa74
+  resourceVersion: '42988547'
+  creationTimestamp: '2021-07-09T08:33:02Z'
+  managedFields:
+    - manager: dashboard
+      operation: Update
+      apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:data':
+          .: {}
+          'f:config.yaml': {}
+data:
+  config.yaml: |
+    insert_performance:
+      collections:
+        - 
+          milvus:
+            wal_enable: true
+          collection_name: sift_1m_128_l2
+          ni_per: 1000
+          build_index: false
+          index_type: ivf_sq8
+          index_param:
+            nlist: 1024
+```
+
 ## Overview of the benchmark
 
 ### Conponents
@@ -102,7 +165,9 @@ insert_performance:
 
    - `run_case`: Do the core operation and set `metric` value
 
-- `suites`: Test suite files under `suites` directory
+- `suites`: There are two ways to take the content to be tested as input parameters： 
+   - Test suite files under `suites` directory
+   - Test suite configmap name including `server_config_map` and `client_config_map` if using argo workflow
 
 - `update.py`: While using argo workflow as benchmark pipeline, we have two steps in workflow template: `install-milvus` and `client-test`
    - In stage `install-milvus`, `update.py` is used to generate a new `values.yaml` which will be a param while in `helm install` operation
