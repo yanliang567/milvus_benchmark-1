@@ -11,26 +11,26 @@
    
 ### Usage
 
-1. Using jenkins:
+-  Using jenkins:
    Use `ci/main_jenkinsfile` as the jenkins pipeline file
-2. Using argo： 
+-  Using argo： 
    example argo workflow yaml configuration: `ci/argo.yaml`
-3. Local test：
+-  Local test：
 
-   1). set PYTHONPATH:
+   1. set PYTHONPATH:
    
       `export PYTHONPATH=/your/project/path/milvus_benchmark`
    
-   2). prepare data: 
+   2. prepare data: 
    
       if we need to use the sift/deep dataset as the raw data input, we need to mount NAS and update `RAW_DATA_DIR` in `config.py`, the example mount command:
         `sudo mount -t cifs -o username=test,vers=1.0 //172.16.70.249/test /test`
    
-   3). install requirements:
+   3. install requirements:
 
       `pip install -r requirements.txt`
    
-   4). write test yaml and run with the yaml param:
+   4. write test yaml and run with the yaml param:
    
       `cd milvus-benchmark/ && python main.py --local --host=* --port=19530 --suite=suites/2_insert_data.yaml`
 
