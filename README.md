@@ -104,11 +104,15 @@ insert_performance:
 
 - `suites`: Test suite files under `suites` directory
 
+- `update.py`: While using argo workflow as benchmark pipeline, we have two steps in workflow template: `install-milvus` and `client-test`
+   - In stage `install-milvus`, `update.py` is used to generate a new `values.yaml` which will be a param while in `helm install` operation
+   - In stage `client-test`, it runs `main.py` and receives the milvus host and port as the cmd params, with the run mode `local` 
+
 ### Conceptual overview 
 
-   The following diagram shows the runtime execution graph of the benchmark (helm mode)
+   The following diagram shows the runtime execution graph of the benchmark (local mode based on argo workflow)
 
-
+   <img src="asserts/uml.jpg" />
 
 
 
