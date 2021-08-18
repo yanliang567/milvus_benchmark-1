@@ -15,6 +15,9 @@ The milvus_benchmark is a non-functional testing tool or service which allows us
    Use `ci/main_jenkinsfile` as the jenkins pipeline file
 -  Using argo： 
    example argo workflow yaml configuration: `ci/argo.yaml`
+
+   The client environment can be found in file `Dockerfile`
+
 -  Local test：
 
    1. set PYTHONPATH:
@@ -29,8 +32,10 @@ The milvus_benchmark is a non-functional testing tool or service which allows us
    3. install requirements:
 
       `pip install -r requirements.txt`
+
+   4. install the Python-SDK for milvus
    
-   4. write test yaml and run with the yaml param:
+   5. write test yaml and run with the yaml param:
    
       `cd milvus-benchmark/ && python main.py --local --host=* --port=19530 --suite=suites/2_insert_data.yaml`
 
