@@ -143,6 +143,8 @@ There are several kinds of data types provided in benchmark:
 |  ----        |                          ----  | ----  |
 |  url         | http://corpus-texmex.irisa.fr/ | https://github.com/erikbern/ann-benchmarks/
 
+There are also many optional datasets could be used to test milvus, here is the reference: http://big-ann-benchmarks.com/index.html
+
 If the first few characters in the `collection_name` in test suite yaml are matched with the above type, the corresponding data will be created during inserting entities in milvus
 
 Also, you should provide the field value of the source data file path `source_file` if running with `ann_accuracy` runner type, the source datasets could be found from https://github.com/erikbern/ann-benchmarks/, `SIFT/Kosarak/GloVe-200` are the datasets which are frequently used in regression testing for milvus
