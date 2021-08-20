@@ -202,6 +202,60 @@ Also, you should provide the field value of the source data file path `source_fi
 
    <img src="asserts/uml.jpg" />
 
+## Test report
 
+### Metrics
 
-   
+As the above section mentioned, we will collect the test metrics after test case run finished, here is the main metric field:
+```
+   run_id      : each test suite will generate a run_id
+   mode        : run mode such as local
+   server      : describe server resource and server version
+   hardware    : server host
+   env         : server config
+   status      : run result
+   err_message : error msg when run failed
+   collection  : collection info
+   index       : index type and index params
+   search      : search params
+   run_params  : extra run params
+   metrics     : metric type and metric value
+```
+
+### How to visualize test result
+
+As the metrics uploaded to the db (we use MongoDB currently), we suppose use Redash to visualize test result from https://redash.io/.
+
+For example, in order to find the most suitable insert batch size when preparing data with milvus, a benchmark test suite type named `bp_insert_performance` will run regularly, different `ni_per` in this suite yaml will be executed and the average response time and TPS (Number of rows inserted per second) will be collected.
+
+The query expression:
+```
+{
+    "collection": "doc",
+    "query": {
+        "metrics.type": "bp_insert_performance",
+        "collection.dataset_name": "sift_1m_128_l2",
+        "_type": "case",
+        "server.value.mode": "single"
+    },
+    "fields": {
+        "metrics.value.rps": 1,
+        "datetime": 4,
+        "run_id": 5,
+        "server.value.mode": 6,
+        "collection.ni_per": 7,
+        "metrics.value.ni_time": 8
+    },
+    "sort": [{
+        "name": "run_id",
+        "direction": -1
+    }],
+    "limit": 28
+}
+```
+
+After executing this query, we will get its charts:
+
+ <img src="asserts/dash.png" />
+
+In this chart, we will found there has an improvement from 2.0.0-RC3 to 2.0.0-RC5.
