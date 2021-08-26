@@ -11,6 +11,33 @@ from milvus_benchmark.runners import utils as runner_utils
 logger = logging.getLogger("milvus_benchmark.runners.locust")
 
 
+def parse_search_info(task):
+    """
+    task: 
+        connection_num: 1
+        clients_num: 100
+        spawn_rate: 2
+        during_time: 600
+        types:
+            -
+            type: query
+            weight: 1
+            params:
+                top_k: 10
+                nq: 1
+                search_param:
+                    nprobe: 16
+    """
+    search_info = None
+    for task in task["types"]:
+        if task["type"] != "query":
+            continue
+        else:
+            search_info = task["params"]
+            break
+    return search_info
+
+
 class LocustRunner(BaseRunner):
     def __init__(self, env, metric):
         super(LocustRunner, self).__init__(env, metric)
@@ -195,7 +222,14 @@ class LocustSearchRunner(LocustRunner):
             "task": collection["task"],
             "connection_type": connection_type,
         }
-        self.init_metric(self.name, collection_info, index_info, None, run_params)
+        search_info = parse_search_info(task)
+        if search_info:
+            search_info = {
+                "nq": search_info["nq"],                            
+                "topk": search_info["topk"],
+                "search_param": search_info["search_param"]
+            }
+        self.init_metric(self.name, collection_info, index_info, search_info, run_params)
         case_metric = copy.deepcopy(self.metric)
         case_metric.set_case_metric_type()
         case_metrics = list()
