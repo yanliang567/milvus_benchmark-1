@@ -226,7 +226,7 @@ class LocustSearchRunner(LocustRunner):
         if search_info:
             search_info = {
                 "nq": search_info["nq"],                            
-                "topk": search_info["topk"],
+                "topk": search_info["top_k"],
                 "search_param": search_info["search_param"]
             }
         self.init_metric(self.name, collection_info, index_info, search_info, run_params)
