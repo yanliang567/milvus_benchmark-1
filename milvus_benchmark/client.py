@@ -107,6 +107,7 @@ class MilvusClient(object):
         return self._collection_name
 
     # only support the given field name
+    @time_wrapper
     def create_collection(self, dimension, data_type=DataType.FLOAT_VECTOR, auto_id=False,
                           collection_name=None, other_fields=None):
         self._dimension = dimension
@@ -254,11 +255,12 @@ class MilvusClient(object):
         return res
 
     @time_wrapper
-    def create_index(self, field_name, index_type, metric_type, _async=False, index_param=None):
+    def create_index(self, field_name, index_type, metric_type, collection_name=None, _async=False, index_param=None):
+        tmp_collection_name = self._collection_name if collection_name is None else collection_name
         index_type = INDEX_MAP[index_type]
         metric_type = utils.metric_type_trans(metric_type)
         logger.info("Building index start, collection_name: %s, index_type: %s, metric_type: %s" % (
-            self._collection_name, index_type, metric_type))
+            tmp_collection_name, index_type, metric_type))
         if index_param:
             logger.info(index_param)
         index_params = {
@@ -266,7 +268,7 @@ class MilvusClient(object):
             "metric_type": metric_type,
             "params": index_param
         }
-        self._milvus.create_index(self._collection_name, field_name, index_params, _async=_async)
+        self._milvus.create_index(tmp_collection_name, field_name, index_params, _async=_async)
 
     # TODO: need to check
     def describe_index(self, field_name, collection_name=None):
@@ -389,6 +391,7 @@ class MilvusClient(object):
         logger.debug("Row count: %d in collection: <%s>" % (row_count, collection_name))
         return row_count
 
+    @time_wrapper
     def drop(self, timeout=120, collection_name=None):
         timeout = int(timeout)
         if collection_name is None:
@@ -414,6 +417,7 @@ class MilvusClient(object):
     def get_stats(self):
         return self._milvus.get_collection_stats(self._collection_name)
 
+    @time_wrapper
     def get_info(self, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
@@ -422,6 +426,7 @@ class MilvusClient(object):
     def show_collections(self):
         return self._milvus.list_collections()
 
+    @time_wrapper
     def exists_collection(self, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
