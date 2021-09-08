@@ -33,7 +33,7 @@ class Tasks(TaskSet):
     @task
     def flush(self):
         op = 'flush'
-        collection_name = self.op_info[op]['collection_name'] if 'collection_name' in self.op_info[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
         self.client.flush(collection_name=collection_name, log=False, timeout=30)
 
     @task
@@ -56,15 +56,15 @@ class Tasks(TaskSet):
     @task
     def insert(self):
         op = 'insert'
-        collection_name = self.op_info[op]['collection_name'] if 'collection_name' in self.op_info[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
         # ids = [random.randint(1000000, 10000000) for _ in range(self.params[op]["ni_per"])]
         # X = [[random.random() for _ in range(self.op_info["dimension"])] for _ in range(self.params[op]["ni_per"])]
         if collection_name is None:
             entities = utils.generate_entities(self.op_info["collection_info"], self.values["X"][:self.params[op]["ni_per"]], self.values["ids"][:self.params[op]["ni_per"]])
         else:
             entities = utils.generate_entities(self.client.get_info(collection_name=collection_name),
-                                               self.values["X"][:self.op_info[op]["ni_per"]],
-                                               self.values["ids"][:self.op_info[op]["ni_per"]])
+                                               self.values["X"][:self.params[op]["ni_per"]],
+                                               self.values["ids"][:self.params[op]["ni_per"]])
         self.client.insert(entities, collection_name=collection_name, log=False)
 
     @task
@@ -93,20 +93,20 @@ class Tasks(TaskSet):
             logger.debug("Start drop collection")
             self.client.drop()
             time.sleep(2)
-        dim = self.op_info[op]['dim'] if 'dim' in self.op_info[op] else 128
-        collection_name = self.op_info[op]['collection_name'] if 'collection_name' in self.op_info[op] else None
+        dim = self.params[op]['dim'] if 'dim' in self.params[op] else 128
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
         self.client.create_collection(dimension=dim, collection_name=collection_name)
 
     @task
     def create_index(self):
         op = 'create_index'
-        collection_name = self.op_info[op]['collection_name'] if 'collection_name' in self.op_info[op] else None
-        index_type = self.op_info[op]['index_type'] if 'index_type' in self.op_info[op] else "ivf_sq8"
-        index_param = self.op_info[op]['index_param'] if 'index_param' in self.op_info[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
+        index_type = self.params[op]['index_type'] if 'index_type' in self.params[op] else "ivf_sq8"
+        index_param = self.params[op]['index_param'] if 'index_param' in self.params[op] else None
         self.client.create_index(field_name='float_vector', index_type=index_type, metric_type='l2', collection_name=collection_name, index_param=index_param)
 
     @task
     def drop_collection(self):
         op = 'drop_collection'
-        collection_name = self.op_info[op]['collection_name'] if 'collection_name' in self.op_info[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
         self.client.drop(collection_name=collection_name)
