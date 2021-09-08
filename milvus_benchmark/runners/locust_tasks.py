@@ -3,13 +3,14 @@ import random
 import time
 import logging
 import math 
-from locust import TaskSet, task
+from locust import TaskSet, task, SequentialTaskSet
 from . import utils
 
 logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
-class Tasks(TaskSet):
+# class Tasks(TaskSet):
+class Tasks(SequentialTaskSet):
     @task
     def query(self):
         op = "query"
@@ -59,7 +60,7 @@ class Tasks(TaskSet):
         collection_name = self.params[op]['collection_name'] if (self.params[op] is not None) and ('collection_name' in self.params[op]) else self.client._collection_name
         # ids = [random.randint(1000000, 10000000) for _ in range(self.params[op]["ni_per"])]
         # X = [[random.random() for _ in range(self.op_info["dimension"])] for _ in range(self.params[op]["ni_per"])]
-        if collection_name is None:
+        if collection_name is self.client._collection_name:
             entities = utils.generate_entities(self.op_info["collection_info"], self.values["X"][:self.params[op]["ni_per"]], self.values["ids"][:self.params[op]["ni_per"]])
         else:
             entities = utils.generate_entities(self.client.get_info(collection_name=collection_name),
