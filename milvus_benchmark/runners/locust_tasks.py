@@ -33,7 +33,7 @@ class Tasks(TaskSet):
     @task
     def flush(self):
         op = 'flush'
-        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else self.client._collection_name
         self.client.flush(collection_name=collection_name, log=False, timeout=30)
 
     @task
@@ -56,7 +56,7 @@ class Tasks(TaskSet):
     @task
     def insert(self):
         op = 'insert'
-        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else self.client._collection_name
         # ids = [random.randint(1000000, 10000000) for _ in range(self.params[op]["ni_per"])]
         # X = [[random.random() for _ in range(self.op_info["dimension"])] for _ in range(self.params[op]["ni_per"])]
         if collection_name is None:
@@ -94,13 +94,13 @@ class Tasks(TaskSet):
             self.client.drop()
             time.sleep(2)
         dim = self.params[op]['dim'] if 'dim' in self.params[op] else 128
-        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else self.client._collection_name
         self.client.create_collection(dimension=dim, collection_name=collection_name)
 
     @task
     def create_index(self):
         op = 'create_index'
-        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else self.client._collection_name
         index_type = self.params[op]['index_type'] if 'index_type' in self.params[op] else "ivf_sq8"
         index_param = self.params[op]['index_param'] if 'index_param' in self.params[op] else None
         self.client.create_index(field_name='float_vector', index_type=index_type, metric_type='l2', collection_name=collection_name, index_param=index_param)
@@ -108,5 +108,5 @@ class Tasks(TaskSet):
     @task
     def drop_collection(self):
         op = 'drop_collection'
-        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else None
+        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else self.client._collection_name
         self.client.drop(collection_name=collection_name)
