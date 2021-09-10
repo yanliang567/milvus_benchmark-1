@@ -66,7 +66,7 @@ class Tasks(SequentialTaskSet):
             entities = utils.generate_entities(self.client.get_info(collection_name=collection_name),
                                                self.values["X"][:self.params[op]["ni_per"]],
                                                self.values["ids"][:self.params[op]["ni_per"]])
-        self.client.insert(entities, collection_name=collection_name, log=False)
+        self.client.insert(entities, collection_name=collection_name, log=False, timeout=300)
 
     @task
     def insert_flush(self):
@@ -85,7 +85,7 @@ class Tasks(SequentialTaskSet):
     def get(self):
         op = "get"
         # ids = [random.randint(1, 10000000) for _ in range(self.params[op]["ids_length"])]
-        self.client.get(self.values["get_ids"][:self.params[op]["ids_length"]])
+        self.client.get(self.values["get_ids"][:self.params[op]["ids_length"]], timeout=300)
 
     @task
     def create_collection(self):
@@ -111,3 +111,7 @@ class Tasks(SequentialTaskSet):
         op = 'drop_collection'
         collection_name = self.params[op]['collection_name'] if (self.params[op] is not None) and ('collection_name' in self.params[op]) else self.client._collection_name
         self.client.drop(collection_name=collection_name)
+
+    @task
+    def scene_test(self):
+        pass
