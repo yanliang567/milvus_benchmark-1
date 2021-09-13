@@ -2,7 +2,7 @@ import pdb
 import random
 import time
 import logging
-import math 
+import math
 from locust import TaskSet, task, SequentialTaskSet
 from . import utils
 
@@ -118,6 +118,8 @@ class Tasks(SequentialTaskSet):
         collection_name = op + '_' + str(random.randint(1, 1000))
 
         self.client.create_collection(dimension=128, collection_name=collection_name)
+        time.sleep(1)
+
 
         collection_info = self.client.get_info(collection_name)
         logger.debug("&" * 100)
