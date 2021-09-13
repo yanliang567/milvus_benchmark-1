@@ -421,8 +421,6 @@ class MilvusClient(object):
     def get_info(self, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
-        logger.debug("#" * 100)
-        logger.debug(self._milvus.describe_collection(collection_name))
         return self._milvus.describe_collection(collection_name)
 
     def show_collections(self):
@@ -469,8 +467,6 @@ class MilvusClient(object):
         time.sleep(1)
 
         collection_info = self.get_info(collection_name)
-        logger.debug("&" * 100)
-        logger.debug(collection_info)
 
         entities = utils.generate_entities(collection_info, vectors, ids)
         self.insert(entities)
