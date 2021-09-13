@@ -462,6 +462,7 @@ class MilvusClient(object):
             collection_name = self._collection_name
         return self._milvus.release_partitions(collection_name, tag_names, timeout=timeout)
 
+    @time_wrapper
     def scene_test(self, collection_name=None, vectors=None, ids=None):
         self.create_collection(dimension=128, collection_name=collection_name)
         time.sleep(1)
