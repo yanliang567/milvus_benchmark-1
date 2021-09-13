@@ -114,4 +114,18 @@ class Tasks(SequentialTaskSet):
 
     @task
     def scene_test(self):
-        pass
+        op = "scene_test"
+        collection_name = op + '_' + str(random.randint(1, 1000))
+
+        self.client.create_collection(dimension=128, collection_name=collection_name)
+
+        entities = utils.generate_entities(self.client.get_info(collection_name=collection_name),
+                                           self.values["X"][:3000], self.values["ids"][:3000])
+        self.client.insert(entities, log=False)
+        self.client.flush(log=False)
+
+        self.client.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
+                                 collection_name=collection_name, index_param=None)
+
+        self.client.drop(collection_name=collection_name)
+
