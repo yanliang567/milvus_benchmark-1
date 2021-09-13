@@ -124,7 +124,7 @@ class Tasks(SequentialTaskSet):
         logger.debug(len(self.values["X"]))
         logger.debug(len(self.values["ids"]))
 
-        collection_info = self.client.get_info(collection_name=collection_name)
+        collection_info = self.client._milvus.describe_collection(collection_name)
         logger.debug(collection_info)
 
         entities = utils.generate_entities(collection_info, self.values["X"][:3000], self.values["ids"][:3000])
