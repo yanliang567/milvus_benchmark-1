@@ -475,7 +475,7 @@ class MilvusClient(object):
         self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
                           collection_name=collection_name, index_param=None)
 
-        self.drop(collection_name=collection_name)
+        return self.drop(collection_name=collection_name)
 
     # TODO: remove
     # def get_server_version(self):
