@@ -464,6 +464,23 @@ class MilvusClient(object):
             collection_name = self._collection_name
         return self._milvus.release_partitions(collection_name, tag_names, timeout=timeout)
 
+    def scene_test(self, collection_name=None, vectors=None, ids=None):
+        self.create_collection(dimension=128, collection_name=collection_name)
+        time.sleep(1)
+
+        collection_info = self.get_info(collection_name)
+        logger.debug("&" * 100)
+        logger.debug(collection_info)
+
+        entities = utils.generate_entities(collection_info, vectors, ids)
+        self.insert(entities)
+        self.flush()
+
+        self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
+                          collection_name=collection_name, index_param=None)
+
+        self.drop(collection_name=collection_name)
+
     # TODO: remove
     # def get_server_version(self):
     #     return self._milvus.server_version()

@@ -116,21 +116,22 @@ class Tasks(SequentialTaskSet):
     def scene_test(self):
         op = "scene_test"
         collection_name = op + '_' + str(random.randint(1, 1000))
+        self.client.scene_test(self, collection_name, vectors=self.values["X"][:3000], ids=self.values["ids"][:3000])
 
-        self.client.create_collection(dimension=128, collection_name=collection_name)
-        time.sleep(1)
-
-
-        collection_info = self.client.get_info(collection_name)
-        logger.debug("&" * 100)
-        logger.debug(collection_info)
-
-        entities = utils.generate_entities(collection_info, self.values["X"][:3000], self.values["ids"][:3000])
-        self.client.insert(entities)
-        self.client.flush()
-
-        self.client.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
-                                 collection_name=collection_name, index_param=None)
-
-        self.client.drop(collection_name=collection_name)
+        # self.client.create_collection(dimension=128, collection_name=collection_name)
+        # time.sleep(1)
+        #
+        #
+        # collection_info = self.client.get_info(collection_name)
+        # logger.debug("&" * 100)
+        # logger.debug(collection_info)
+        #
+        # entities = utils.generate_entities(collection_info, self.values["X"][:3000], self.values["ids"][:3000])
+        # self.client.insert(entities)
+        # self.client.flush()
+        #
+        # self.client.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
+        #                          collection_name=collection_name, index_param=None)
+        #
+        # self.client.drop(collection_name=collection_name)
 
