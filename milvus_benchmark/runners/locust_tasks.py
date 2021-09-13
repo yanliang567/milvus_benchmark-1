@@ -123,15 +123,16 @@ class Tasks(SequentialTaskSet):
         logger.debug(self.values.keys())
         logger.debug(len(self.values["X"]))
         logger.debug(len(self.values["ids"]))
-        logger.debug(self.values["X"][:3])
 
-        # entities = utils.generate_entities(self.client.get_info(collection_name=collection_name),
-        #                                    self.values["X"][:3000], self.values["ids"][:3000])
-        # self.client.insert(entities, log=False)
-        # self.client.flush(log=False)
-        #
-        # self.client.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
-        #                          collection_name=collection_name, index_param=None)
+        collection_info = self.client.get_info(collection_name=collection_name)
+        logger.debug(collection_info)
+
+        entities = utils.generate_entities(collection_info, self.values["X"][:3000], self.values["ids"][:3000])
+        self.client.insert(entities)
+        self.client.flush()
+
+        self.client.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
+                                 collection_name=collection_name, index_param=None)
 
         self.client.drop(collection_name=collection_name)
 
