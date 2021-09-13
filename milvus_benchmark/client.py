@@ -421,6 +421,8 @@ class MilvusClient(object):
     def get_info(self, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
+        logger.debug("#" * 100)
+        logger.debug(self._milvus.describe_collection(collection_name))
         return self._milvus.describe_collection(collection_name)
 
     def show_collections(self):
