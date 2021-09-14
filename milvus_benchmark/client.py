@@ -269,6 +269,8 @@ class MilvusClient(object):
             "params": index_param
         }
         self._milvus.create_index(tmp_collection_name, field_name, index_params, _async=_async)
+        logger.debug("Building index done, collection_name: %s, index_type: %s, metric_type: %s" % (
+            tmp_collection_name, index_type, metric_type))
 
     # TODO: need to check
     def describe_index(self, field_name, collection_name=None):
@@ -464,7 +466,7 @@ class MilvusClient(object):
 
     @time_wrapper
     def scene_test(self, collection_name=None, vectors=None, ids=None):
-        logger.debug("[scene_test] Start scene test...")
+        logger.debug("[scene_test] Start scene test : %s" % collection_name)
         self.create_collection(dimension=128, collection_name=collection_name)
         time.sleep(1)
 
@@ -482,7 +484,7 @@ class MilvusClient(object):
 
         logger.debug("[scene_test] Start drop : %s" % collection_name)
         self.drop(collection_name=collection_name)
-        logger.debug("[scene_test]Scene test close...")
+        logger.debug("[scene_test]Scene test close : %s" % collection_name)
         time.sleep(1)
 
     # TODO: remove
