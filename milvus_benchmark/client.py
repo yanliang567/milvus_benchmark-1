@@ -464,21 +464,25 @@ class MilvusClient(object):
 
     @time_wrapper
     def scene_test(self, collection_name=None, vectors=None, ids=None):
-        logger.debug("Start scene test...")
+        logger.debug("[scene_test] Start scene test...")
         self.create_collection(dimension=128, collection_name=collection_name)
         time.sleep(1)
 
         collection_info = self.get_info(collection_name)
 
         entities = utils.generate_entities(collection_info, vectors, ids)
+        logger.debug("[scene_test] Start insert...")
         self.insert(entities)
+        logger.debug("[scene_test] Start flush...")
         self.flush()
 
+        logger.debug("[scene_test] Start create index")
         self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
                           collection_name=collection_name, index_param=None)
 
         self.drop(collection_name=collection_name)
-        logger.debug("Scene test close...")
+        logger.debug("[scene_test]Scene test close...")
+        time.sleep(1)
 
     # TODO: remove
     # def get_server_version(self):
