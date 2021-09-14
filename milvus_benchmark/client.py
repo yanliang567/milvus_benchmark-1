@@ -402,8 +402,15 @@ class MilvusClient(object):
         i = 0
         while i < timeout:
             try:
-                row_count = self.count(collection_name=collection_name)
-                if row_count:
+                # row_count = self.count(collection_name=collection_name)
+                # if row_count:
+                #     time.sleep(1)
+                #     i = i + 1
+                #     continue
+                # else:
+                #     break
+                res = self._milvus.has_collection(collection_name)
+                if res:
                     time.sleep(1)
                     i = i + 1
                     continue
