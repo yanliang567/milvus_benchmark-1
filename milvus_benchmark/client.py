@@ -268,9 +268,8 @@ class MilvusClient(object):
             "metric_type": metric_type,
             "params": index_param
         }
-        self._milvus.create_index(tmp_collection_name, field_name, index_params, _async=_async)
-        logger.debug("Building index done, collection_name: %s, index_type: %s, metric_type: %s" % (
-            tmp_collection_name, index_type, metric_type))
+        res = self._milvus.create_index(tmp_collection_name, field_name, index_params, _async=_async)
+        logger.debug("Building index done, collection_name: %s, response: %s" % (tmp_collection_name, str(res)))
 
     # TODO: need to check
     def describe_index(self, field_name, collection_name=None):
