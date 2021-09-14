@@ -115,7 +115,7 @@ class Tasks(SequentialTaskSet):
     @task
     def scene_test(self):
         op = "scene_test"
-        collection_name = op + '_' + str(random.randint(1, 1000))
+        collection_name = op + '_' + str(random.randint(1, 10000)) + '_' + str(random.randint(10001, 999999))
         self.client.scene_test(collection_name, vectors=self.values["X"][:3000], ids=self.values["ids"][:3000])
 
         # self.client.create_collection(dimension=128, collection_name=collection_name)
