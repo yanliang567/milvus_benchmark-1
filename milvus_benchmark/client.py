@@ -464,6 +464,7 @@ class MilvusClient(object):
 
     @time_wrapper
     def scene_test(self, collection_name=None, vectors=None, ids=None):
+        logger.debug("Start scene test...")
         self.create_collection(dimension=128, collection_name=collection_name)
         time.sleep(1)
 
@@ -476,7 +477,8 @@ class MilvusClient(object):
         self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
                           collection_name=collection_name, index_param=None)
 
-        return self.drop(collection_name=collection_name)
+        self.drop(collection_name=collection_name)
+        logger.debug("Scene test close...")
 
     # TODO: remove
     # def get_server_version(self):
