@@ -268,6 +268,7 @@ class MilvusClient(object):
             "metric_type": metric_type,
             "params": index_param
         }
+        logger.debug("collection: %s Index params: %s" % (tmp_collection_name, str(index_params)))
         res = self._milvus.create_index(tmp_collection_name, field_name, index_params, _async=_async)
         logger.debug("Building index done, collection_name: %s, response: %s" % (tmp_collection_name, str(res)))
 
@@ -486,7 +487,7 @@ class MilvusClient(object):
 
         logger.debug("[scene_test] Start create index : %s" % collection_name)
         self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
-                          collection_name=collection_name, index_param=None)
+                          collection_name=collection_name, index_param={'nlist': 2048})
 
         logger.debug("[scene_test] Start drop : %s" % collection_name)
         self.drop(collection_name=collection_name)
