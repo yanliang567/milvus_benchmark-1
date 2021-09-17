@@ -488,6 +488,7 @@ class MilvusClient(object):
         logger.debug("[scene_test] Start create index : %s" % collection_name)
         self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
                           collection_name=collection_name, index_param={'nlist': 2048})
+        time.sleep(59)
 
         logger.debug("[scene_test] Start drop : %s" % collection_name)
         self.drop(collection_name=collection_name)
