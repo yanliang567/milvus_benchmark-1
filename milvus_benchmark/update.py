@@ -51,6 +51,8 @@ def update_values(src_values_file, deploy_params_file):
         cluster = True
         values_dict["global"]["cluster"]["enabled"] = True
         values_dict["etcd"]["replicaCount"] = 3
+        values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
+                                                "value": "4294967296"}]
     server_tag = utils.get_server_tag(deploy_params)
     print(server_tag)
     # TODO: update milvus config
