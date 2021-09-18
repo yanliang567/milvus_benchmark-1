@@ -49,7 +49,8 @@ def update_values(src_values_file, deploy_params_file):
     values_dict["service"]["type"] = "ClusterIP"
     if deploy_mode != config.DEFUALT_DEPLOY_MODE:
         cluster = True
-        values_dict["cluster"]["enabled"] = True
+        values_dict["global"]["cluster"]["enabled"] = True
+        values_dict["etcd"]["replicaCount"] = 3
     server_tag = utils.get_server_tag(deploy_params)
     print(server_tag)
     # TODO: update milvus config
