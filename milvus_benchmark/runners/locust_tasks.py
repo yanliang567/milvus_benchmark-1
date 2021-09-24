@@ -77,3 +77,9 @@ class Tasks(TaskSet):
         op = "get"
         # ids = [random.randint(1, 10000000) for _ in range(self.params[op]["ids_length"])]
         self.client.get(self.values["get_ids"][:self.params[op]["ids_length"]], timeout=300)
+
+    @task
+    def scene_test(self):
+        op = "scene_test"
+        collection_name = op + '_' + str(random.randint(1, 10000)) + '_' + str(random.randint(10001, 999999))
+        self.client.scene_test(collection_name, vectors=self.values["X"][:3000], ids=self.values["ids"][:3000])
