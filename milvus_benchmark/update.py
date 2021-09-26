@@ -57,12 +57,12 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict["etcd"]["autoCompactionRetention"] = "1000"
     elif deploy_mode == config.CLUSTER_3RD_DEPLOY_MODE:
         cluster = True
-        values_dict["global"]["cluster"]["enabled"] = True
-        values_dict["etcd"]["replicaCount"] = 3
-        values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
-                                                "value": "4294967296"}]
-        values_dict["etcd"]["autoCompactionMode"] = "revision"
-        values_dict["etcd"]["autoCompactionRetention"] = "1000"
+        # values_dict["global"]["cluster"]["enabled"] = True
+        # values_dict["etcd"]["replicaCount"] = 3
+        # values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
+        #                                         "value": "4294967296"}]
+        # values_dict["etcd"]["autoCompactionMode"] = "revision"
+        # values_dict["etcd"]["autoCompactionRetention"] = "1000"
     server_tag = utils.get_server_tag(deploy_params)
     print(server_tag)
     # TODO: update milvus config
