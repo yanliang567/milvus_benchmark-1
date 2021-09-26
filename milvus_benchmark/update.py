@@ -47,13 +47,22 @@ def update_values(src_values_file, deploy_params_file):
     print(deploy_mode)
     cluster = False
     values_dict["service"]["type"] = "ClusterIP"
-    if deploy_mode != config.DEFUALT_DEPLOY_MODE:
+    # milvus: deploy_mode: \"cluster\"
+    if deploy_mode == config.CLUSTER_DEPLOY_MODE:
         cluster = True
         values_dict["cluster"]["enabled"] = True
-        values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
-                                                "value": "4294967296"}]
-        values_dict["etcd"]["autoCompactionMode"] = "revision"
-        values_dict["etcd"]["autoCompactionRetention"] = "1000"
+        # values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
+        #                                         "value": "4294967296"}]
+        # values_dict["etcd"]["autoCompactionMode"] = "revision"
+        # values_dict["etcd"]["autoCompactionRetention"] = "1000"
+    elif deploy_mode == config.CLUSTER_3RD_DEPLOY_MODE:
+        cluster = True
+        # values_dict["global"]["cluster"]["enabled"] = True
+        # values_dict["etcd"]["replicaCount"] = 3
+        # values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
+        #                                         "value": "4294967296"}]
+        # values_dict["etcd"]["autoCompactionMode"] = "revision"
+        # values_dict["etcd"]["autoCompactionRetention"] = "1000"
     server_tag = utils.get_server_tag(deploy_params)
     print(server_tag)
     # TODO: update milvus config
@@ -151,7 +160,8 @@ def update_values(src_values_file, deploy_params_file):
         values_dict['dataNode']['tolerations'] = perf_tolerations
         values_dict['etcd']['tolerations'] = perf_tolerations
         values_dict['minio']['tolerations'] = perf_tolerations
-        values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
+        if deploy_mode != config.CLUSTER_3RD_DEPLOY_MODE:
+            values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
         # TODO: for distributed deployment
         # values_dict['pulsar']['autoRecovery']['tolerations'] = perf_tolerations
         # values_dict['pulsar']['proxy']['tolerations'] = perf_tolerations

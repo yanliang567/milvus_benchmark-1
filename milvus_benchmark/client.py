@@ -107,6 +107,7 @@ class MilvusClient(object):
         return self._collection_name
 
     # only support the given field name
+    @time_wrapper
     def create_collection(self, dimension, data_type=DataType.FLOAT_VECTOR, auto_id=False,
                           collection_name=None, other_fields=None):
         self._dimension = dimension
@@ -254,11 +255,12 @@ class MilvusClient(object):
         return res
 
     @time_wrapper
-    def create_index(self, field_name, index_type, metric_type, _async=False, index_param=None):
+    def create_index(self, field_name, index_type, metric_type, collection_name=None, _async=False, index_param=None):
+        tmp_collection_name = self._collection_name if collection_name is None else collection_name
         index_type = INDEX_MAP[index_type]
         metric_type = utils.metric_type_trans(metric_type)
         logger.info("Building index start, collection_name: %s, index_type: %s, metric_type: %s" % (
-            self._collection_name, index_type, metric_type))
+            tmp_collection_name, index_type, metric_type))
         if index_param:
             logger.info(index_param)
         index_params = {
@@ -266,7 +268,9 @@ class MilvusClient(object):
             "metric_type": metric_type,
             "params": index_param
         }
-        self._milvus.create_index(self._collection_name, field_name, index_params, _async=_async)
+        logger.debug("collection: %s Index params: %s" % (tmp_collection_name, str(index_params)))
+        res = self._milvus.create_index(tmp_collection_name, field_name, index_params, _async=_async)
+        logger.debug("Building index done, collection_name: %s, response: %s" % (tmp_collection_name, str(res)))
 
     # TODO: need to check
     def describe_index(self, field_name, collection_name=None):
@@ -389,6 +393,7 @@ class MilvusClient(object):
         logger.debug("Row count: %d in collection: <%s>" % (row_count, collection_name))
         return row_count
 
+    @time_wrapper
     def drop(self, timeout=120, collection_name=None):
         timeout = int(timeout)
         if collection_name is None:
@@ -398,8 +403,15 @@ class MilvusClient(object):
         i = 0
         while i < timeout:
             try:
-                row_count = self.count(collection_name=collection_name)
-                if row_count:
+                # row_count = self.count(collection_name=collection_name)
+                # if row_count:
+                #     time.sleep(1)
+                #     i = i + 1
+                #     continue
+                # else:
+                #     break
+                res = self._milvus.has_collection(collection_name)
+                if res:
                     time.sleep(1)
                     i = i + 1
                     continue
@@ -414,6 +426,7 @@ class MilvusClient(object):
     def get_stats(self):
         return self._milvus.get_collection_stats(self._collection_name)
 
+    @time_wrapper
     def get_info(self, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
@@ -422,6 +435,7 @@ class MilvusClient(object):
     def show_collections(self):
         return self._milvus.list_collections()
 
+    @time_wrapper
     def exists_collection(self, collection_name=None):
         if collection_name is None:
             collection_name = self._collection_name
@@ -456,6 +470,30 @@ class MilvusClient(object):
         if collection_name is None:
             collection_name = self._collection_name
         return self._milvus.release_partitions(collection_name, tag_names, timeout=timeout)
+
+    @time_wrapper
+    def scene_test(self, collection_name=None, vectors=None, ids=None):
+        logger.debug("[scene_test] Start scene test : %s" % collection_name)
+        self.create_collection(dimension=128, collection_name=collection_name)
+        time.sleep(1)
+
+        collection_info = self.get_info(collection_name)
+
+        entities = utils.generate_entities(collection_info, vectors, ids)
+        logger.debug("[scene_test] Start insert : %s" % collection_name)
+        self.insert(entities, collection_name=collection_name)
+        logger.debug("[scene_test] Start flush : %s" % collection_name)
+        self.flush()
+
+        logger.debug("[scene_test] Start create index : %s" % collection_name)
+        self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
+                          collection_name=collection_name, index_param={'nlist': 2048})
+        time.sleep(59)
+
+        logger.debug("[scene_test] Start drop : %s" % collection_name)
+        self.drop(collection_name=collection_name)
+        logger.debug("[scene_test]Scene test close : %s" % collection_name)
+        # time.sleep(1)
 
     # TODO: remove
     # def get_server_version(self):
