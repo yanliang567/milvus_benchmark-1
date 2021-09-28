@@ -398,7 +398,7 @@ class MilvusClient(object):
         timeout = int(timeout)
         if collection_name is None:
             collection_name = self._collection_name
-        logger.info("Start delete collection: %s" % collection_name)
+        logger.info("Start Drop collection: %s" % collection_name)
         self._milvus.drop_collection(collection_name)
         i = 0
         while i < timeout:
@@ -422,7 +422,7 @@ class MilvusClient(object):
                 logger.warning("Collection count failed: {}".format(str(e)))
                 break
         if i >= timeout:
-            logger.error("Delete collection timeout")
+            logger.error("Drop collection timeout")
 
     def get_stats(self):
         return self._milvus.get_collection_stats(self._collection_name)
