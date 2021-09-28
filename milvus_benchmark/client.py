@@ -419,10 +419,10 @@ class MilvusClient(object):
                     logger.debug("Drop collection %s done." % collection_name)
                     break
             except Exception as e:
-                logger.warning("Collection count failed: {}".format(str(e)))
+                logger.warning("Drop collection %s failed: %s" % (collection_name, str(e)))
                 break
         if i >= timeout:
-            logger.error("Drop collection timeout")
+            logger.error("Drop collection %s timeout" % collection_name)
 
     def get_stats(self):
         return self._milvus.get_collection_stats(self._collection_name)
