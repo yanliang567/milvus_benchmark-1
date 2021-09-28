@@ -416,6 +416,7 @@ class MilvusClient(object):
                     i = i + 1
                     continue
                 else:
+                    logger.debug("Drop collection %s done." % collection_name)
                     break
             except Exception as e:
                 logger.warning("Collection count failed: {}".format(str(e)))
@@ -484,6 +485,8 @@ class MilvusClient(object):
         self.insert(entities, collection_name=collection_name)
         logger.debug("[scene_test] Start flush : %s" % collection_name)
         self.flush(collection_name=collection_name)
+
+        self.count(collection_name=collection_name)
 
         logger.debug("[scene_test] Start create index : %s" % collection_name)
         self.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
