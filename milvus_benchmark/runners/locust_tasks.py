@@ -9,8 +9,7 @@ from . import utils
 logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
-# class Tasks(TaskSet):
-class Tasks(SequentialTaskSet):
+class Tasks(TaskSet):
     @task
     def query(self):
         op = "query"
@@ -33,9 +32,7 @@ class Tasks(SequentialTaskSet):
 
     @task
     def flush(self):
-        op = 'flush'
-        collection_name = self.params[op]['collection_name'] if 'collection_name' in self.params[op] else self.client._collection_name
-        self.client.flush(collection_name=collection_name, log=False, timeout=30)
+        self.client.flush(log=False, timeout=30)
 
     @task
     def load(self):
@@ -57,16 +54,12 @@ class Tasks(SequentialTaskSet):
     @task
     def insert(self):
         op = 'insert'
-        collection_name = self.params[op]['collection_name'] if (self.params[op] is not None) and ('collection_name' in self.params[op]) else self.client._collection_name
         # ids = [random.randint(1000000, 10000000) for _ in range(self.params[op]["ni_per"])]
         # X = [[random.random() for _ in range(self.op_info["dimension"])] for _ in range(self.params[op]["ni_per"])]
-        if collection_name is self.client._collection_name:
-            entities = utils.generate_entities(self.op_info["collection_info"], self.values["X"][:self.params[op]["ni_per"]], self.values["ids"][:self.params[op]["ni_per"]])
-        else:
-            entities = utils.generate_entities(self.client.get_info(collection_name=collection_name),
-                                               self.values["X"][:self.params[op]["ni_per"]],
-                                               self.values["ids"][:self.params[op]["ni_per"]])
-        self.client.insert(entities, collection_name=collection_name, log=False, timeout=300)
+        entities = utils.generate_entities(self.op_info["collection_info"],
+                                           self.values["X"][:self.params[op]["ni_per"]],
+                                           self.values["ids"][:self.params[op]["ni_per"]])
+        self.client.insert(entities, log=False, timeout=300)
 
     @task
     def insert_flush(self):
@@ -88,50 +81,7 @@ class Tasks(SequentialTaskSet):
         self.client.get(self.values["get_ids"][:self.params[op]["ids_length"]], timeout=300)
 
     @task
-    def create_collection(self):
-        op = 'create_collection'
-        if self.client.exists_collection():
-            logger.debug("Start drop collection")
-            self.client.drop()
-            time.sleep(2)
-        dim = self.params[op]['dim'] if 'dim' in self.params[op] else 128
-        collection_name = self.params[op]['collection_name'] if (self.params[op] is not None) and ('collection_name' in self.params[op]) else self.client._collection_name
-        self.client.create_collection(dimension=dim, collection_name=collection_name)
-
-    @task
-    def create_index(self):
-        op = 'create_index'
-        collection_name = self.params[op]['collection_name'] if (self.params[op] is not None) and ('collection_name' in self.params[op]) else self.client._collection_name
-        index_type = self.params[op]['index_type'] if 'index_type' in self.params[op] else "ivf_sq8"
-        index_param = self.params[op]['index_param'] if 'index_param' in self.params[op] else None
-        self.client.create_index(field_name='float_vector', index_type=index_type, metric_type='l2', collection_name=collection_name, index_param=index_param)
-
-    @task
-    def drop_collection(self):
-        op = 'drop_collection'
-        collection_name = self.params[op]['collection_name'] if (self.params[op] is not None) and ('collection_name' in self.params[op]) else self.client._collection_name
-        self.client.drop(collection_name=collection_name)
-
-    @task
     def scene_test(self):
         op = "scene_test"
         collection_name = op + '_' + str(random.randint(1, 10000)) + '_' + str(random.randint(10001, 999999))
         self.client.scene_test(collection_name, vectors=self.values["X"][:3000], ids=self.values["ids"][:3000])
-
-        # self.client.create_collection(dimension=128, collection_name=collection_name)
-        # time.sleep(1)
-        #
-        #
-        # collection_info = self.client.get_info(collection_name)
-        # logger.debug("&" * 100)
-        # logger.debug(collection_info)
-        #
-        # entities = utils.generate_entities(collection_info, self.values["X"][:3000], self.values["ids"][:3000])
-        # self.client.insert(entities)
-        # self.client.flush()
-        #
-        # self.client.create_index(field_name='float_vector', index_type="ivf_sq8", metric_type='l2',
-        #                          collection_name=collection_name, index_param=None)
-        #
-        # self.client.drop(collection_name=collection_name)
-
