@@ -417,8 +417,10 @@ class LocustRandomRunner(LocustRunner):
         self.insert(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         build_time = 0.0
         start_time = time.time()
+        logger.debug("Start flush.")
         self.milvus.flush()
         flush_time = round(time.time()-start_time, 2)
+        logger.debug("Fulsh done, during time: %s" % str(flush_time))
         logger.debug(self.milvus.count())
         if build_index is True:
             logger.debug("Start build index for last file")
