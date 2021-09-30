@@ -43,28 +43,24 @@ def update_values(src_values_file, deploy_params_file):
     except Exception as e:
         logging.error(str(e))
         raise Exception("File not found")
+    print("[benchmark update] deploy_params: %s" % str(deploy_params))
     deploy_mode = utils.get_deploy_mode(deploy_params)
-    print(deploy_mode)
+    print("[benchmark update] deploy_mode: %s" % str(deploy_mode))
     cluster = False
     values_dict["service"]["type"] = "ClusterIP"
     # milvus: deploy_mode: \"cluster\"
     if deploy_mode == config.CLUSTER_DEPLOY_MODE:
         cluster = True
-        values_dict["cluster"]["enabled"] = True
-        # values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
-        #                                         "value": "4294967296"}]
-        # values_dict["etcd"]["autoCompactionMode"] = "revision"
-        # values_dict["etcd"]["autoCompactionRetention"] = "1000"
     elif deploy_mode == config.CLUSTER_3RD_DEPLOY_MODE:
         cluster = True
-        # values_dict["global"]["cluster"]["enabled"] = True
-        # values_dict["etcd"]["replicaCount"] = 3
-        # values_dict["etcd"]["extraEnvVars"] = [{"name": "ETCD_QUOTA_BACKEND_BYTES",
-        #                                         "value": "4294967296"}]
-        # values_dict["etcd"]["autoCompactionMode"] = "revision"
-        # values_dict["etcd"]["autoCompactionRetention"] = "1000"
+    elif deploy_mode == config.SINGLE_DEPLOY_MODE:
+        values_dict["cluster"]["enabled"] = False
+        values_dict["etcd"]["replicaCount"] = 1
+        values_dict["minio"]["mode"] = "standalone"
+        values_dict["pulsar"]["enabled"] = False
+
     server_tag = utils.get_server_tag(deploy_params)
-    print(server_tag)
+    print("[benchmark update] server_tag: %s" % str(server_tag))
     # TODO: update milvus config
     # # update values.yaml with the given host
     # node_config = None
@@ -125,8 +121,8 @@ def update_values(src_values_file, deploy_params_file):
         if gpus:
             logging.info("TODO: Need to schedule pod on GPU server")
         logging.debug("Add tolerations into standalone server")
-        values_dict['standalone']['tolerations'] = perf_tolerations
-        values_dict['minio']['tolerations'] = perf_tolerations
+        # values_dict['standalone']['tolerations'] = perf_tolerations
+        # values_dict['minio']['tolerations'] = perf_tolerations
         values_dict['etcd']['tolerations'] = perf_tolerations
     else:
         # TODO: mem limits on distributed mode
@@ -154,12 +150,12 @@ def update_values(src_values_file, deploy_params_file):
         # values_dict['pulsar']['zookeeper']['nodeSelector'] = node_config
         
         logging.debug("Add tolerations into cluster server")
-        values_dict['proxy']['tolerations'] = perf_tolerations
-        values_dict['queryNode']['tolerations'] = perf_tolerations
-        values_dict['indexNode']['tolerations'] = perf_tolerations
-        values_dict['dataNode']['tolerations'] = perf_tolerations
+        # values_dict['proxy']['tolerations'] = perf_tolerations
+        # values_dict['queryNode']['tolerations'] = perf_tolerations
+        # values_dict['indexNode']['tolerations'] = perf_tolerations
+        # values_dict['dataNode']['tolerations'] = perf_tolerations
         values_dict['etcd']['tolerations'] = perf_tolerations
-        values_dict['minio']['tolerations'] = perf_tolerations
+        # values_dict['minio']['tolerations'] = perf_tolerations
         if deploy_mode != config.CLUSTER_3RD_DEPLOY_MODE:
             values_dict['pulsarStandalone']['tolerations'] = perf_tolerations
         # TODO: for distributed deployment
@@ -201,6 +197,7 @@ def update_values(src_values_file, deploy_params_file):
         'mountPath': '/test'
     }]
 
+    print("[benchmark update] value.yaml: %s" % str(src_values_file))
     with open(src_values_file, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
