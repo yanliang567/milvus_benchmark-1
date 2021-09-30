@@ -197,7 +197,7 @@ def update_values(src_values_file, deploy_params_file):
         'mountPath': '/test'
     }]
 
-    print("[benchmark update] value.yaml: %s" % str(src_values_file))
+    print("[benchmark update] value.yaml: %s" % str(values_dict))
     with open(src_values_file, 'w') as f:
         dump(values_dict, f, default_flow_style=False)
     f.close()
