@@ -254,9 +254,9 @@ class AccAccuracyRunner(AccuracyRunner):
         true_ids = case_param["true_ids"]
         nq = case_metric.search["nq"]
         top_k = case_metric.search["topk"]
-        query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
+        query_res, rps = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True)
         result_ids = self.milvus.get_ids(query_res)
         acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
-        tmp_result = {"acc": acc_value}
+        tmp_result = {"acc": acc_value, "search_rps": rps}
         return tmp_result
 
