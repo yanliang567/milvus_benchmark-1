@@ -51,7 +51,7 @@ def time_wrapper(func):
             _rps = round(end - start, 2)
             logger.debug("Milvus {} run in {}s".format(func.__name__, _rps))
             if rps is not False:
-                return result, rps
+                return result, _rps
         return result
 
     return wrapper
