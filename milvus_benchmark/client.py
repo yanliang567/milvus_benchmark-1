@@ -48,8 +48,8 @@ def time_wrapper(func):
         result = func(*args, **kwargs)
         end = time.time()
         if log:
-            _rps = round(end - start, 2)
-            logger.debug("Milvus {} run in {}s".format(func.__name__, _rps))
+            _rps = end - start
+            logger.debug("Milvus {} run in {}s".format(func.__name__, round(_rps, 2)))
             if rps is not False:
                 return result, _rps
         return result
