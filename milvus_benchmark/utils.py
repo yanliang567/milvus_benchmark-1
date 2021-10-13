@@ -140,7 +140,7 @@ def get_server_tag(deploy_params):
     return server_tag
 
 
-def search_param_analysis(vector, expression):
+def search_param_analysis(vector_query, filter_query):
     """
     {"vector": {index_field_name: search_info}}
     search_info = {
@@ -151,12 +151,51 @@ def search_param_analysis(vector, expression):
     range: \"{'range': {'float1': {'GT': -1.0, 'LT': collection_size * 0.1}}}\"
     """
 
+    if "vector" in vector_query:
+        vector = vector_query["vector"]
+    else:
+        return False
+
+    data = []
+    anns_field = ""
+    param = {}
+    limit = 1
+    if isinstance(vector, dict) and len(vector) == 1:
+        for key in vector:
+            anns_field = key
+            data = vector[key]["query"]
+            param = {"metric_type": vector[key]["metric_type"],
+                     "params": vector[key]["params"]}
+            limit = vector[key]["topk"]
+    else:
+        return False
+
+    if "range" in filter_query:
+        filter_range = filter_query["range"]
+    else:
+        return False
+
+    expression = None
+    if isinstance(filter_range, dict) and len(filter_range) == 1:
+        for key in filter_range:
+            field_name = filter_range[key]
+            if 'GT' in filter_range[key]:
+                exp1 = "%s > %s" % (field_name, str(filter_range[key]['GT']))
+                expression = exp1
+            if 'LT' in filter_range[key]:
+                exp2 = "%s < %s" % (field_name, str(filter_range[key]['LT']))
+                if expression:
+                    expression = expression + ' && ' + exp2
+
+    else:
+        return False
 
     result = {
-        "data": "",
-        "anns_field": "",
-        "param": "",
-        "limit": "",
+        "data": data,
+        "anns_field": anns_field,
+        "param": param,
+        "limit": limit,
         "expression": None
     }
+    logger.debug("Testing search_param_analysis: %s" % str(result))
     return result
