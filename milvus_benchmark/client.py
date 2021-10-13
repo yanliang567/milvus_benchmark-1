@@ -305,7 +305,10 @@ class MilvusClient(object):
         query = {
             "bool": {"must": must_params}
         }
+        logger.debug("[Testing] query param of search: %s" % str(query))
+
         result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
+        # result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
         return result
 
     @time_wrapper

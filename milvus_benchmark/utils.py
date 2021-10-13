@@ -138,3 +138,25 @@ def get_server_tag(deploy_params):
         # server_name = server["server_name"] if "server_name" in server else ""
         server_tag = server["server_tag"] if "server_tag" in server else ""
     return server_tag
+
+
+def search_param_analysis(vector, expression):
+    """
+    {"vector": {index_field_name: search_info}}
+    search_info = {
+                    "topk": top_k,
+                    "query": query_vectors,
+                    "metric_type": utils.metric_type_trans(metric_type),
+                    "params": search_param}
+    range: \"{'range': {'float1': {'GT': -1.0, 'LT': collection_size * 0.1}}}\"
+    """
+
+
+    result = {
+        "data": "",
+        "anns_field": "",
+        "param": "",
+        "limit": "",
+        "expression": None
+    }
+    return result
