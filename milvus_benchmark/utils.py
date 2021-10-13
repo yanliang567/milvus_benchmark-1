@@ -170,18 +170,21 @@ def search_param_analysis(vector_query, filter_query):
     else:
         return False
 
-    if "range" in filter_query:
+    filter_range = None
+    if filter_query is None:
+        expression = None
+    elif "range" in filter_query:
         filter_range = filter_query["range"]
     else:
         return False
 
-    expression = None
     if isinstance(filter_range, dict) and len(filter_range) == 1:
         for key in filter_range:
             field_name = filter_range[key]
             if 'GT' in filter_range[key]:
                 exp1 = "%s > %s" % (field_name, str(filter_range[key]['GT']))
-                expression = exp1
+                if expression is None:
+                    expression = exp1
             if 'LT' in filter_range[key]:
                 exp2 = "%s < %s" % (field_name, str(filter_range[key]['LT']))
                 if expression:
