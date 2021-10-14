@@ -8,7 +8,7 @@ import traceback
 from multiprocessing import Process
 from pymilvus import Milvus, DataType
 import numpy as np
-import utils
+import utils as util
 import config
 from milvus_benchmark.runners import utils
 
@@ -306,8 +306,8 @@ class MilvusClient(object):
             "bool": {"must": must_params}
         }
 
-        #logger.debug("[Testing] query param of search: %s" % str(query))
-        #utils.search_param_analysis(vector_query, filter_query)
+        # logger.debug("[Testing] query param of search: %s" % str(query))
+        util.search_param_analysis(vector_query, filter_query)
         result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
 
         # result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
