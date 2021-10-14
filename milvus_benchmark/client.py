@@ -329,7 +329,9 @@ class MilvusClient(object):
         }
         logger.debug("Start warm up query")
         for i in range(times):
-            self._milvus.search(self._collection_name, query)
+            params = util.search_param_analysis(vector_query, None)
+            result = self._milvus.search(self._collection_name, **params)
+            # self._milvus.search(self._collection_name, query)
         logger.debug("End warm up query")
 
     @time_wrapper
@@ -341,8 +343,13 @@ class MilvusClient(object):
         query = {
             "bool": {"must": must_params}
         }
+
         self.load_collection(tmp_collection_name)
-        result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
+        params = util.search_param_analysis(vector_query, filter_query)
+        params.update({"timeout": timeout})
+        result = self._milvus.search(tmp_collection_name, **params)
+
+        # result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
         return result
 
     def get_ids(self, result):
