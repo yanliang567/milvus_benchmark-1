@@ -307,7 +307,9 @@ class MilvusClient(object):
         }
 
         # logger.debug("[Testing] query param of search: %s" % str(query))
-        util.search_param_analysis(vector_query, filter_query)
+        params = util.search_param_analysis(vector_query, filter_query)
+        params.update({"timeout": timeout})
+        logger.debug(params)
         result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
 
         # result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
