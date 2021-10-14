@@ -173,10 +173,10 @@ def search_param_analysis(vector_query, filter_query):
         return False
 
     filter_range = None
-    if filter_query is None:
+    if filter_query is None or len(filter_query) == 0:
         expression = None
-    elif "range" in filter_query:
-        filter_range = filter_query["range"]
+    elif isinstance(filter_query, list) and len(filter_query) != 0 and "range" in filter_query[1]:
+        filter_range = filter_query[1]["range"]
     else:
         logger.debug("[Testing] range not in filter_query: %s" % str(filter_query))
         return False
