@@ -172,10 +172,8 @@ def search_param_analysis(vector_query, filter_query):
         logger.debug("[Testing] vector not dict or len != 1: %s" % str(vector))
         return False
 
-    filter_range = None
-    if filter_query is None or len(filter_query) == 0:
-        expression = None
-    elif isinstance(filter_query, list) and len(filter_query) != 0 and "range" in filter_query[0]:
+    expression = None
+    if isinstance(filter_query, list) and len(filter_query) != 0 and "range" in filter_query[0]:
         filter_range = filter_query[0]["range"]
     else:
         logger.debug("[Testing] range not in filter_query: %s" % str(filter_query))
@@ -186,8 +184,7 @@ def search_param_analysis(vector_query, filter_query):
             field_name = filter_range[key]
             if 'GT' in filter_range[key]:
                 exp1 = "%s > %s" % (field_name, str(filter_range[key]['GT']))
-                if expression is None:
-                    expression = exp1
+                expression = exp1
             if 'LT' in filter_range[key]:
                 exp2 = "%s < %s" % (field_name, str(filter_range[key]['LT']))
                 if expression:
