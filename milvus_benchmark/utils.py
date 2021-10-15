@@ -145,7 +145,7 @@ def search_param_analysis(vector_query, filter_query):
     if "vector" in vector_query:
         vector = vector_query["vector"]
     else:
-        logger.debug("[Testing] vector not in vector_query")
+        logger.debug("[search_param_analysis] vector not in vector_query")
         return False
 
     data = []
@@ -160,7 +160,7 @@ def search_param_analysis(vector_query, filter_query):
                      "params": vector[key]["params"]}
             limit = vector[key]["topk"]
     else:
-        logger.debug("[Testing] vector not dict or len != 1: %s" % str(vector))
+        logger.debug("[search_param_analysis] vector not dict or len != 1: %s" % str(vector))
         return False
 
     if isinstance(filter_query, list) and len(filter_query) != 0 and "range" in filter_query[0]:
@@ -180,10 +180,10 @@ def search_param_analysis(vector_query, filter_query):
                         expression = exp2
 
         else:
-            logger.debug("[Testing] filter_range not dict or len != 1: %s" % str(filter_range))
+            logger.debug("[search_param_analysis] filter_range not dict or len != 1: %s" % str(filter_range))
             return False
     else:
-        # logger.debug("[Testing] range not in filter_query: %s" % str(filter_query))
+        # logger.debug("[search_param_analysis] range not in filter_query: %s" % str(filter_query))
         expression = None
 
     result = {
@@ -193,5 +193,5 @@ def search_param_analysis(vector_query, filter_query):
         "limit": limit,
         "expression": expression
     }
-    # logger.debug("[Testing] search_param_analysis: %s" % str(result))
+    # logger.debug("[search_param_analysis] search_param_analysis: %s" % str(result))
     return result
