@@ -141,15 +141,6 @@ def get_server_tag(deploy_params):
 
 
 def search_param_analysis(vector_query, filter_query):
-    """
-    {"vector": {index_field_name: search_info}}
-    search_info = {
-                    "topk": top_k,
-                    "query": query_vectors,
-                    "metric_type": utils.metric_type_trans(metric_type),
-                    "params": search_param}
-    range: \"{'range': {'float1': {'GT': -1.0, 'LT': collection_size * 0.1}}}\"
-    """
 
     if "vector" in vector_query:
         vector = vector_query["vector"]
