@@ -167,7 +167,7 @@ def search_param_analysis(vector_query, filter_query):
         filter_range = filter_query[0]["range"]
         if isinstance(filter_range, dict) and len(filter_range) == 1:
             for key in filter_range:
-                field_name = filter_range[key]
+                field_name = key
                 expression = None
                 if 'GT' in filter_range[key]:
                     exp1 = "%s > %s" % (field_name, str(filter_range[key]['GT']))
