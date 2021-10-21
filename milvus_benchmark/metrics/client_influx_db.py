@@ -5,8 +5,7 @@ from datetime import datetime, timedelta
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
-
-from client_base import ClientBase
+from .client_base import ClientBase
 
 logger = logging.getLogger("milvus_benchmark.metric.client_influx_db")
 
@@ -78,7 +77,7 @@ class ClientInfluxDB(ClientBase):
     def delete(self, bucket=None, org=None, predicate='', time=None):
         """
         e.g.:
-        time = {"seconds": 1} / {"minutes": 1}/ {"days": 1}
+        time = {"seconds": 1} / {"minutes": 1} / {"days": 1}
         """
         bucket, org, measurement_name = self.params_value(bucket, org)
 

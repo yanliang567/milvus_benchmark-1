@@ -3,7 +3,7 @@ import traceback
 
 from pymongo import MongoClient
 
-from client_base import ClientBase
+from .client_base import ClientBase
 
 logger = logging.getLogger("milvus_benchmark.metric.client_mongo_db")
 
