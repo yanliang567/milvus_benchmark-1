@@ -23,7 +23,7 @@ def setup_logging(config_path=LOG_CONFIG_PATH, default_level=logging.INFO):
 
         log_config["handlers"]["info_file_handler"].update({"filename": global_params.log_file_path})
 
-        # utils.modify_file([log_path.locust_report_path], is_modify=True)
+        utils.modify_file([global_params.locust_report_path], is_modify=True)
         log_config["handlers"]["locust_file_handler"].update({"filename": global_params.locust_report_path})
 
         logging.config.dictConfig(log_config)
@@ -33,7 +33,7 @@ def setup_logging(config_path=LOG_CONFIG_PATH, default_level=logging.INFO):
 
 class GlobalParams:
     log_file_path = FILE_NAME
-    locust_report_path = '/tmp/logs/locust_report.log'
+    locust_report_path = '/src/logs/locust_report.log'
     config_path = "/test/milvus/config/config.json"
     # config_path = "/tmp/config.json"
     metric = None
