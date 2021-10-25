@@ -35,9 +35,9 @@ handlers:
 loggers:
     milvus_benchmark:
         level: DEBUG
-        handlers: [console, info_file_handler]
+        handlers: [console, info_file_handler, locust_file_handler]
         propagate: no
 
 root:
     level: DEBUG
-    handlers: [console, info_file_handler]
+    handlers: [console, info_file_handler, locust_file_handler]
