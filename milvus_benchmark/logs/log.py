@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import yaml
 import config
+import random
 import milvus_benchmark.utils as utils
 
 cur_path = os.path.abspath(os.path.dirname(__file__))
@@ -31,9 +32,16 @@ def setup_logging(config_path=LOG_CONFIG_PATH, default_level=logging.INFO):
         raise logging.error('Failed to open file', exc_info=True)
 
 
+def gen_log_file():
+    file_path = '/test/milvus/logs/locust_report_%s.log' % str(random.randint(1, 999))
+    while os.path.isfile(file_path):
+        file_path = '/test/milvus/logs/locust_report_%s.log' % str(random.randint(1, 999))
+    return file_path
+
+
 class GlobalParams:
     log_file_path = FILE_NAME
-    locust_report_path = '/src/logs/locust_report.log'
+    locust_report_path = gen_log_file()
     config_path = "/test/milvus/config/config.json"
     # config_path = "/tmp/config.json"
     metric = None
