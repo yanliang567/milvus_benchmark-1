@@ -54,7 +54,7 @@ def data_parser(data):
             tag, data_ = locust_data(k[0], k[1], int(k[2]), k[3], int(k[5]), int(k[6]),
                                      int(k[7]), int(k[8]), float(k[10]), float(k[11]))
             if global_params.metric is not None:
-                tag.update({"run_id": global_params.metric.run_id})
+                tag.update({"run_id": int(global_params.metric.run_id)})
             insert_influx_db(data_, tag)
 
 
