@@ -16,7 +16,9 @@ from milvus_benchmark.metrics import api
 from milvus_benchmark import config, utils
 from milvus_benchmark import parser
 # from scheduler import back_scheduler
+from milvus_benchmark.metrics.data_report import DataReport
 from logs import log
+from logs.log import global_params
 
 log.setup_logging()
 logger = logging.getLogger("milvus_benchmark.main")
@@ -50,6 +52,7 @@ def run_suite(run_type, suite, env_mode, env_params, timeout=None):
     try:
         start_status = False
         metric = api.Metric()
+        global_params.metric = metric
         deploy_mode = env_params["deploy_mode"]
         deploy_opology = env_params["deploy_opology"] if "deploy_opology" in env_params else None
         env = get_env(env_mode, deploy_mode)
@@ -256,6 +259,7 @@ def main():
 if __name__ == "__main__":
     try:
         if not main():
+            DataReport().parser.read_file()
             sys.exit(-1)
         # from apscheduler.events import EVENT_JOB_MISSED
         # back_scheduler.add_listener(listen_miss, EVENT_JOB_MISSED)

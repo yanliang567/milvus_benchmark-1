@@ -17,6 +17,12 @@ handlers:
         level: DEBUG
         filename: info.log
 
+    locust_file_handler:
+        class: logging.FileHandler
+        formatter: simple
+        level: DEBUG
+        filename: info.log
+
 #    error_file_handler:
 #        class: logging.handlers.RotatingFileHandler
 #        level: ERROR

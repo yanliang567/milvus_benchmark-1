@@ -24,6 +24,7 @@ RAW_DATA_DIR = "/test/milvus/raw_data/"
 
 # nars log
 LOG_PATH = "/test/milvus/benchmark/logs/{}/".format(BRANCH)
+# LOG_PATH = "/tmp/"
 
 DEFAULT_DEPLOY_MODE = "single"
 SINGLE_DEPLOY_MODE = "single"
