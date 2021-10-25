@@ -216,6 +216,7 @@ def modify_file(file_path_list, is_modify=False, input_content=""):
 
         if not os.path.isfile(file_path):
             print("[modify_file] file(%s) is not exist." % file_path)
+            os.mknod(file_path)
         else:
             if is_modify is True:
                 print("[modify_file] start modifying file(%s)..." % file_path)

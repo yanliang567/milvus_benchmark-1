@@ -71,6 +71,8 @@ class DataParser:
             data_parser(file_content)
             fd.close()
 
+        os.remove(file_path)
+
     # def read_file(self, file_path=None, time_sleep=5):
     #     file_path = self.file_path if file_path is None else file_path
     #

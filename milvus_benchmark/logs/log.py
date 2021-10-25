@@ -35,7 +35,7 @@ def setup_logging(config_path=LOG_CONFIG_PATH, default_level=logging.INFO):
 def gen_log_file():
     file_path = '/test/milvus/logs/locust_report_%s.log' % str(random.randint(1, 999))
     while os.path.isfile(file_path):
-        file_path = '/test/milvus/logs/locust_report_%s.log' % str(random.randint(1, 999))
+        file_path = '/test/milvus/logs/locust_report_{:%Y-%m-%d}_%s.log'.format(datetime.now(), str(random.randint(1, 999)))
     return file_path
 
 

@@ -259,7 +259,6 @@ def main():
 if __name__ == "__main__":
     try:
         if not main():
-            DataReport().parser.read_file()
             sys.exit(-1)
         # from apscheduler.events import EVENT_JOB_MISSED
         # back_scheduler.add_listener(listen_miss, EVENT_JOB_MISSED)
@@ -273,5 +272,6 @@ if __name__ == "__main__":
         # back_scheduler.shutdown(wait=False)
         sys.exit(-2)
     # block_scheduler.shutdown(wait=False)
+    DataReport().parser.read_file()
     logger.info("All tests run finshed")
     sys.exit(0)
