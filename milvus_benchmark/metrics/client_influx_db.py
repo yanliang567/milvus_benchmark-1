@@ -37,6 +37,7 @@ class ClientInfluxDB(ClientBase):
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
         self.query_api = self.client.query_api()
         self.delete_api = self.client.delete_api()
+        self.buckets_api = self.client.buckets_api()
 
     @influxdb_try_catch()
     def query(self, bucket=None, org=None, measurement_name=None, tag=None, field=None, time="30d", query_content=None,
