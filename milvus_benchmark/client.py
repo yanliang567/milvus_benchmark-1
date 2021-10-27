@@ -311,6 +311,8 @@ class MilvusClient(object):
         # logger.debug("Params of search : %s" % str(params))
         result = self._milvus.search(tmp_collection_name, **params)
 
+        logger.debug("_connection().connection(): " + str(self._milvus._connection().connection()))
+
         # result = self._milvus.search(tmp_collection_name, query, timeout=timeout)
         return result
 
