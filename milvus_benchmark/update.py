@@ -74,7 +74,7 @@ def get_config_digest(url, token):
         return ""
 
 
-def get_latest_tag():
+def get_latest_tag(limit=100):
     service = "registry.docker.io"
     repository = "milvusdb/milvus-dev"
 
@@ -93,6 +93,9 @@ def get_latest_tag():
         if tag_digest == master_latest_digest:
             latest_tag = tag_name
             break
+        if i > limit:
+            break
+
     if latest_tag == "":
         latest_tag = "master-latest"
         print("Can't find the latest image name")
