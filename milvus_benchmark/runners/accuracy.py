@@ -254,8 +254,13 @@ class AccAccuracyRunner(AccuracyRunner):
         true_ids = case_param["true_ids"]
         nq = case_metric.search["nq"]
         top_k = case_metric.search["topk"]
-        for i in range(100):
+        start_time = time.time()
+        end_time = start_time + 500
+        cnt = 0
+        while cnt < 100 and start_time < end_time:
             self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
+            cnt += 1
+            start_time = time.time()
         query_res, rps = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True)
         result_ids = self.milvus.get_ids(query_res)
         acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
