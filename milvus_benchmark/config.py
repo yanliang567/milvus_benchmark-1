@@ -1,6 +1,6 @@
 # MONGO_SERVER = 'mongodb://192.168.1.234:27017/'
-MONGO_SERVER = 'mongodb://root:XtMjnPqywO@10.98.0.14:27017'
-# MONGO_SERVER = 'mongodb://mongodb.test:27017/'
+# MONGO_SERVER = 'mongodb://root:XtMjnPqywO@10.98.0.14:27017'
+MONGO_SERVER = 'mongodb://root:qf9RKodPDR@172.16.50.52:27017'
 
 SCHEDULER_DB = "scheduler"
 JOB_COLLECTION = "jobs"
