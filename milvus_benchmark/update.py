@@ -41,7 +41,7 @@ def get_tags(url, token):
         return []
 
 
-def get_master_tags(tags_list):
+def get_perf_tags(tags_list):
     _list = []
 
     if not isinstance(tags_list, list):
@@ -83,9 +83,9 @@ def get_latest_tag(limit=200):
     tags_url = "https://index.docker.io/v2/%s/tags/list" % repository
     tag_url = "https://index.docker.io/v2/milvusdb/milvus-dev/manifests/"
 
-    master_latest_digest = get_config_digest(tag_url + "master-latest", get_token(auth_url))
+    master_latest_digest = get_config_digest(tag_url + "perf-latest", get_token(auth_url))
     tags = get_tags(tags_url, get_token(auth_url))
-    tag_list = get_master_tags(tags)
+    tag_list = get_perf_tags(tags)
 
     latest_tag = ""
     for i in range(1, len(tag_list) + 1):
