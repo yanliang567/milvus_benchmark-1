@@ -38,9 +38,9 @@ def parse_ann_collection_name(collection_name):
     # dimension = len(collection_name["train"][0])
     if metric == "euclidean":
         metric_type = "l2"
-    elif metric  == "angular":
+    elif metric == "angular" or metric == "innerproduct":
         metric_type = "ip"
-    elif metric  == "jaccard":
+    elif metric == "jaccard":
         metric_type = "jaccard"
     elif metric == "hamming":
         metric_type = "hamming"
