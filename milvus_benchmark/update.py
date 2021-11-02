@@ -97,8 +97,8 @@ def get_latest_tag(limit=100):
             break
 
     if latest_tag == "":
-        latest_tag = "master-latest"
-        print("Can't find the latest image name")
+        # latest_tag = "master-latest"
+        raise print("Can't find the latest image name")
     print("The image name used is %s" % str(latest_tag))
     return latest_tag
 
