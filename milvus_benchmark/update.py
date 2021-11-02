@@ -49,7 +49,8 @@ def get_master_tags(tags_list):
         return _list
 
     for tag in tags_list:
-        if "master" in tag and tag != "master-latest":
+        # if "master" in tag and tag != "master-latest":
+        if "perf" in tag and tag != "perf-latest":
             _list.append(tag)
     return _list
 
@@ -74,7 +75,7 @@ def get_config_digest(url, token):
         return ""
 
 
-def get_latest_tag(limit=100):
+def get_latest_tag(limit=200):
     service = "registry.docker.io"
     repository = "milvusdb/milvus-dev"
 
