@@ -155,6 +155,9 @@ def update_values(src_values_file, deploy_params_file):
         values_dict["minio"]["mode"] = "standalone"
         values_dict["pulsar"]["enabled"] = False
 
+    if deploy_mode == config.SINGLE_DEPLOY_MODE:
+        values_dict["standalone"]["persistence"]["persistentVolumeClaim"]["size"] = "100Gi"
+
     server_tag = utils.get_server_tag(deploy_params)
     print("[benchmark update] server_tag: %s" % str(server_tag))
     # TODO: update milvus config
