@@ -317,7 +317,6 @@ def update_values(src_values_file, deploy_params_file):
     values_dict["image"]["all"]["tag"] = tag
 
     values_dict = utils.update_dict_value(server_resource, values_dict)
-    print("[benchmark update] update_dict: %s" % str(values_dict))
 
     print("[benchmark update] value.yaml: %s" % str(values_dict))
     with open(src_values_file, 'w') as f:
