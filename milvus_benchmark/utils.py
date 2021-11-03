@@ -142,6 +142,20 @@ def get_server_tag(deploy_params):
     return server_tag
 
 
+def get_server_resource(deploy_params):
+    server_resource = {}
+    if deploy_params and "server_resource" in deploy_params:
+        server_resource = deploy_params["server_resource"]
+    return server_resource
+
+
+def update_dict_value(server_resource, values_dict):
+    if not isinstance(server_resource, dict) or not isinstance(values_dict, dict):
+        return values_dict
+    values_dict.update(server_resource)
+    return values_dict
+
+
 def search_param_analysis(vector_query, filter_query):
 
     if "vector" in vector_query:
