@@ -192,7 +192,8 @@ def update_values(src_values_file, deploy_params_file):
                 "cpu": str(int(cpus)) + ".0"
             },
             "requests": {
-                "cpu": str(int(cpus) // 2 + 1) + ".0"
+                "cpu": str(int(cpus) - 1) + ".0"
+                # "cpu": str(int(cpus) // 2 + 1) + ".0"
                 # "cpu": "4.0"
                 # "cpu": str(int(cpus) - 1) + ".0"
             }
@@ -204,8 +205,10 @@ def update_values(src_values_file, deploy_params_file):
                     "memory": str(int(mems)) + "Gi"
                 },
                 "requests": {
-                    "cpu": str(int(cpus) // 2 + 1) + ".0",
-                    "memory": str(int(mems) // 2 + 1) + "Gi"
+                    "cpu": str(int(cpus) - 1) + ".0",
+                    "memory": str(int(mems) - 2) + "Gi"
+                    # "cpu": str(int(cpus) // 2 + 1) + ".0",
+                    # "memory": str(int(mems) // 2 + 1) + "Gi"
                     # "cpu": "4.0"
                     # "cpu": str(int(cpus) - 1) + ".0"
                 }
