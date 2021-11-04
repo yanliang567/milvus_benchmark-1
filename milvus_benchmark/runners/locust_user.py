@@ -66,6 +66,13 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
         MyUser.params[op] = value["params"] if "params" in value else None
     logger.info(MyUser.tasks)
     logger.info(str(MyUser.params))
+    _nq = nq
+    if "insert" in MyUser.params and "ni_per" in MyUser.params["insert"]:
+        ni_per = MyUser.params["insert"]["ni_per"]
+        _nq = ni_per + 10 if ni_per > nq else _nq
+
+    logger.debug("[locust_executor] nq of insert : %s" % str(_nq))
+
     MyUser.values = {
         "ids": [random.randint(1000000, 10000000) for _ in range(nb)],
         "get_ids": [random.randint(1, 10000000) for _ in range(nb)],
