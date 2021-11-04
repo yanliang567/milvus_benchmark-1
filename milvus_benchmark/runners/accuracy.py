@@ -261,10 +261,30 @@ class AccAccuracyRunner(AccuracyRunner):
             self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
             cnt += 1
             start_time = time.time()
-        query_res, rps = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True)
-        result_ids = self.milvus.get_ids(query_res)
-        acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
-        rps_pv = (rps * 1000) / nq
+
+        # query_res, rps = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True)
+        # result_ids = self.milvus.get_ids(query_res)
+        # acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
+        # rps_pv = (rps * 1000) / nq
+
+        acc_list = []
+        rps_list = []
+        pv_list = []
+        for i in range(10):
+            query_res, rps = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
+                                               rps=True)
+            result_ids = self.milvus.get_ids(query_res)
+            acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
+            rps_pv = (rps * 1000) / nq
+
+            acc_list.append(acc_value)
+            rps_list.append(rps)
+            pv_list.append(rps_pv)
+
+        acc_value = utils.get_avg(acc_list)
+        rps = utils.get_avg(rps_list)
+        rps_pv = utils.get_avg(pv_list)
+
         tmp_result = {"acc": acc_value, "search_rps": rps, "rps_pv": rps_pv}
         return tmp_result
 

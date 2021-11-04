@@ -263,3 +263,16 @@ def normalize(metric_type, X):
             tmp.append(new_vector)
         X = tmp
     return X
+
+
+def get_avg(_list):
+    if not isinstance(_list, list):
+        logger.error("[Get Average] The data to be processed is not a list: %s" % str(_list))
+        return False
+
+    sum_ = 0
+    for i in _list:
+       sum_ += i
+
+    data_ = sum_ / len(_list)
+    return data_
