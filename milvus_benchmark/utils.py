@@ -149,10 +149,10 @@ def get_server_resource(deploy_params):
     return server_resource
 
 
-def dict_add(source, target):
+def dict_update(source, target):
     for key, value in source.items():
         if isinstance(value, dict) and key in target:
-            dict_add(source[key], target[key])
+            dict_update(source[key], target[key])
         else:
             target[key] = value
     return target
@@ -162,7 +162,7 @@ def update_dict_value(server_resource, values_dict):
     if not isinstance(server_resource, dict) or not isinstance(values_dict, dict):
         return values_dict
 
-    target = dict_add(server_resource, values_dict)
+    target = dict_update(server_resource, values_dict)
 
     return target
 
