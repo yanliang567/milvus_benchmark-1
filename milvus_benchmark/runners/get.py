@@ -25,6 +25,7 @@ class GetRunner(BaseRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
+        shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         vector_type = utils.get_vector_type(data_type)
@@ -36,7 +37,8 @@ class GetRunner(BaseRunner):
             "dataset_name": collection_name,
             "collection_size": collection_size,
             "other_fields": other_fields,
-            "ni_per": ni_per
+            "ni_per": ni_per,
+            "shards_num": shards_num
         }
         index_field_name = utils.get_default_field_name(vector_type)
         index_type = collection["index_type"]
@@ -70,7 +72,8 @@ class GetRunner(BaseRunner):
                 "index_field_name": index_field_name,
                 "index_type": index_type,
                 "index_param": index_param,
-                "ids": ids
+                "ids": ids,
+                "shards_num": shards_num
             }
             case_params.append(case_param)
         return case_params, case_metrics
@@ -103,12 +106,14 @@ class InsertGetRunner(GetRunner):
         dimension = case_param["dimension"]
         vector_type = case_param["vector_type"]
         other_fields = case_param["other_fields"]
+        shards_num = case_param["shards_num"]
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
             self.milvus.drop()
             time.sleep(utils.DELETE_INTERVAL_TIME)
-        self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields)
+        self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields, shards_num=shards_num)
         self.insert(self.milvus, collection_name, case_param["data_type"], dimension,
                                case_param["collection_size"], case_param["ni_per"])
         start_time = time.time()
