@@ -23,6 +23,7 @@ class SearchRunner(BaseRunner):
         run_count = collection["run_count"]
         top_ks = collection["top_ks"]
         nqs = collection["nqs"]
+        guarantee_timestamp = collection["guarantee_timestamp"] if "guarantee_timestamp" in collection else None
         filters = collection["filters"] if "filters" in collection else []
         
         search_params = collection["search_params"]
@@ -73,6 +74,7 @@ class SearchRunner(BaseRunner):
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
+                            "guarantee_timestamp": guarantee_timestamp,
                             "search_param": search_param,
                             "filter": filter_param
                         }
@@ -83,6 +85,7 @@ class SearchRunner(BaseRunner):
                             "run_count": run_count,
                             "filter_query": filter_query,
                             "vector_query": vector_query,
+                            "guarantee_timestamp": guarantee_timestamp
                         }
                         cases.append(case)
                         case_metrics.append(case_metric)
@@ -109,7 +112,8 @@ class SearchRunner(BaseRunner):
         for i in range(run_count):
             logger.debug("Start run query, run %d of %s" % (i+1, run_count))
             start_time = time.time()
-            _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
+            _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
+                                           guarantee_timestamp=case_param["guarantee_timestamp"])
             interval_time = time.time() - start_time
             total_query_time += interval_time
             if (i == 0) or (min_query_time > interval_time):
@@ -137,6 +141,7 @@ class InsertSearchRunner(BaseRunner):
         run_count = collection["run_count"]
         top_ks = collection["top_ks"]
         nqs = collection["nqs"]
+        guarantee_timestamp = collection["guarantee_timestamp"] if "guarantee_timestamp" in collection else None
         other_fields = collection["other_fields"] if "other_fields" in collection else None
         filters = collection["filters"] if "filters" in collection else []
         filter_query = []
@@ -190,6 +195,7 @@ class InsertSearchRunner(BaseRunner):
                         case_metric.search = {
                             "nq": nq,
                             "topk": top_k,
+                            "guarantee_timestamp": guarantee_timestamp,
                             "search_param": search_param,
                             "filter": filter_query
                         }
@@ -210,6 +216,7 @@ class InsertSearchRunner(BaseRunner):
                             "run_count": run_count,
                             "filter_query": filter_query,
                             "vector_query": vector_query,
+                            "guarantee_timestamp": guarantee_timestamp
                         }
                         cases.append(case)
                         case_metrics.append(case_metric)
@@ -274,7 +281,8 @@ class InsertSearchRunner(BaseRunner):
             logger.debug("Start run query, run %d of %s" % (i+1, run_count))
             logger.info(case_metric.search)
             start_time = time.time()
-            _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"])
+            _query_res = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
+                                           guarantee_timestamp=case_param["guarantee_timestamp"])
             interval_time = time.time() - start_time
             total_query_time += interval_time
             if (i == 0) or (min_query_time > interval_time):
