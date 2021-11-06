@@ -206,7 +206,7 @@ def update_values(src_values_file, deploy_params_file):
                 },
                 "requests": {
                     "cpu": str(int(cpus) - 2) + ".0",
-                    "memory": str(int(mems) - 4) + "Gi"
+                    "memory": str(int(mems) - 14) + "Gi"
                     # "cpu": str(int(cpus) // 2 + 1) + ".0",
                     # "memory": str(int(mems) // 2 + 1) + "Gi"
                     # "cpu": "4.0"
