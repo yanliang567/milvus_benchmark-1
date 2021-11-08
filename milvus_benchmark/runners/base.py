@@ -100,6 +100,7 @@ class BaseRunner(object):
             return False
         i = 0
         info = milvus.get_info(collection_name)
+        logger.debug("collection info : %s" % str(info))
         if data_type == "local" or not data_type:
             # insert local
             info = milvus.get_info(collection_name)
