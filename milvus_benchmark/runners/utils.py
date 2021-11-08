@@ -16,6 +16,7 @@ DELETE_INTERVAL_TIME = 2
 
 VECTORS_PER_FILE = 1000000
 SIFT_VECTORS_PER_FILE = 100000
+DEEP_VECTORS_PER_FILE = 100000
 BINARY_VECTORS_PER_FILE = 2000000
 
 MAX_NQ = 10001
@@ -74,6 +75,8 @@ def get_len_vectors_per_file(data_type, dimension):
             vectors_per_file = 10000
     elif data_type == "sift":
         vectors_per_file = SIFT_VECTORS_PER_FILE
+    elif data_type == "deep":
+        vectors_per_file = DEEP_VECTORS_PER_FILE
     elif data_type in ["binary"]:
         vectors_per_file = BINARY_VECTORS_PER_FILE
     elif data_type == "local":
