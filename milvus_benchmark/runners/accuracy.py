@@ -294,40 +294,178 @@ class AccAccuracyRunner(AccuracyRunner):
         return tmp_result
 
 
-class AsyncAccuracyRunner(AccAccuracyRunner):
+class AsyncAccuracyRunner(AccuracyRunner):
     name = "async_accuracy"
 
+    def __init__(self, env, metric):
+        super(AsyncAccuracyRunner, self).__init__(env, metric)
+
+    def extract_cases(self, collection):
+        collection_name = collection["collection_name"] if "collection_name" in collection else None
+        (data_type, dimension, metric_type) = parser.parse_ann_collection_name(collection_name)
+        hdf5_source_file = collection["source_file"]
+        index_types = collection["index_types"]
+        index_params = collection["index_params"]
+        top_ks = collection["top_ks"]
+        nqs = collection["nqs"]
+        vps = collection["vps"]
+        search_number = collection["search_number"]
+        guarantee_timestamp = collection["guarantee_timestamp"] if "guarantee_timestamp" in collection else None
+        search_params = collection["search_params"]
+        vector_type = utils.get_vector_type(data_type)
+        index_field_name = utils.get_default_field_name(vector_type)
+        dataset = utils.get_dataset(hdf5_source_file)
+        collection_info = {
+            "dimension": dimension,
+            "metric_type": metric_type,
+            "dataset_name": collection_name
+        }
+        filters = collection["filters"] if "filters" in collection else []
+        filter_query = []
+        search_params = utils.generate_combinations(search_params)
+        index_params = utils.generate_combinations(index_params)
+        cases = list()
+        case_metrics = list()
+        self.init_metric(self.name, collection_info, {}, search_info=None)
+        true_ids = np.array(dataset["neighbors"])
+        for index_type in index_types:
+            for index_param in index_params:
+                index_info = {
+                    "index_type": index_type,
+                    "index_param": index_param
+                }
+                for search_param in search_params:
+                    if not filters:
+                        filters.append(None)
+                    for filter in filters:
+                        filter_param = []
+                        if isinstance(filter, dict) and "range" in filter:
+                            filter_query.append(eval(filter["range"]))
+                            filter_param.append(filter["range"])
+                        if isinstance(filter, dict) and "term" in filter:
+                            filter_query.append(eval(filter["term"]))
+                            filter_param.append(filter["term"])
+                        for nq in nqs:
+                            query_vectors = utils.normalize(metric_type, np.array(dataset["test"][:nq]))
+                            for top_k in top_ks:
+                                search_info = {
+                                    "topk": top_k,
+                                    "query": query_vectors,
+                                    "metric_type": utils.metric_type_trans(metric_type),
+                                    "params": search_param}
+                                # TODO: only update search_info
+                                case_metric = copy.deepcopy(self.metric)
+                                case_metric.set_case_metric_type()
+                                case_metric.index = index_info
+                                case_metric.search = {
+                                    "nq": nq,
+                                    "topk": top_k,
+                                    "guarantee_timestamp": guarantee_timestamp,
+                                    "search_param": search_param,
+                                    "filter": filter_param,
+                                    "vps": vps,
+                                    "search_number": search_number
+                                }
+                                vector_query = {"vector": {index_field_name: search_info}}
+                                case = {
+                                    "collection_name": collection_name,
+                                    "dataset": dataset,
+                                    "index_field_name": index_field_name,
+                                    "dimension": dimension,
+                                    "data_type": data_type,
+                                    "metric_type": metric_type,
+                                    "vector_type": vector_type,
+                                    "index_type": index_type,
+                                    "index_param": index_param,
+                                    "filter_query": filter_query,
+                                    "vector_query": vector_query,
+                                    "true_ids": true_ids,
+                                    "guarantee_timestamp": guarantee_timestamp,
+                                    "vps": vps,
+                                    "search_number": search_number
+                                }
+                                cases.append(case)
+                                case_metrics.append(case_metric)
+        return cases, case_metrics
+
+    def prepare(self, **case_param):
+        collection_name = case_param["collection_name"]
+        metric_type = case_param["metric_type"]
+        dimension = case_param["dimension"]
+        vector_type = case_param["vector_type"]
+        index_type = case_param["index_type"]
+        index_param = case_param["index_param"]
+        index_field_name = case_param["index_field_name"]
+
+        self.milvus.set_collection(collection_name)
+        if self.milvus.exists_collection(collection_name):
+            logger.info("Re-create collection: %s" % collection_name)
+            self.milvus.drop()
+        dataset = case_param["dataset"]
+        self.milvus.create_collection(dimension, data_type=vector_type)
+        insert_vectors = utils.normalize(metric_type, np.array(dataset["train"]))
+        if len(insert_vectors) != dataset["train"].shape[0]:
+            raise Exception("Row count of insert vectors: %d is not equal to dataset size: %d" % (
+                len(insert_vectors), dataset["train"].shape[0]))
+        logger.debug("The row count of entities to be inserted: %d" % len(insert_vectors))
+        # Insert batch once
+        # milvus_instance.insert(insert_vectors)
+        info = self.milvus.get_info(collection_name)
+        loops = len(insert_vectors) // INSERT_INTERVAL + 1
+        for i in range(loops):
+            start = i * INSERT_INTERVAL
+            end = min((i + 1) * INSERT_INTERVAL, len(insert_vectors))
+            if start < end:
+                tmp_vectors = insert_vectors[start:end]
+                ids = [i for i in range(start, end)]
+                if not isinstance(tmp_vectors, list):
+                    entities = utils.generate_entities(info, tmp_vectors.tolist(), ids)
+                    res_ids = self.milvus.insert(entities)
+                else:
+                    entities = utils.generate_entities(tmp_vectors, ids)
+                    res_ids = self.milvus.insert(entities)
+                assert res_ids == ids
+        logger.debug("End insert, start flush")
+        self.milvus.flush()
+        logger.debug("End flush")
+        res_count = self.milvus.count()
+        logger.info("Table: %s, row count: %d" % (collection_name, res_count))
+        if res_count != len(insert_vectors):
+            raise Exception("Table row count is not equal to insert vectors")
+        if self.milvus.describe_index(index_field_name):
+            self.milvus.drop_index(index_field_name)
+            logger.info("Re-create index: %s" % collection_name)
+        self.milvus.create_index(index_field_name, index_type, metric_type, index_param=index_param)
+        logger.info(self.milvus.describe_index(index_field_name))
+        logger.info("Start load collection: %s" % collection_name)
+        # self.milvus.release_collection()
+        self.milvus.load_collection(timeout=600)
+        logger.info("End load collection: %s" % collection_name)
+
     def run_case(self, case_metric, **case_param):
-        # true_ids = case_param["true_ids"]
-        # nq = case_metric.search["nq"]
-        # top_k = case_metric.search["topk"]
-        # start_time = time.time()
-        # end_time = start_time + 500
-        # cnt = 0
-        # while cnt < 100 and start_time < end_time:
-        #     self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
-        #                       guarantee_timestamp=case_param["guarantee_timestamp"])
-        #     cnt += 1
-        #     start_time = time.time()
-        #
-        # acc_list = []
-        # rps_list = []
-        # pv_list = []
-        # for i in range(10):
-        #     query_res, rps = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
-        #                                        rps=True, guarantee_timestamp=case_param["guarantee_timestamp"])
-        #     result_ids = self.milvus.get_ids(query_res)
-        #     acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
-        #     rps_pv = (rps * 1000) / nq
-        #
-        #     acc_list.append(acc_value)
-        #     rps_list.append(rps)
-        #     pv_list.append(rps_pv)
-        #
-        # acc_value = utils.get_avg(acc_list)
-        # rps = utils.get_avg(rps_list)
-        # rps_pv = utils.get_avg(pv_list)
-        #
-        # tmp_result = {"acc": acc_value, "search_rps": rps, "rps_pv": rps_pv}
-        tmp_result = None
+        nq = case_metric.search["nq"]
+        vps = case_metric["vps"]
+        search_number = case_param["search_number"]
+        start_time = time.time()
+        end_time = start_time + 500
+        cnt = 0
+        while cnt < 100 and start_time < end_time:
+            self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
+                              guarantee_timestamp=case_param["guarantee_timestamp"])
+            cnt += 1
+            start_time = time.time()
+
+        for i in range(int(search_number)):
+            _start_time = time.time()
+            self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True,
+                              guarantee_timestamp=case_param["guarantee_timestamp"], _async=True)
+            _end_delta_time = time.time() - _start_time
+            delta_time = nq / float(vps)
+            delta = delta_time - _end_delta_time
+            if delta > 0:
+                time.sleep(delta)
+            else:
+                raise logger.error("Error: The search time(%s) exceeds (nq/vps) %s s" % (str(delta), str(delta_time)))
+
+        tmp_result = []
         return tmp_result

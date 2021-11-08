@@ -138,6 +138,7 @@ class BaseRunner(object):
                         data = np.load(file_name)
                         vectors.extend(data.tolist())
                     if vectors:
+                        logger.debug("vector: %s" % str(vectors))
                         start_id = i * vectors_per_file
                         ni_time = self.insert_core(milvus, info, start_id, vectors)
                         total_time = total_time+ni_time
