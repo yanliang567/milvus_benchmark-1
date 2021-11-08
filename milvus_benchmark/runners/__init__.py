@@ -4,7 +4,7 @@ from .search import SearchRunner, InsertSearchRunner
 from .build import BuildRunner, InsertBuildRunner
 from .get import InsertGetRunner
 from .accuracy import AccuracyRunner
-from .accuracy import AccAccuracyRunner
+from .accuracy import AccAccuracyRunner, AsyncAccuracyRunner
 from .chaos import SimpleChaosRunner
 
 
@@ -22,5 +22,6 @@ def get_runner(name, env, metric):
         "build_performance": BuildRunner(env, metric),
         "accuracy": AccuracyRunner(env, metric),
         "ann_accuracy": AccAccuracyRunner(env, metric),
-        "simple_chaos": SimpleChaosRunner(env, metric)
+        "simple_chaos": SimpleChaosRunner(env, metric),
+        "async_accuracy": AsyncAccuracyRunner(env, metric)
     }.get(name)

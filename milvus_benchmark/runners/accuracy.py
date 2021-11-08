@@ -3,6 +3,7 @@ import time
 import copy
 import logging
 import numpy as np
+import asyncio
 
 from milvus_benchmark import parser
 from milvus_benchmark.runners import utils
@@ -292,3 +293,41 @@ class AccAccuracyRunner(AccuracyRunner):
         tmp_result = {"acc": acc_value, "search_rps": rps, "rps_pv": rps_pv}
         return tmp_result
 
+
+class AsyncAccuracyRunner(AccAccuracyRunner):
+    name = "async_accuracy"
+
+    def run_case(self, case_metric, **case_param):
+        # true_ids = case_param["true_ids"]
+        # nq = case_metric.search["nq"]
+        # top_k = case_metric.search["topk"]
+        # start_time = time.time()
+        # end_time = start_time + 500
+        # cnt = 0
+        # while cnt < 100 and start_time < end_time:
+        #     self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
+        #                       guarantee_timestamp=case_param["guarantee_timestamp"])
+        #     cnt += 1
+        #     start_time = time.time()
+        #
+        # acc_list = []
+        # rps_list = []
+        # pv_list = []
+        # for i in range(10):
+        #     query_res, rps = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
+        #                                        rps=True, guarantee_timestamp=case_param["guarantee_timestamp"])
+        #     result_ids = self.milvus.get_ids(query_res)
+        #     acc_value = utils.get_recall_value(true_ids[:nq, :top_k].tolist(), result_ids)
+        #     rps_pv = (rps * 1000) / nq
+        #
+        #     acc_list.append(acc_value)
+        #     rps_list.append(rps)
+        #     pv_list.append(rps_pv)
+        #
+        # acc_value = utils.get_avg(acc_list)
+        # rps = utils.get_avg(rps_list)
+        # rps_pv = utils.get_avg(pv_list)
+        #
+        # tmp_result = {"acc": acc_value, "search_rps": rps, "rps_pv": rps_pv}
+        tmp_result = None
+        return tmp_result
