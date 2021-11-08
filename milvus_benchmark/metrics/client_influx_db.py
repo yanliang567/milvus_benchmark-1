@@ -93,6 +93,9 @@ class ClientInfluxDB(ClientBase):
         measurement_name = self.measurement_name if measurement_name is None else measurement_name
         return bucket, org, measurement_name
 
+    def check_bucket(self, bucket_name):
+        pass
+
     @staticmethod
     def parse_query_results(result, out_put=False):
         results = []
