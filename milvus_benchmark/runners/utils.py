@@ -227,7 +227,6 @@ def gen_file_name(idx, dimension, data_type):
         fname = HAMMING_SRC_DATA_DIR + fname
     elif data_type == "sub" or data_type == "super":
         fname = STRUCTURE_SRC_DATA_DIR + fname
-    logger.debug("gen_file_name : %s" % str(fname))
     return fname
 
 
