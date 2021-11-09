@@ -444,7 +444,7 @@ class AsyncThroughputRunner(AccuracyRunner):
 
     def run_case(self, case_metric, **case_param):
         nq = case_metric.search["nq"]
-        vps = case_metric["vps"]
+        vps = case_param["vps"]
         search_number = case_param["search_number"]
 
         start_time = time.time()
