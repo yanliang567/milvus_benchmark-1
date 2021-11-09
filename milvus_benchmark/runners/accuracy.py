@@ -477,7 +477,7 @@ class AsyncThroughputRunner(AccuracyRunner):
             if delta > 0:
                 time.sleep(delta)
             else:
-                raise logger.error("Error: The search time(%s) exceeds (nq/vps) %s s" % (str(delta), str(delta_time)))
+                raise logger.error("Error: The search time(%s) exceeds (nq/vps) %s s" % (str(_end_delta_time), str(delta_time)))
 
         for _future in futures:
             _future.done()
