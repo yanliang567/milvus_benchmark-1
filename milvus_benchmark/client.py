@@ -298,7 +298,7 @@ class MilvusClient(object):
         return self._milvus.drop_index(self._collection_name, field_name)
 
     @time_wrapper
-    def query(self, vector_query, filter_query=None, collection_name=None, timeout=300, guarantee_timestamp=None, _async=False, _callback=None):
+    def query(self, vector_query, filter_query=None, collection_name=None, timeout=300, guarantee_timestamp=None, _async=None, _callback=None):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         must_params = [vector_query]
         if filter_query:
@@ -313,7 +313,8 @@ class MilvusClient(object):
         if guarantee_timestamp is not None:
             params.update({"guarantee_timestamp": guarantee_timestamp})
 
-        params.update({"_async": _async})
+        if _async is not None:
+            params.update({"_async": _async})
 
         if callable(_callback):
             params.update({"_callback": _callback})
