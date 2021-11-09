@@ -467,7 +467,7 @@ class AsyncThroughputRunner(AccuracyRunner):
         futures = []
         for i in range(search_number):
             _start_time = time.time()
-            future = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True,
+            future = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
                                        guarantee_timestamp=case_param["guarantee_timestamp"], _async=True,
                                        _callback=_mk_callback(order=i))
             futures.append(future)
