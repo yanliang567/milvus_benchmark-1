@@ -465,6 +465,7 @@ class AsyncThroughputRunner(AccuracyRunner):
             return func
 
         futures = []
+        delta_time = nq / float(vps)
         for i in range(search_number):
             _start_time = time.time()
             future = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
@@ -472,13 +473,12 @@ class AsyncThroughputRunner(AccuracyRunner):
                                        _callback=_mk_callback(order=i))
             futures.append(future)
             _end_delta_time = time.time() - _start_time
-            delta_time = nq / float(vps)
             delta = delta_time - _end_delta_time
             if delta > 0:
                 time.sleep(delta)
             else:
                 raise logger.error("Error: The search time(%s) exceeds (nq/vps) %s s" % (str(delta), str(delta_time)))
 
-        for i in range(search_number):
-            futures[i].done()
+        for _future in futures:
+            _future.done()
         return timestamps
