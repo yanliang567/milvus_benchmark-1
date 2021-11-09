@@ -294,11 +294,11 @@ class AccAccuracyRunner(AccuracyRunner):
         return tmp_result
 
 
-class AsyncAccuracyRunner(AccuracyRunner):
+class AsyncThroughputRunner(AccuracyRunner):
     name = "async_accuracy"
 
     def __init__(self, env, metric):
-        super(AsyncAccuracyRunner, self).__init__(env, metric)
+        super(AsyncThroughputRunner, self).__init__(env, metric)
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
