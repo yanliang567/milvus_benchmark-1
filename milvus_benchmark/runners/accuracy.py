@@ -460,7 +460,7 @@ class AsyncThroughputRunner(AccuracyRunner):
 
         def _mk_callback(order=0):
             def func():
-                timestamps.append((time.time(), order))
+                timestamps.append((order, time.time()))
 
             return func
 
@@ -481,4 +481,4 @@ class AsyncThroughputRunner(AccuracyRunner):
 
         for _future in futures:
             _future.done()
-        return timestamps
+        return {"timestamps": timestamps}
