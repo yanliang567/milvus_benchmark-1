@@ -1,5 +1,4 @@
 import json
-import threading
 import time
 import copy
 import logging
@@ -297,6 +296,7 @@ class AccAccuracyRunner(AccuracyRunner):
 
 class AsyncThroughputRunner(AccuracyRunner):
     name = "async_accuracy"
+
     def __init__(self, env, metric):
         super(AsyncThroughputRunner, self).__init__(env, metric)
 
@@ -456,9 +456,11 @@ class AsyncThroughputRunner(AccuracyRunner):
             start_time = time.time()
 
         timestamps = []
+
         def _mk_callback(order=0):
             def func():
                 timestamps.append((time.time(), order))
+
             return func
 
         futures = []
