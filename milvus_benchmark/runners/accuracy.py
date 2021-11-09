@@ -1,4 +1,5 @@
 import json
+import threading
 import time
 import copy
 import logging
@@ -208,7 +209,7 @@ class AccAccuracyRunner(AccuracyRunner):
         index_type = case_param["index_type"]
         index_param = case_param["index_param"]
         index_field_name = case_param["index_field_name"]
-        
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection(collection_name):
             logger.info("Re-create collection: %s" % collection_name)
@@ -294,11 +295,10 @@ class AccAccuracyRunner(AccuracyRunner):
         return tmp_result
 
 
-class AsyncAccuracyRunner(AccuracyRunner):
+class AsyncThroughputRunner(AccuracyRunner):
     name = "async_accuracy"
-
     def __init__(self, env, metric):
-        super(AsyncAccuracyRunner, self).__init__(env, metric)
+        super(AsyncThroughputRunner, self).__init__(env, metric)
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
@@ -445,7 +445,7 @@ class AsyncAccuracyRunner(AccuracyRunner):
     def run_case(self, case_metric, **case_param):
         nq = case_metric.search["nq"]
         vps = case_metric["vps"]
-        search_number = case_param["search_number"]
+        search_number = int(case_param["search_number"])
         start_time = time.time()
         end_time = start_time + 500
         cnt = 0
@@ -455,10 +455,19 @@ class AsyncAccuracyRunner(AccuracyRunner):
             cnt += 1
             start_time = time.time()
 
-        for i in range(int(search_number)):
+        timestamps = []
+        def _mk_callback(order=0):
+            def func():
+                timestamps.append((time.time(), order))
+            return func
+
+        futures = []
+        for i in range(search_number):
             _start_time = time.time()
-            self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True,
-                              guarantee_timestamp=case_param["guarantee_timestamp"], _async=True)
+            future = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"], rps=True,
+                                       guarantee_timestamp=case_param["guarantee_timestamp"], _async=True,
+                                       _callback=_mk_callback(order=i))
+            futures.append(future)
             _end_delta_time = time.time() - _start_time
             delta_time = nq / float(vps)
             delta = delta_time - _end_delta_time
@@ -467,5 +476,6 @@ class AsyncAccuracyRunner(AccuracyRunner):
             else:
                 raise logger.error("Error: The search time(%s) exceeds (nq/vps) %s s" % (str(delta), str(delta_time)))
 
-        tmp_result = []
-        return tmp_result
+        for i in range(search_number):
+            futures[i].done()
+        return timestamps
