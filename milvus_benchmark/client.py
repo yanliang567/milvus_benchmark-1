@@ -311,7 +311,7 @@ class MilvusClient(object):
         params.update({"timeout": timeout})
         if guarantee_timestamp is not None:
             params.update({"guarantee_timestamp": guarantee_timestamp})
-        params.update({"_async": True})
+        params.update({"_async": _async})
         # logger.debug("Params of search : %s" % str(params))
         result = self._milvus.search(tmp_collection_name, **params)
 

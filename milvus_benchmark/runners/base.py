@@ -100,7 +100,7 @@ class BaseRunner(object):
             return False
         i = 0
         info = milvus.get_info(collection_name)
-        logger.debug("collection info : %s" % str(info))
+        # logger.debug("collection info : %s" % str(info))
         if data_type == "local" or not data_type:
             # insert local
             info = milvus.get_info(collection_name)
@@ -138,7 +138,7 @@ class BaseRunner(object):
                         data = np.load(file_name)
                         vectors.extend(data.tolist())
                     if vectors:
-                        logger.debug("vector: %s" % str(vectors))
+                        # logger.debug("vector: %s" % str(vectors))
                         start_id = i * vectors_per_file
                         ni_time = self.insert_core(milvus, info, start_id, vectors)
                         total_time = total_time+ni_time
