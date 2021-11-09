@@ -294,11 +294,11 @@ class AccAccuracyRunner(AccuracyRunner):
         return tmp_result
 
 
-class AsyncThroughputRunner(AccuracyRunner):
+class AsyncAccuracyRunner(AccuracyRunner):
     name = "async_accuracy"
 
     def __init__(self, env, metric):
-        super(AsyncThroughputRunner, self).__init__(env, metric)
+        super(AsyncAccuracyRunner, self).__init__(env, metric)
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
@@ -445,7 +445,8 @@ class AsyncThroughputRunner(AccuracyRunner):
     def run_case(self, case_metric, **case_param):
         nq = case_metric.search["nq"]
         vps = case_metric["vps"]
-        search_number = int(case_param["search_number"])
+        search_number = case_param["search_number"]
+
         start_time = time.time()
         end_time = start_time + 500
         cnt = 0
