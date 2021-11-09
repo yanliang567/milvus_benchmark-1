@@ -1,6 +1,6 @@
 from .insert import InsertRunner, BPInsertRunner
 from .locust import LocustInsertRunner, LocustSearchRunner, LocustRandomRunner
-from .search import SearchRunner, InsertSearchRunner
+from .search import SearchRunner, InsertSearchRunner, AsyncSearchRunner
 from .build import BuildRunner, InsertBuildRunner
 from .get import InsertGetRunner
 from .accuracy import AccuracyRunner
@@ -23,5 +23,6 @@ def get_runner(name, env, metric):
         "accuracy": AccuracyRunner(env, metric),
         "ann_accuracy": AccAccuracyRunner(env, metric),
         "simple_chaos": SimpleChaosRunner(env, metric),
-        "async_accuracy": AsyncThroughputRunner(env, metric)
+        "async_accuracy": AsyncThroughputRunner(env, metric),
+        "async_search_performance": AsyncSearchRunner(env, metric)
     }.get(name)
