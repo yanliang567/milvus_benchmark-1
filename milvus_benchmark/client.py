@@ -114,7 +114,7 @@ class MilvusClient(object):
     # only support the given field name
     @time_wrapper
     def create_collection(self, dimension, data_type=DataType.FLOAT_VECTOR, auto_id=False,
-                          collection_name=None, other_fields=None):
+                          collection_name=None, other_fields=None, shards_num=None):
         self._dimension = dimension
         if not collection_name:
             collection_name = self._collection_name
@@ -138,8 +138,13 @@ class MilvusClient(object):
         create_param = {
             "fields": fields,
             "auto_id": auto_id}
+
+        params = {}
+        if shards_num is not None:
+            params.update({"shards_num": shards_num})
+
         try:
-            self._milvus.create_collection(collection_name, create_param)
+            self._milvus.create_collection(collection_name, create_param, **params)
             logger.info("Create collection: <%s> successfully" % collection_name)
         except Exception as e:
             logger.error(str(e))

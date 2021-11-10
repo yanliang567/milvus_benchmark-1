@@ -22,6 +22,7 @@ class AccuracyRunner(BaseRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
+        shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         vector_type = utils.get_vector_type(data_type)
         index_field_name = utils.get_default_field_name(vector_type)
@@ -30,7 +31,8 @@ class AccuracyRunner(BaseRunner):
             "dimension": dimension,
             "metric_type": metric_type,
             "dataset_name": collection_name,
-            "collection_size": collection_size
+            "collection_size": collection_size,
+            "shards_num": shards_num
         }
         index_info = self.milvus.describe_index(index_field_name, collection_name)
         filters = collection["filters"] if "filters" in collection else []
@@ -80,7 +82,8 @@ class AccuracyRunner(BaseRunner):
                             "vector_type": vector_type,
                             "collection_size": collection_size,
                             "filter_query": filter_query,
-                            "vector_query": vector_query
+                            "vector_query": vector_query,
+                            "shards_num": shards_num
                         }
                         cases.append(case)
                         case_metrics.append(case_metric)
@@ -120,6 +123,7 @@ class AccAccuracyRunner(AccuracyRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
+        shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, dimension, metric_type) = parser.parse_ann_collection_name(collection_name)
         hdf5_source_file = collection["source_file"]
         index_types = collection["index_types"]
@@ -134,7 +138,8 @@ class AccAccuracyRunner(AccuracyRunner):
         collection_info = {
             "dimension": dimension,
             "metric_type": metric_type,
-            "dataset_name": collection_name
+            "dataset_name": collection_name,
+            "shards_num": shards_num
         }
         filters = collection["filters"] if "filters" in collection else []
         filter_query = []
@@ -194,7 +199,8 @@ class AccAccuracyRunner(AccuracyRunner):
                                     "filter_query": filter_query,
                                     "vector_query": vector_query,
                                     "true_ids": true_ids,
-                                    "guarantee_timestamp": guarantee_timestamp
+                                    "guarantee_timestamp": guarantee_timestamp,
+                                    "shards_num": shards_num
                                 }
                                 cases.append(case)
                                 case_metrics.append(case_metric)
@@ -208,13 +214,14 @@ class AccAccuracyRunner(AccuracyRunner):
         index_type = case_param["index_type"]
         index_param = case_param["index_param"]
         index_field_name = case_param["index_field_name"]
+        shards_num = case_param["shards_num"]
 
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection(collection_name):
             logger.info("Re-create collection: %s" % collection_name)
             self.milvus.drop()
         dataset = case_param["dataset"]
-        self.milvus.create_collection(dimension, data_type=vector_type)
+        self.milvus.create_collection(dimension, data_type=vector_type, shards_num=shards_num)
         insert_vectors = utils.normalize(metric_type, np.array(dataset["train"]))
         if len(insert_vectors) != dataset["train"].shape[0]:
             raise Exception("Row count of insert vectors: %d is not equal to dataset size: %d" % (

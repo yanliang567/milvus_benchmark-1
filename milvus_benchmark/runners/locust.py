@@ -83,7 +83,7 @@ class LocustInsertRunner(LocustRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
-
+        shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"] if "build_index" in collection else False
@@ -95,7 +95,8 @@ class LocustInsertRunner(LocustRunner):
             "dataset_name": collection_name,
             "collection_size": collection_size,
             "other_fields": other_fields,
-            "ni_per": ni_per
+            "ni_per": ni_per,
+            "shards_num": shards_num
         }
         index_field_name = None
         index_type = None
@@ -141,6 +142,7 @@ class LocustInsertRunner(LocustRunner):
             "index_param": index_param,
             "task": collection["task"],
             "connection_type": connection_type,
+            "shards_num": shards_num
         }
         case_params.append(case_param)
         return case_params, case_metrics
@@ -152,14 +154,14 @@ class LocustInsertRunner(LocustRunner):
         other_fields = case_param["other_fields"]
         index_field_name = case_param["index_field_name"]
         build_index = case_param["build_index"]
+        shards_num = case_param["shards_num"]
 
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
             self.milvus.drop()
             time.sleep(runner_utils.DELETE_INTERVAL_TIME)
-        self.milvus.create_collection(dimension, data_type=vector_type,
-                                          other_fields=other_fields)
+        self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields, shards_num=shards_num)
         # TODO: update fields in collection_info
         # fields = self.get_fields(self.milvus, collection_name)
         # collection_info = {
@@ -186,6 +188,7 @@ class LocustSearchRunner(LocustRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
+        shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"] if "build_index" in collection else False
@@ -198,7 +201,8 @@ class LocustSearchRunner(LocustRunner):
             "dataset_name": collection_name,
             "collection_size": collection_size,
             "other_fields": other_fields,
-            "ni_per": ni_per
+            "ni_per": ni_per,
+            "shards_num": shards_num
         }
         index_field_name = None
         index_type = None
@@ -251,6 +255,7 @@ class LocustSearchRunner(LocustRunner):
             "index_param": index_param,
             "task": collection["task"],
             "connection_type": connection_type,
+            "shards_num": shards_num
         }
         case_params.append(case_param)
         return case_params, case_metrics
@@ -263,14 +268,14 @@ class LocustSearchRunner(LocustRunner):
         index_field_name = case_param["index_field_name"]
         metric_type = case_param["metric_type"]
         build_index = case_param["build_index"]
+        shards_num = case_param["shards_num"]
 
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
             self.milvus.drop()
             time.sleep(runner_utils.DELETE_INTERVAL_TIME)
-        self.milvus.create_collection(dimension, data_type=vector_type,
-                                          other_fields=other_fields)
+        self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields, shards_num=shards_num)
         # TODO: update fields in collection_info
         # fields = self.get_fields(self.milvus, collection_name)
         # collection_info = {
@@ -322,6 +327,7 @@ class LocustRandomRunner(LocustRunner):
 
     def extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
+        shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]
         build_index = collection["build_index"] if "build_index" in collection else False
@@ -334,7 +340,8 @@ class LocustRandomRunner(LocustRunner):
             "dataset_name": collection_name,
             "collection_size": collection_size,
             "other_fields": other_fields,
-            "ni_per": ni_per
+            "ni_per": ni_per,
+            "shards_num": shards_num
         }
         index_field_name = None
         index_type = None
@@ -380,6 +387,7 @@ class LocustRandomRunner(LocustRunner):
             "index_param": index_param,
             "task": collection["task"],
             "connection_type": connection_type,
+            "shards_num": shards_num
         }
         case_params.append(case_param)
         return case_params, case_metrics
@@ -391,14 +399,14 @@ class LocustRandomRunner(LocustRunner):
         other_fields = case_param["other_fields"]
         index_field_name = case_param["index_field_name"]
         build_index = case_param["build_index"]
+        shards_num = case_param["shards_num"]
 
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
             self.milvus.drop()
             time.sleep(runner_utils.DELETE_INTERVAL_TIME)
-        self.milvus.create_collection(dimension, data_type=vector_type,
-                                          other_fields=other_fields)
+        self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields, shards_num=shards_num)
         # TODO: update fields in collection_info
         # fields = self.get_fields(self.milvus, collection_name)
         # collection_info = {
