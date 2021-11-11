@@ -139,8 +139,10 @@ def update_values(src_values_file, deploy_params_file):
         logging.error(str(e))
         raise Exception("File not found")
     print("[benchmark update] deploy_params: %s" % str(deploy_params))
+
     deploy_mode = utils.get_deploy_mode(deploy_params)
     print("[benchmark update] deploy_mode: %s" % str(deploy_mode))
+
     cluster = False
     values_dict["service"]["type"] = "ClusterIP"
     # milvus: deploy_mode: \"cluster\"
@@ -156,6 +158,7 @@ def update_values(src_values_file, deploy_params_file):
 
     server_tag = utils.get_server_tag(deploy_params)
     print("[benchmark update] server_tag: %s" % str(server_tag))
+
     # TODO: update milvus config
     # # update values.yaml with the given host
     # node_config = None
@@ -304,6 +307,10 @@ def update_values(src_values_file, deploy_params_file):
         'name': 'test',
         'mountPath': '/test'
     }]
+
+    server_resource = utils.get_server_resource(deploy_params)
+    print("[benchmark update] server_resource: %s" % str(server_resource))
+    values_dict = utils.update_dict_value(server_resource, values_dict)
 
     tag = get_latest_tag()
     values_dict["image"]["all"]["tag"] = tag
