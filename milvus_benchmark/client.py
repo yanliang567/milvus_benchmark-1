@@ -156,11 +156,16 @@ class MilvusClient(object):
         self._milvus.create_partition(collection_name, tag)
 
     @time_wrapper
-    def insert(self, entities, collection_name=None, timeout=None):
+    def insert(self, entities, collection_name=None, timeout=None, _async=None):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
+        params = {"timeout": timeout}
+
+        if _async is not None:
+            params.update({"_async": _async})
+
         try:
             # logger.debug("insert entities: %s" % str(entities))
-            insert_res = self._milvus.insert(tmp_collection_name, entities, timeout=timeout)
+            insert_res = self._milvus.insert(tmp_collection_name, entities, **params)
             return insert_res.primary_keys
         except Exception as e:
             logger.error(str(e))

@@ -62,7 +62,8 @@ class Tasks(TaskSet):
         entities = utils.generate_entities(self.op_info["collection_info"],
                                            self.values["X"][:self.params[op]["ni_per"]],
                                            self.values["ids"][:self.params[op]["ni_per"]])
-        self.client.insert(entities, log=False, timeout=300)
+        _async = self.params[op]["_async"] if "_async" in self.params[op] else None
+        self.client.insert(entities, log=False, timeout=300, _async=_async)
 
     @task
     def insert_flush(self):
