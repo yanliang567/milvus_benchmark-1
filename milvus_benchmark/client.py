@@ -160,15 +160,22 @@ class MilvusClient(object):
         tmp_collection_name = self._collection_name if collection_name is None else collection_name
         params = {"timeout": timeout}
 
-        if _async is not None:
+        if _async is not None and _async:
             params.update({"_async": _async})
 
-        try:
-            # logger.debug("insert entities: %s" % str(entities))
-            insert_res = self._milvus.insert(tmp_collection_name, entities, **params)
-            return insert_res.primary_keys
-        except Exception as e:
-            logger.error(str(e))
+            try:
+                # logger.debug("insert entities: %s" % str(entities))
+                insert_res = self._milvus.insert(tmp_collection_name, entities, **params)
+                return insert_res
+            except Exception as e:
+                logger.error(str(e))
+        else:
+            try:
+                # logger.debug("insert entities: %s" % str(entities))
+                insert_res = self._milvus.insert(tmp_collection_name, entities, **params)
+                return insert_res.primary_keys
+            except Exception as e:
+                logger.error(str(e))
 
     @time_wrapper
     def insert_flush(self, entities, _async=False, collection_name=None):
