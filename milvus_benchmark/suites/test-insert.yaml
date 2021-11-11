@@ -1,0 +1,11 @@
+insert_performance:
+  collections:
+    -
+      source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
+      collection_name: sift_1m_128_l2
+      ni_per: 100000
+      build_index: false
+      index_type: ivf_flat 
+      index_param:
+        nlist: 1024
+      run_count: 1

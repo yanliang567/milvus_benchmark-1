@@ -75,7 +75,9 @@ class BaseRunner(object):
         end_id = start_id + len(vectors)
         logger.debug("Start id: %s, end id: %s" % (start_id, end_id))
         ids = [k for k in range(start_id, end_id)]
+        logger.debug("generate ids, end")
         entities = utils.generate_entities(info, vectors, ids)
+        logger.debug("generate entities, end")
         ni_start_time = time.time()
         try:
             _res_ids = milvus.insert(entities)
@@ -98,6 +100,8 @@ class BaseRunner(object):
         if size % vectors_per_file or size % ni:
             logger.error("Not invalid collection size or ni")
             return False
+        logger.debug(f"ni: {ni}")
+        logger.debug(f"vectors_per_file: {vectors_per_file}")
         i = 0
         info = milvus.get_info(collection_name)
         # logger.debug("collection info : %s" % str(info))
@@ -116,33 +120,63 @@ class BaseRunner(object):
                 i += 1
         else:
             # insert from file
-            while i < (size // vectors_per_file):
+            n = size // vectors_per_file
+            logger.debug(f"n: {n}")
+
+            def consumer():
                 vectors = []
-                if vectors_per_file >= ni:
-                    file_name = utils.gen_file_name(i, dimension, data_type)
-                    # logger.info("Load npy file: %s start" % file_name)
-                    data = np.load(file_name)
-                    # logger.info("Load npy file: %s end" % file_name)
-                    for j in range(vectors_per_file // ni):
-                        vectors = data[j * ni:(j + 1) * ni].tolist()
-                        if vectors:
-                            start_id = i * vectors_per_file + j * ni
-                            ni_time = self.insert_core(milvus, info, start_id, vectors)
-                            total_time = total_time+ni_time
-                    i += 1
-                else:
-                    vectors.clear()
-                    loops = ni // vectors_per_file
-                    for j in range(loops):
-                        file_name = utils.gen_file_name(loops * i + j, dimension, data_type)
+                while True:
+                    received = yield vectors
+                    if not received:
+                        return
+                    received_vectors, received_start_id = received
+                    if received_vectors:
+                        logger.debug('[CONSUMER] Consuming len(vectors) %d, start_id: %d...' % (len(received_vectors), received_start_id))
+                        ni_time = self.insert_core(milvus, info, received_start_id, received_vectors)
+                        vectors = ni_time
+
+            def produce(c, i):
+                c.send(None)
+                total_time = 0.0
+                while i < n:
+                    vectors = []
+                    if vectors_per_file >= ni:
+                        file_name = utils.gen_file_name(i, dimension, data_type)
+                        logger.info("Load npy file: %s start" % file_name)
                         data = np.load(file_name)
-                        vectors.extend(data.tolist())
-                    if vectors:
-                        # logger.debug("vector: %s" % str(vectors))
-                        start_id = i * vectors_per_file
-                        ni_time = self.insert_core(milvus, info, start_id, vectors)
-                        total_time = total_time+ni_time
-                    i += loops
+                        logger.info("Load npy file: %s end" % file_name)
+                        loops = vectors_per_file // ni
+                        logger.debug(f"loops: {loops}")
+                        for j in range(loops):
+                            vectors = data[j * ni:(j + 1) * ni].tolist()
+                            if vectors:
+                                start_id = i * vectors_per_file + j * ni
+                                logger.debug('[PRODUCER] Producing len(vectors): %d, start_id: %d...' % (len(vectors), start_id))
+                                r = c.send((vectors, start_id,))
+                                total_time += r
+                                logger.debug('[PRODUCER] Consumer return: %s' % r)
+                        i += 1
+                    else:
+                        vectors.clear()
+                        loops = ni // vectors_per_file
+                        for j in range(loops):
+                            file_name = utils.gen_file_name(loops * i + j, dimension, data_type)
+                            data = np.load(file_name)
+                            vectors.extend(data.tolist())
+                        if vectors:
+                            # logger.debug("vector: %s" % str(vectors))
+                            start_id = i * vectors_per_file
+                            logger.debug(msg, exc_info=..., stack_info=..., extra=...)('[PRODUCER] Producing len(vectors): %d, start_id: %d...' % (len(vectors), start_id))
+                            r = c.send((vectors, start_id,))
+                            total_time += r
+                            logger.debug('[PRODUCER] Consumer return: %s' % r)
+                        i += loops
+                c.close()
+                return total_time
+
+            c = consumer()
+            total_time = produce(c, i)
+
         rps = round(size / total_time, 2)
         ni_time = round(total_time / (size / ni), 2)
         result = {
