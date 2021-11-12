@@ -103,6 +103,22 @@ def get_latest_tag(limit=100):
     return latest_tag
 
 
+def get_image_tag():
+    url = "https://harbor.zilliz.cc/api/v2.0/projects/milvus/repositories/milvus/artifacts?page=1&page_size=1&with_" + \
+          "tag=true&with_label=false&with_scan_overview=false&with_signature=false&with_immutable_status=false"
+    headers = {"accept": "application/json",
+               "X-Accept-Vulnerabilities": "application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0"}
+    try:
+        rep = requests.get(url, headers=headers)
+        data = json.loads(rep.text)
+        tag_name = data[0]["tags"][0]["name"]
+        print("The image name used is %s" % str(tag_name))
+        return tag_name
+    except:
+        print("Can not get the tag list")
+        return "master-latest"
+
+
 def parse_server_tag(server_tag):
     # tag format: "8c"/"8c16m"/"8c16m1g"
     if server_tag[-1] == "c":
@@ -312,7 +328,8 @@ def update_values(src_values_file, deploy_params_file):
     print("[benchmark update] server_resource: %s" % str(server_resource))
     values_dict = utils.update_dict_value(server_resource, values_dict)
 
-    tag = get_latest_tag()
+    # tag = get_latest_tag()
+    tag = get_image_tag()
     values_dict["image"]["all"]["tag"] = tag
 
     print("[benchmark update] value.yaml: %s" % str(values_dict))
