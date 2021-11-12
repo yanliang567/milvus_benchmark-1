@@ -30,7 +30,7 @@ class Tasks(TaskSet):
 
         guarantee_timestamp = self.params[op]["guarantee_timestamp"] if "guarantee_timestamp" in self.params[op] else None
         # logger.debug(filter_query)
-        self.client.query(vector_query, filter_query=filter_query, log=False, timeout=30,
+        self.client.query(vector_query, filter_query=filter_query, log=False, timeout=60,
                           guarantee_timestamp=guarantee_timestamp)
 
     @task
