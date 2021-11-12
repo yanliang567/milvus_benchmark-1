@@ -164,7 +164,7 @@ class MilvusClient(object):
             params.update({"_async": _async})
 
             try:
-                # logger.debug("insert entities: %s" % str(entities))
+                logger.debug("collection %s insert params: %s" % (tmp_collection_name, str(params)))
                 insert_res = self._milvus.insert(tmp_collection_name, entities, **params)
                 return insert_res
             except Exception as e:
