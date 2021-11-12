@@ -161,10 +161,6 @@ def update_values(src_values_file, deploy_params_file):
     server_tag = utils.get_server_tag(deploy_params)
     print("[benchmark update] server_tag: %s" % str(server_tag))
 
-    server_resource = utils.get_server_resource(deploy_params)
-    print("[benchmark update] server_resource: %s" % str(server_resource))
-    values_dict = utils.update_dict_value(server_resource, values_dict)
-
     # TODO: update milvus config
     # # update values.yaml with the given host
     # node_config = None
@@ -316,6 +312,10 @@ def update_values(src_values_file, deploy_params_file):
         'name': 'test',
         'mountPath': '/test'
     }]
+
+    server_resource = utils.get_server_resource(deploy_params)
+    print("[benchmark update] server_resource: %s" % str(server_resource))
+    values_dict = utils.update_dict_value(server_resource, values_dict)
 
     tag = get_latest_tag()
     values_dict["image"]["all"]["tag"] = tag
