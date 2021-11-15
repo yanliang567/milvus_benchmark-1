@@ -81,7 +81,7 @@ class LocustInsertRunner(LocustRunner):
     def __init__(self, env, metric):
         super(LocustInsertRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -186,7 +186,7 @@ class LocustSearchRunner(LocustRunner):
     def __init__(self, env, metric):
         super(LocustSearchRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -270,7 +270,7 @@ class LocustSearchRunner(LocustRunner):
         build_index = case_param["build_index"]
         shards_num = case_param["shards_num"]
 
-        used_suite = case_param["used_suite"]
+        used_suite = case_param.get("used_suite", None)
         seek_to_latest = False
         if used_suite:
             seek_to_latest = used_suite.get("seek_to_latest", False)
@@ -331,7 +331,7 @@ class LocustRandomRunner(LocustRunner):
     def __init__(self, env, metric):
         super(LocustRandomRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -409,7 +409,7 @@ class LocustRandomRunner(LocustRunner):
         build_index = case_param["build_index"]
         shards_num = case_param["shards_num"]
 
-        used_suite = case_param["used_suite"]
+        used_suite = case_param.get("used_suite", None)
         seek_to_latest = False
         if used_suite:
             seek_to_latest = used_suite.get("seek_to_latest", False)

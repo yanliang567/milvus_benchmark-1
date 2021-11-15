@@ -16,7 +16,7 @@ class InsertRunner(BaseRunner):
     def __init__(self, env, metric):
         super(InsertRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -135,7 +135,7 @@ class BPInsertRunner(BaseRunner):
     def __init__(self, env, metric):
         super(BPInsertRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)

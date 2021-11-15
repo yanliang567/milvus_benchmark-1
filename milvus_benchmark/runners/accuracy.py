@@ -91,7 +91,7 @@ class AccuracyRunner(BaseRunner):
         return cases, case_metrics
 
     def prepare(self, **case_param):
-        used_suite = case_param["used_suite"]
+        used_suite = case_param.get("used_suite", None)
         seek_to_latest = False
         if used_suite:
             seek_to_latest = used_suite.get("seek_to_latest", False)
@@ -223,7 +223,7 @@ class AccAccuracyRunner(AccuracyRunner):
         index_field_name = case_param["index_field_name"]
         shards_num = case_param["shards_num"]
 
-        used_suite = case_param["used_suite"]
+        used_suite = case_param.get("used_suite", None)
         seek_to_latest = False
         if used_suite:
             seek_to_latest = used_suite.get("seek_to_latest", False)
@@ -417,7 +417,7 @@ class AsyncThroughputRunner(AccuracyRunner):
         index_param = case_param["index_param"]
         index_field_name = case_param["index_field_name"]
 
-        used_suite = case_param["used_suite"]
+        used_suite = case_param.get("used_suite", None)
         seek_to_latest = False
         if used_suite:
             seek_to_latest = used_suite.get("seek_to_latest", False)

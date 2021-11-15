@@ -59,7 +59,7 @@ class SimpleChaosRunner(BaseRunner):
         elif interface_name == "flush":
             self.milvus.flush()
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         before_steps = collection["before"]
         after = collection["after"] if "after" in collection else None
         processing = collection["processing"]

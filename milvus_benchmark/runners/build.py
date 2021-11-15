@@ -15,7 +15,7 @@ class BuildRunner(BaseRunner):
     def __init__(self, env, metric):
         super(BuildRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
         ni_per = collection["ni_per"]

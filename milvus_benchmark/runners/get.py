@@ -23,7 +23,7 @@ class GetRunner(BaseRunner):
     def __init__(self, env, metric):
         super(GetRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -108,7 +108,7 @@ class InsertGetRunner(GetRunner):
         other_fields = case_param["other_fields"]
         shards_num = case_param["shards_num"]
 
-        used_suite = case_param["used_suite"]
+        used_suite = case_param.get("used_suite", None)
         seek_to_latest = False
         if used_suite:
             seek_to_latest = used_suite.get("seek_to_latest", False)
