@@ -270,6 +270,12 @@ class LocustSearchRunner(LocustRunner):
         build_index = case_param["build_index"]
         shards_num = case_param["shards_num"]
 
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
@@ -306,7 +312,7 @@ class LocustSearchRunner(LocustRunner):
         logger.info(self.milvus.count())
         logger.info("Start load collection")
         load_start_time = time.time() 
-        self.milvus.load_collection()
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})
         # search_param = None
         # for op in case_param["task"]["types"]:
@@ -401,6 +407,12 @@ class LocustRandomRunner(LocustRunner):
         build_index = case_param["build_index"]
         shards_num = case_param["shards_num"]
 
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
@@ -439,5 +451,5 @@ class LocustRandomRunner(LocustRunner):
         logger.info(self.milvus.count())
         logger.info("Start load collection")
         load_start_time = time.time() 
-        self.milvus.load_collection()
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})

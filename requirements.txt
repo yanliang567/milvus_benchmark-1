@@ -4,6 +4,8 @@
 # for local install
 # --extra-index-url https://test.pypi.org/simple/
 # pymilvus==2.0.0rc3.dev8
+# --extra-index-url https://test.pypi.org/simple/
+# pymilvus-perf==2.0.0rc9.dev4
 
 grpcio==1.37.1
 grpcio-testing==1.37.1

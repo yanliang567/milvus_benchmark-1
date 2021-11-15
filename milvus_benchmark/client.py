@@ -495,10 +495,10 @@ class MilvusClient(object):
             self.drop(collection_name=name)
 
     @time_wrapper
-    def load_collection(self, collection_name=None, timeout=3000):
+    def load_collection(self, collection_name=None, timeout=3000, seek_to_latest=False):
         if collection_name is None:
             collection_name = self._collection_name
-        return self._milvus.load_collection(collection_name, timeout=timeout)
+        return self._milvus.load_collection(collection_name, timeout=timeout, seek_to_latest=seek_to_latest)
 
     @time_wrapper
     def release_collection(self, collection_name=None, timeout=3000):

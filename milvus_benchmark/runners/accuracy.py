@@ -4,6 +4,7 @@ import copy
 import logging
 import numpy as np
 import asyncio
+import copy
 
 from milvus_benchmark import parser
 from milvus_benchmark.runners import utils
@@ -20,7 +21,7 @@ class AccuracyRunner(BaseRunner):
     def __init__(self, env, metric):
         super(AccuracyRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, collection_size, dimension, metric_type) = parser.collection_parser(collection_name)
@@ -90,11 +91,17 @@ class AccuracyRunner(BaseRunner):
         return cases, case_metrics
 
     def prepare(self, **case_param):
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         collection_name = case_param["collection_name"]
         self.milvus.set_collection(collection_name)
         if not self.milvus.exists_collection():
             logger.info("collection not exist")
-        self.milvus.load_collection(timeout=600)
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
 
     def run_case(self, case_metric, **case_param):
         collection_size = case_param["collection_size"]
@@ -121,7 +128,7 @@ class AccAccuracyRunner(AccuracyRunner):
     def __init__(self, env, metric):
         super(AccAccuracyRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         shards_num = collection["shards_num"] if "shards_num" in collection else None
         (data_type, dimension, metric_type) = parser.parse_ann_collection_name(collection_name)
@@ -216,6 +223,12 @@ class AccAccuracyRunner(AccuracyRunner):
         index_field_name = case_param["index_field_name"]
         shards_num = case_param["shards_num"]
 
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection(collection_name):
             logger.info("Re-create collection: %s" % collection_name)
@@ -258,7 +271,7 @@ class AccAccuracyRunner(AccuracyRunner):
         logger.info(self.milvus.describe_index(index_field_name))
         logger.info("Start load collection: %s" % collection_name)
         # self.milvus.release_collection()
-        self.milvus.load_collection(timeout=600)
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         logger.info("End load collection: %s" % collection_name)
 
     def run_case(self, case_metric, **case_param):
@@ -307,7 +320,7 @@ class AsyncThroughputRunner(AccuracyRunner):
     def __init__(self, env, metric):
         super(AsyncThroughputRunner, self).__init__(env, metric)
 
-    def extract_cases(self, collection):
+    def _extract_cases(self, collection):
         collection_name = collection["collection_name"] if "collection_name" in collection else None
         (data_type, dimension, metric_type) = parser.parse_ann_collection_name(collection_name)
         hdf5_source_file = collection["source_file"]
@@ -404,6 +417,12 @@ class AsyncThroughputRunner(AccuracyRunner):
         index_param = case_param["index_param"]
         index_field_name = case_param["index_field_name"]
 
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection(collection_name):
             logger.info("Re-create collection: %s" % collection_name)
@@ -446,7 +465,7 @@ class AsyncThroughputRunner(AccuracyRunner):
         logger.info(self.milvus.describe_index(index_field_name))
         logger.info("Start load collection: %s" % collection_name)
         # self.milvus.release_collection()
-        self.milvus.load_collection(timeout=600)
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         logger.info("End load collection: %s" % collection_name)
 
     def run_case(self, case_metric, **case_param):
@@ -489,3 +508,4 @@ class AsyncThroughputRunner(AccuracyRunner):
         for _future in futures:
             _future.done()
         return {"timestamps": timestamps}
+

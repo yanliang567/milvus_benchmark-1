@@ -1,0 +1,13 @@
+ann_accuracy:
+  collections:
+    -
+      source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
+      collection_name: sift_128_euclidean
+      index_types: ['flat']
+      index_params:
+        nlist: [1024]
+      top_ks: [10]
+      nqs: [10]
+      search_params:
+        nprobe: [1]
+      seek_to_latest: true

@@ -83,6 +83,19 @@ def run_suite(run_type, suite, env_mode, env_params, timeout=None):
             cases, case_metrics = runner.extract_cases(suite)
             # TODO: only run when the as_group is equal to True
             logger.info("Prepare to run cases")
+
+            # I noticed that actually `runner.prepare` doesn't depend on cases,
+            # we'd better split the prepared cases and the running cases,
+            # for example:
+            # case_for_prepare = runner.prepare_cases(suite)
+            # runner.prepare(**case_for_prepare)
+            # cases, case_metrics = runner.extract_cases(suite)
+            # runner.run_case() for cases, case_metrics
+            # or just directly:
+            # runner.prepare(**suite)
+            # cases, case_metrics = runner.extract_cases(suite)
+            # runner.run_case() for cases, case_metrics
+
             runner.prepare(**cases[0])
             logger.info("Start run case")
             suite_status = True

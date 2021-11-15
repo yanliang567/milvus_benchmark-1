@@ -28,6 +28,14 @@ class BaseRunner(object):
     def run(self, run_params):
         pass
 
+    def _extract_cases(self, suite):
+        pass
+
+    def extract_cases(self, suite):
+        cases, case_metrics = self._extract_cases(suite)
+        utils.add_suite_to_case(cases, case_metrics, suite)
+        return cases, case_metrics
+
     def stop(self):
         logger.debug("Stop runner...")
         pass
