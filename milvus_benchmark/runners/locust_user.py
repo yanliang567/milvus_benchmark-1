@@ -51,23 +51,29 @@ class StepLoadShape(LoadTestShape):
 class MyUser(User):
     # task_set = None
     # wait_time = between(0.001, 0.002)
-    pass
+    params = {}
+    tasks = {}
 
 
 def locust_executor(host, port, collection_name, connection_type="single", run_params=None):
     m = MilvusClient(host=host, port=port, collection_name=collection_name)
-    MyUser.tasks = {}
+    # MyUser.tasks = {}
     MyUser.op_info = run_params["op_info"]
-    MyUser.params = {}
-    Tasks.tasks = {}
+    # MyUser.params = {}
     tasks = run_params["tasks"]
+
+    logger.debug(Tasks.tasks)
+    logger.debug(type(Tasks.tasks))
+    if not isinstance(Tasks.tasks, dict):
+        Tasks.tasks = {}
     for op, value in tasks.items():
         task = {eval("Tasks." + op): value["weight"]}
-        Tasks.tasks.update(task)
         MyUser.tasks.update(task)
+        Tasks.tasks.update(task)
         MyUser.params[op] = value["params"] if "params" in value else None
     logger.info(MyUser.tasks)
     logger.info(str(MyUser.params))
+
     _nq = nq
     if "insert" in MyUser.params and "ni_per" in MyUser.params["insert"]:
         ni_per = MyUser.params["insert"]["ni_per"]
