@@ -56,48 +56,42 @@ class MyUser(User):
 
 
 def locust_executor(host, port, collection_name, connection_type="single", run_params=None):
+    my_user = MyUser
     m = MilvusClient(host=host, port=port, collection_name=collection_name)
-    # MyUser.tasks = {}
-    MyUser.op_info = run_params["op_info"]
-    # MyUser.params = {}
+    my_user.op_info = run_params["op_info"]
     tasks = run_params["tasks"]
 
-    logger.debug(Tasks.tasks)
-    logger.debug(type(Tasks.tasks))
-    if not isinstance(Tasks.tasks, dict):
-        Tasks.tasks = {}
     for op, value in tasks.items():
         task = {eval("Tasks." + op): value["weight"]}
-        MyUser.tasks.update(task)
-        Tasks.tasks.update(task)
-        MyUser.params[op] = value["params"] if "params" in value else None
-    logger.info(MyUser.tasks)
-    logger.info(str(MyUser.params))
+        my_user.tasks.update(task)
+        my_user.params[op] = value["params"] if "params" in value else None
+    logger.info(my_user.tasks)
+    logger.info(str(my_user.params))
 
     _nq = nq
-    if "insert" in MyUser.params and "ni_per" in MyUser.params["insert"]:
-        ni_per = MyUser.params["insert"]["ni_per"]
+    if "insert" in my_user.params and "ni_per" in my_user.params["insert"]:
+        ni_per = my_user.params["insert"]["ni_per"]
         _nq = ni_per + 10 if ni_per > nq else _nq
 
         logger.debug("[locust_executor] ni_per of insert : %s" % str(_nq))
 
-    MyUser.values = {
+    my_user.values = {
         "ids": [random.randint(1000000, 10000000) for _ in range(nb)],
         "get_ids": [random.randint(1, 10000000) for _ in range(nb)],
-        "X": utils.generate_vectors(_nq, MyUser.op_info["dimension"])
+        "X": utils.generate_vectors(_nq, my_user.op_info["dimension"])
     }
 
     # MyUser.tasks = {Tasks.query: 1, Tasks.flush: 1}
-    MyUser.client = MilvusTask(host=host, port=port, collection_name=collection_name, connection_type=connection_type,
-                               m=m)
+    my_user.client = MilvusTask(host=host, port=port, collection_name=collection_name, connection_type=connection_type,
+                                m=m)
     if "load_shape" in run_params and run_params["load_shape"]:
         test = StepLoadShape() 
         test.init(run_params["step_time"], run_params["step_load"], run_params["spawn_rate"], run_params["during_time"])
-        env = Environment(events=events, user_classes=[MyUser], shape_class=test)
+        env = Environment(events=events, user_classes=[my_user], shape_class=test)
         runner = env.create_local_runner()
         env.runner.start_shape()
     else:
-        env = Environment(events=events, user_classes=[MyUser])
+        env = Environment(events=events, user_classes=[my_user])
         runner = env.create_local_runner()
     # setup logging
     # setup_logging("WARNING", "/dev/null")
