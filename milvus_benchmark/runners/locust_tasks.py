@@ -10,7 +10,7 @@ logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
 # class Tasks(TaskSet):
-class Tasks(User):
+class Tasks:
     # @task
     def query(self):
         op = "query"
