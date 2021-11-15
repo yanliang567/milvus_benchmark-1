@@ -10,7 +10,6 @@ logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
 class Tasks(TaskSet):
-    # tasks = {}
 
     # @task
     def query(self):
@@ -30,7 +29,6 @@ class Tasks(TaskSet):
                 if isinstance(filter, dict) and "term" in filter:
                     filter_query.append(eval(filter["term"]))
         # logger.debug(filter_query)
-        # logger.debug(self.tasks)
         self.client.query(vector_query, filter_query=filter_query, log=False, timeout=60)
 
     # @task
