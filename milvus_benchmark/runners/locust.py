@@ -339,6 +339,7 @@ class LocustRandomRunner(LocustRunner):
         build_index = collection["build_index"] if "build_index" in collection else False
         vector_type = runner_utils.get_vector_type(data_type)
         other_fields = collection["other_fields"] if "other_fields" in collection else None
+        used_suite = collection["used_suite"] if "used_suite" in collection else None
 
         collection_info = {
             "dimension": dimension,
@@ -393,7 +394,8 @@ class LocustRandomRunner(LocustRunner):
             "index_param": index_param,
             "task": collection["task"],
             "connection_type": connection_type,
-            "shards_num": shards_num
+            "shards_num": shards_num,
+            "used_suite": used_suite
         }
         case_params.append(case_param)
         return case_params, case_metrics
