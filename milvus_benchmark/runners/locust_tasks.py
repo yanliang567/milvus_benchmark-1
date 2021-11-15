@@ -3,13 +3,13 @@ import random
 import time
 import logging
 import math
-from locust import TaskSet, task, SequentialTaskSet
+from locust import TaskSet, task, SequentialTaskSet, User
 from . import utils
 
 logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
-class Tasks(TaskSet):
+class Tasks(User):
     @task
     def query(self):
         op = "query"
