@@ -24,5 +24,5 @@ def get_runner(name, env, metric):
         "ann_accuracy": AccAccuracyRunner(env, metric),
         "simple_chaos": SimpleChaosRunner(env, metric),
         "async_accuracy": AsyncThroughputRunner(env, metric),
-        "async_search_performance": AsyncSearchRunner(env, metric)
+        "async_search_performance": AsyncSearchRunner(env, metric),
     }.get(name)

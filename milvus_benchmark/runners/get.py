@@ -108,6 +108,12 @@ class InsertGetRunner(GetRunner):
         other_fields = case_param["other_fields"]
         shards_num = case_param["shards_num"]
 
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
@@ -122,5 +128,5 @@ class InsertGetRunner(GetRunner):
         logger.debug({"collection count": self.milvus.count()})
         logger.debug({"flush_time": flush_time})
         logger.debug("Start load collection")
-        self.milvus.load_collection(timeout=1200)
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         logger.debug("Load collection end")

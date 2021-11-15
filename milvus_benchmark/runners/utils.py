@@ -280,3 +280,9 @@ def get_avg(_list):
 
     data_ = sum_ / len(_list)
     return data_
+
+
+def add_suite_to_case(cases, case_metrics, suite=None):
+    for case in cases:
+        case["used_suite"] = suite
+    return

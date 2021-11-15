@@ -92,6 +92,12 @@ class SearchRunner(BaseRunner):
         return cases, case_metrics
 
     def prepare(self, **case_param):
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         collection_name = case_param["collection_name"]
         self.milvus.set_collection(collection_name)
         if not self.milvus.exists_collection():
@@ -99,7 +105,7 @@ class SearchRunner(BaseRunner):
             return False
         logger.debug(self.milvus.count())
         logger.info("Start load collection")
-        self.milvus.load_collection(timeout=1200)
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         # TODO: enable warm query
         # self.milvus.warm_query(index_field_name, search_params[0], times=2)
 
@@ -234,6 +240,12 @@ class InsertSearchRunner(BaseRunner):
         build_index = case_param["build_index"]
         shards_num = case_param["shards_num"]
 
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
@@ -272,7 +284,7 @@ class InsertSearchRunner(BaseRunner):
         logger.info(self.milvus.count())
         logger.info("Start load collection")
         load_start_time = time.time() 
-        self.milvus.load_collection(timeout=1200)
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})
         
     def run_case(self, case_metric, **case_param):
@@ -416,6 +428,12 @@ class AsyncSearchRunner(BaseRunner):
         build_index = case_param["build_index"]
         shards_num = case_param["shards_num"]
 
+        used_suite = case_param["used_suite"]
+        seek_to_latest = False
+        if used_suite:
+            seek_to_latest = used_suite.get("seek_to_latest", False)
+        logger.info(f"Seek to latest: {seek_to_latest}")
+
         self.milvus.set_collection(collection_name)
         if self.milvus.exists_collection():
             logger.debug("Start drop collection")
@@ -457,7 +475,7 @@ class AsyncSearchRunner(BaseRunner):
         logger.info(self.milvus.count())
         logger.info("Start load collection")
         load_start_time = time.time()
-        self.milvus.load_collection(timeout=1200)
+        self.milvus.load_collection(seek_to_latest=seek_to_latest)
         logger.debug({"load_time": round(time.time() - load_start_time, 2)})
 
     def run_case(self, case_metric, **case_param):
