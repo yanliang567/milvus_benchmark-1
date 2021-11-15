@@ -9,8 +9,8 @@ from . import utils
 logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
-class Tasks(TaskSet):
-# class Tasks:
+# class Tasks(TaskSet):
+class Tasks(User):
     # @task
     def query(self):
         op = "query"
