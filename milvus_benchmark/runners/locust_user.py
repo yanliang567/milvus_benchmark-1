@@ -57,6 +57,8 @@ class MyUser(User):
 
 def locust_executor(host, port, collection_name, connection_type="single", run_params=None):
     my_user = MyUser
+    my_user.params = {}
+    my_user.tasks = {}
     m = MilvusClient(host=host, port=port, collection_name=collection_name)
     my_user.op_info = run_params["op_info"]
     tasks = run_params["tasks"]
