@@ -9,8 +9,9 @@ from . import utils
 logger = logging.getLogger("milvus_benchmark.runners.locust_tasks")
 
 
+# class Tasks(TaskSet):
 class Tasks(User):
-    @task
+    # @task
     def query(self):
         op = "query"
         # X = utils.generate_vectors(self.params[op]["nq"], self.op_info["dimension"])
@@ -30,15 +31,15 @@ class Tasks(User):
         # logger.debug(filter_query)
         self.client.query(vector_query, filter_query=filter_query, log=False, timeout=60)
 
-    @task
+    # @task
     def flush(self):
         self.client.flush(log=False, timeout=30)
 
-    @task
+    # @task
     def load(self):
         self.client.load_collection(timeout=30)
 
-    @task
+    # @task
     def release(self):
         self.client.release_collection()
         self.client.load_collection(timeout=30)
@@ -51,7 +52,7 @@ class Tasks(User):
     # def create_index(self):
     #     self.client.release_index()
 
-    @task
+    # @task
     def insert(self):
         op = 'insert'
         # ids = [random.randint(1000000, 10000000) for _ in range(self.params[op]["ni_per"])]
@@ -61,7 +62,7 @@ class Tasks(User):
                                            self.values["ids"][:self.params[op]["ni_per"]])
         self.client.insert(entities, log=False, timeout=300)
 
-    @task
+    # @task
     def insert_flush(self):
         op = "insert_flush"
         # ids = [random.randint(1000000, 10000000) for _ in range(self.params[op]["ni_per"])]
@@ -70,17 +71,17 @@ class Tasks(User):
         self.client.insert(entities, log=False)
         self.client.flush(log=False)
         
-    @task
+    # @task
     def insert_rand(self):
         self.client.insert_rand(log=False)
 
-    @task
+    # @task
     def get(self):
         op = "get"
         # ids = [random.randint(1, 10000000) for _ in range(self.params[op]["ids_length"])]
         self.client.get(self.values["get_ids"][:self.params[op]["ids_length"]], timeout=300)
 
-    @task
+    # @task
     def scene_test(self):
         op = "scene_test"
         collection_name = op + '_' + str(random.randint(1, 10000)) + '_' + str(random.randint(10001, 999999))
