@@ -62,6 +62,7 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     tasks = run_params["tasks"]
     for op, value in tasks.items():
         task = {eval("Tasks." + op): value["weight"]}
+        Tasks.tasks.update(task)
         MyUser.tasks.update(task)
         MyUser.params[op] = value["params"] if "params" in value else None
     logger.info(MyUser.tasks)
