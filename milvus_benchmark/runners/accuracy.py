@@ -473,6 +473,7 @@ class AsyncThroughputRunner(AccuracyRunner):
 
         futures = []
         delta_time = nq / float(vps)
+        async_loop = asyncio.get_event_loop()
         for i in range(search_number):
             _start_time = time.time()
             future = self.milvus.query(case_param["vector_query"], filter_query=case_param["filter_query"],
@@ -484,8 +485,13 @@ class AsyncThroughputRunner(AccuracyRunner):
             if delta > 0:
                 time.sleep(delta)
             else:
-                raise logger.error("Error: The search time(%s) exceeds (nq/vps) %s s" % (str(_end_delta_time), str(delta_time)))
+                raise logger.error(
+                    "Error: The search time(%s) exceeds (nq/vps) %s s" % (str(_end_delta_time), str(delta_time)))
 
-        for _future in futures:
+        async def done(_future):
             _future.done()
+
+        tasks = [async_loop.create_task(done(future)) for future in futures]
+
+        async_loop.run_until_complete(asyncio.wait(tasks))
         return {"timestamps": timestamps}
