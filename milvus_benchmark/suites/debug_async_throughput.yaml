@@ -1,0 +1,17 @@
+async_accuracy:
+  collections:
+    -
+      source_file: /test/milvus/ann_hdf5/sift-128-euclidean.hdf5
+      collection_name: sift_128_euclidean
+      ni_per: 100000
+      build_index: false
+      index_types: ["ivf_flat"]
+      index_params:
+        nlist: [1024]
+      search_params:
+        nprobe: [10]
+      top_ks: [1]
+      nqs: [10000]
+      vps: 2500
+      search_number: 10
+      run_count: 1
