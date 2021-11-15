@@ -59,6 +59,7 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     MyUser.tasks = {}
     MyUser.op_info = run_params["op_info"]
     MyUser.params = {}
+    Tasks.tasks = {}
     tasks = run_params["tasks"]
     for op, value in tasks.items():
         task = {eval("Tasks." + op): value["weight"]}
