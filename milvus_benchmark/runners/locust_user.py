@@ -95,6 +95,7 @@ def locust_executor(host, port, collection_name, connection_type="single", run_p
     else:
         env = Environment(events=events, user_classes=[my_user])
         runner = env.create_local_runner()
+    logger.debug(runner.user_classes[0].tasks)
     # setup logging
     # setup_logging("WARNING", "/dev/null")
     # greenlet_exception_logger(logger=logger)
