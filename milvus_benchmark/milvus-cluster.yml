@@ -1,7 +1,7 @@
 apiVersion: milvus.io/v1alpha1
 kind: MilvusCluster
 metadata:
-  name: milvus-d37fdf9
+  name: milvus-client20
   namespace: qa-milvus
   labels:
     app: milvus
