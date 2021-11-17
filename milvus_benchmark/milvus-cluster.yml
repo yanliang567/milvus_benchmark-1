@@ -1,7 +1,7 @@
 apiVersion: milvus.io/v1alpha1
 kind: MilvusCluster
 metadata:
-  name: milvus-client20
+  name: milvus-clientX
   namespace: qa-milvus
   labels:
     app: milvus
@@ -12,4 +12,16 @@ spec:
       replicas: 1
     proxy:
       serviceType: LoadBalancer
-  dependencies: {}
+  dependencies:
+    etcd:
+      inCluster:
+        deletionPolicy: Delete
+        pvcDeletion: true
+    pulsar:
+      inCluster:
+        deletionPolicy: Delete
+        pvcDeletion: true
+    storage:
+      inCluster:
+        deletionPolicy: Delete
+        pvcDeletion: true
