@@ -1,0 +1,15 @@
+apiVersion: milvus.io/v1alpha1
+kind: MilvusCluster
+metadata:
+  name: milvus-77b6439
+  namespace: qa-milvus
+  labels:
+    app: milvus
+spec:
+  components:
+    image: "harbor.zilliz.cc/milvus/milvus:master-20211116-897d6b5"
+    dataNode:
+      replicas: 1
+    proxy:
+      serviceType: LoadBalancer
+  dependencies: {}

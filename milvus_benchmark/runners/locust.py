@@ -13,7 +13,7 @@ logger = logging.getLogger("milvus_benchmark.runners.locust")
 
 def parse_search_info(task):
     """
-    task: 
+    task:
         connection_num: 1
         clients_num: 100
         spawn_rate: 2
@@ -229,7 +229,7 @@ class LocustSearchRunner(LocustRunner):
         search_info = parse_search_info(task)
         if search_info:
             search_info = {
-                "nq": search_info["nq"],                            
+                "nq": search_info["nq"],
                 "topk": search_info["top_k"],
                 "search_param": search_info["search_param"]
             }
@@ -305,7 +305,7 @@ class LocustSearchRunner(LocustRunner):
         logger.debug({"flush_time": flush_time, "build_time": build_time})
         logger.info(self.milvus.count())
         logger.info("Start load collection")
-        load_start_time = time.time() 
+        load_start_time = time.time()
         self.milvus.load_collection()
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})
         # search_param = None
@@ -402,11 +402,22 @@ class LocustRandomRunner(LocustRunner):
         shards_num = case_param["shards_num"]
 
         self.milvus.set_collection(collection_name)
+        insert_data = True
         if self.milvus.exists_collection():
-            logger.debug("Start drop collection")
-            self.milvus.drop()
-            time.sleep(runner_utils.DELETE_INTERVAL_TIME)
-        self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields, shards_num=shards_num)
+            logger.debug(f"Collection {collection_name} already exists")
+            size = case_param["collection_size"]
+            entities = self.milvus.count(collection_name=collection_name)
+            logger.debug(f"expect entities: {size}, actual: {entities}")
+            if (size * 1.1) < entities or entities < (size * 0.9):
+                self.milvus.drop()
+                time.sleep(runner_utils.DELETE_INTERVAL_TIME)
+                self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields,
+                                              shards_num=shards_num)
+            else:
+                insert_data = False
+                logger.debug(f"existing collection and data are good, not insert again")
+        else:
+            self.milvus.create_collection(dimension, data_type=vector_type, other_fields=other_fields, shards_num=shards_num)
         # TODO: update fields in collection_info
         # fields = self.get_fields(self.milvus, collection_name)
         # collection_info = {
@@ -422,7 +433,8 @@ class LocustRandomRunner(LocustRunner):
             else:
                 build_index = False
                 logger.warning("Please specify the index_type")
-        self.insert(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
+        if insert_data is True:
+            self.insert(self.milvus, collection_name, case_param["data_type"], dimension, case_param["collection_size"], case_param["ni_per"])
         build_time = 0.0
         start_time = time.time()
         logger.debug("Start flush.")
@@ -438,6 +450,7 @@ class LocustRandomRunner(LocustRunner):
         logger.debug({"flush_time": flush_time, "build_time": build_time})
         logger.info(self.milvus.count())
         logger.info("Start load collection")
-        load_start_time = time.time() 
+        load_start_time = time.time()
         self.milvus.load_collection()
         logger.debug({"load_time": round(time.time()-load_start_time, 2)})
+
