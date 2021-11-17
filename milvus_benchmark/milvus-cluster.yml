@@ -1,13 +1,13 @@
 apiVersion: milvus.io/v1alpha1
 kind: MilvusCluster
 metadata:
-  name: milvus-77b6439
+  name: milvus-d37fdf9
   namespace: qa-milvus
   labels:
     app: milvus
 spec:
   components:
-    image: "harbor.zilliz.cc/milvus/milvus:master-20211116-897d6b5"
+    image: "harbor.zilliz.cc/milvus/milvus:master-20211117-d37fdf9"
     dataNode:
       replicas: 1
     proxy:
