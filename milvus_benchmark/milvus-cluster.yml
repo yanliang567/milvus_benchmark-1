@@ -7,7 +7,7 @@ metadata:
     app: milvus
 spec:
   components:
-    image: "harbor.zilliz.cc/milvus/milvus:master-20211117-d37fdf9"
+    image: "harbor.zilliz.cc/milvus/milvus:master-20211117-55d1623"
     dataNode:
       replicas: 1
     proxy:
